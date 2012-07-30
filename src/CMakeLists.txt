@@ -137,12 +137,6 @@ endif()
 add_executable(${PROJECT_NAME} ${HDRS} ${SRCS})
 
 set(PROJ_COMPILE_FLAGS "-DSFML_STATIC")
-if (UNIX)
-    set(PROJ_COMPILE_FLAGS "${PROJ_COMPILE_FLAGS} -Wl,-rpath=$ORIGIN/.." )
-endif()
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${PROJ_COMPILE_FLAGS})
-
-
 
 # Precompiled headers on linux
 if (UNIX)
@@ -153,10 +147,10 @@ add_definitions(${CMAKE_CXX_FLAGS} "-Winvalid-pch -Wno-shadow -Wno-unused-parame
 add_custom_command(TARGET ${PROJECT_NAME}
 	PRE_BUILD
     
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/create_precompiled_header.rb "${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h.gch" "\"${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/include -c -O2 -g -x c++-header ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h -o ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h.gch\""
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/create_precompiled_header.rb "${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h.gch" "\"${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} -DSFML_STATIC -I${CMAKE_CURRENT_SOURCE_DIR}/include -c -O2 -g -x c++-header ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h -o ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h.gch\""
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-include ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h")
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${PROJ_COMPILE_FLAGS} -include ${CMAKE_CURRENT_SOURCE_DIR}/stdafx.h")
 endif()
 
 if (WIN32)
@@ -164,7 +158,7 @@ if (WIN32)
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-win32/lib/berkelium.lib)
 endif()
 if (UNIX)
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-lGLU")
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-lGLU -Wl,-rpath=./")
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-linux${BITNESS}/lib/liblibberkelium.so)
 endif()
 
@@ -256,6 +250,6 @@ if(UNIX)
 
     set(CHMOD_COMMAND_LA "chmod +x ${PROJECT_BINARY_DIR}/dist/Launcher.sh")
     install(CODE "execute_process( COMMAND ${CHMOD_COMMAND_LA} )")
-  
+	  
 endif(UNIX)
  
