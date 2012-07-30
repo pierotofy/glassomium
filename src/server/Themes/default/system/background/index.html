@@ -1,0 +1,52 @@
+<!-- This application belongs to http://mrdoob.com/115/Water -->
+
+<!doctype html> 
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Background</title>
+        <style type="text/css">
+        html{
+            overflow: hidden;
+        }
+        body{
+            margin:0;
+            padding:0;
+        }
+        img{
+
+        }
+        </style>
+        <script src="/resources/jquery-1.6.3.min.js"></script>
+<script>
+    $(document).ready(function(){
+        adjust();
+    });
+    $(window).resize(function(){
+        adjust();
+    });
+
+    $(window).mousemove(function(event){
+        event.preventDefault();
+    });
+
+    $(window).mousedown(function(event){
+        event.preventDefault();
+    });
+
+    function adjust(){
+        var img = $("#background");
+        img.css('width', window.innerWidth + 'px');
+        img.css('height', window.innerWidth / 1.333333333333333 + 'px')
+
+        if (img.height() < window.innerHeight){
+             img.css('height', window.innerHeight + 'px');
+             img.css('width', window.innerHeight * 1.333333333333333 + 'px');
+        }    
+    }
+</script>
+    </head>
+    <body>
+        <img id="background" src="/resources/system/background/Clouds.jpg" />
+    </body>
+</html>

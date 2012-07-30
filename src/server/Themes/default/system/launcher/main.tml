@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+
+<title>launcher</title>
+
+<script type="application/javascript" src="/resources/system/launcher/iscroll.js"></script>
+<script type="application/javascript" src="/resources/jquery-1.6.3.min.js"></script>
+<script type="application/javascript" src="/resources/system/launcher/jquery.pulse.js"></script>
+
+<script type="text/javascript">
+
+// document.addEventListener('touchmove', function (e) { 
+// 		e.preventDefault();
+// 	}, false);
+
+var app_count = 0;
+function add_app(url, icon, js){
+   js = typeof js !== 'undefined' ? js : false;
+
+   if (!js){
+   	$('#applist li').append('<a target="_blank" class="appbutton" href="' + url + '"><img src="' + icon + '" /></a>');
+   }else{
+   	// Do not use the target attribute if the url is a javascript code
+   	$('#applist li').append('<a class="appbutton" href="' + url + '"><img src="' + icon + '" /></a>');
+   }
+
+   app_count++;
+}
+
+var mouse_down = false;
+var mouse_start_location_y = 0;
+var scrolled = false;
+
+$(document).mousemove(function(event) {
+	  if (mouse_down && !scrolled){
+	  	var THRESHOLD = 0.2; // to be considered a scroll
+	  	if (Math.abs(event.pageY - mouse_start_location_y) > THRESHOLD){
+	  		scrolled = true;
+	  	}
+	  }
+	  set_hide_menu_timer();
+ });
+
+$(document).mousedown(function(event) {
+  	mouse_down = true;
+  	scrolled = false;
+  	mouse_start_location_y = event.pageY;
+  	set_hide_menu_timer();
+ });
+
+$(document).mouseup(function(event) {
+  	mouse_down = false;
+  	set_hide_menu_timer();
+ });
+
+var myScroll;
+var height = 0; // icons height
+$(document).ready(function() {
+	/* Add applications here */
+
+	{ITEM_LIST}
+	add_app("javascript:GLA.OpenNewWebBrowserWindow('http://mrdoob.com/lab/javascript/webgl/clouds/');", "/resources/system/launcher/browser-icon-512x512.png", true);
+	/*
+	add_app("#", "/Test/icon1.png");
+	add_app("#", "/Test/icon2.png");
+	add_app("#", "/Test/icon3.png");
+	add_app("#", "/Test/icon4.png");
+	add_app("#", "/Test/icon5.png");
+	add_app("#", "/Test/icon1.png");
+	add_app("#", "/Test/icon2.png");
+	add_app("#", "/Test/icon3.png");
+	add_app("#", "/Test/icon4.png");
+	add_app("#", "/Test/icon5.png");
+	add_app("#", "/Test/icon1.png");
+	add_app("#", "/Test/icon2.png");
+	add_app("#", "/Test/icon3.png");
+	add_app("#", "/Test/icon4.png");
+	add_app("#", "/Test/icon5.png");
+	add_app("#", "/Test/icon1.png");
+	add_app("#", "/Test/icon2.png");
+	add_app("#", "/Test/icon3.png");
+	add_app("#", "/Test/icon4.png");
+	add_app("#", "/Test/icon5.png");
+	add_app("#", "/Test/icon1.png");
+	add_app("#", "/Test/icon2.png");
+	add_app("#", "/Test/icon3.png");
+	add_app("#", "/Test/icon4.png");
+	add_app("#", "/Test/icon5.png");
+*/
+
+	/* Resize code here */
+
+	var document_width = $(document).width();
+	var document_height = $(document).height();
+
+	/* Set application icons size proportional to the window size */
+	$('#applist li img').css('height', document_height);
+	$('#applist li img').css('width', document_height);
+	$('#applist li img').css('margin-left', document_height / 4);
+	$('#applist li img').css('margin-right', document_height / 4);	
+	
+	$('#arrow img').css('width', document_height / 1.666);
+	$('#arrow img').css('height', document_height / 1.666);
+
+
+	var margin_left = parseInt($('#applist li img').css('margin-left').replace(/px/, ""));
+	var margin_right = parseInt($('#applist li img').css('margin-right').replace(/px/, ""));
+	var width = parseInt($('#applist li img').css('width').replace(/px/, ""));
+	height = parseInt($('#applist li img').css('height').replace(/px/, ""));
+
+	var total_width = (margin_left + margin_right) * app_count + width * app_count;
+
+	// Need margin to center the menu?
+	if (total_width < document_width){
+		var margin = (document_width - total_width) / 2;
+		$('#scroller').css('padding-left', margin + "px");
+	}
+
+	$('#scroller ul li ul li').css('width', width + "px");
+
+	$('#scroller').css('width', total_width + "px");
+	$('#scroller').css('height', height + "px");
+
+	$('#arrow').css('height', height + "px");
+	var arrow_img_height = parseInt($('#arrow img').css('height').replace(/px/, ""));
+	$('#arrow img').css('padding-top', (height/2 - arrow_img_height/2) + "px");
+
+	/* Click handlers code here */
+	$('.appbutton').click(function() {
+	  if (scrolled || mouse_down) return false; // Avoid accidental clicks if the user scrolled
+
+	  $(this).children().pulse({opacity : 0.3}, 700, 3);
+	});
+
+	$('#arrow img').click(function() {
+		// Hidden
+	  	$('#arrow').hide();
+	  	$('#scroller').css('margin-top', height + "px");
+	  	$('#wrapper').show();
+		$('#scroller').animate({
+		   'margin-top': '-=' + height
+		 }, 600, function() {});
+
+		set_hide_menu_timer();	
+
+	});
+
+	$('#wrapper').click(function(){
+		set_hide_menu_timer();
+	});
+
+	setInterval("pulse_arrow();", 5000);
+	
+	hide_menu();
+
+	myScroll = new iScroll('wrapper', {	
+		snap: false,
+		momentum: true,
+		hScrollbar: false,
+		vScrollbar: false,
+		vScroll: false
+	});
+});
+
+var hide_menu_timer = null;
+function set_hide_menu_timer(){
+	if (hide_menu_timer != null) clearTimeout(hide_menu_timer);
+
+	hide_menu_timer = setTimeout("hide_menu("+height+")", 5000);
+}
+
+// @param height = height of the scroller
+function hide_menu(height){
+	$('#scroller').animate({
+	   'margin-top': '+=' + height
+	 }, 600, function() {
+		  	$('#wrapper').hide();
+		  	$('#arrow').show();
+	 });
+}
+
+function hide_me(){
+	$('#arrow').hide();
+}
+
+function pulse_arrow(){
+$('#arrow img').pulse({'margin-top' : '+=' + ($(document).height() / 30)}, 400, 1);
+}
+</script>
+
+<style type="text/css" media="all">
+#applist li img{
+	border: 0;
+/*	width: 80px;
+	height: 80px;*/
+/*	margin-left: 20px;*/
+	-right: 20px;
+/*	-webkit-box-reflect: below 0
+	-webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.75, transparent), to(white)); 
+*/
+}
+
+body,ul,li {
+	padding:0;
+	margin:0;
+}
+
+body {
+	font-size:12px;
+	-webkit-user-select:none;
+    -webkit-text-size-adjust:none;
+	background-color: transparent;
+/*	-webkit-box-sizing:border-box;*/
+	font-family:helvetica;
+/*	padding-bottom:45px;	/*	This prevents the scroller to lock if the user swipes down outside of the screen.
+							 	NOT needed if in home screen mode. */
+}
+
+#wrapper {
+	position:absolute; z-index:1;
+	top:0; bottom:0; left:0;
+	width:100%;
+	background:transparent;
+	overflow:auto;
+}
+
+#scroller {
+/*	width: 2000px;
+	height:80px;*/
+	float:left;
+	padding:0;
+	text-align:center;
+}
+
+#scroller ul {
+	list-style:none;
+	display:block;
+	float:left;
+	width:100%;
+	height:100%;
+	padding:0;
+	margin:0;
+	text-align:center;
+}
+
+#scroller li {
+	display:block;
+	vertical-align:middle;
+	float:left;
+	padding:0 0;
+	width: 100%;
+	height:100%;
+	background-color:transparent;
+	font-size:14px;
+}
+
+#scroller ul li ul li{
+	display: block;
+	float: none;
+	vertical-align:middle;
+	height:100%;
+/*	width: 80px;*/
+}
+
+#arrow{
+	text-align:center;
+	display: block;
+	display: none;
+
+/*	height: 80px;*/
+}
+
+#arrow img{
+	width: 48px;
+	height: 48px;
+}
+</style>
+</head>
+<body>
+
+<div id="arrow">
+	<img src="/resources/system/launcher/arrow.png" />
+</div>
+<div id="wrapper">
+	<div id="scroller">
+		<ul id="applist">
+			<li>
+			</li>
+		</ul>
+	</div>
+</div>
+
+</body>
+</html>

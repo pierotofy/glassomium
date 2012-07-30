@@ -1,0 +1,595 @@
+<!-- Based on the work of Justin Ribeiro and affiliated http://blog.stickmanventures.com/2011/10/22/onscreen-keyboard-implemented-in-html5-canvas-with-multitouch-support-via-touch-events-api-and-magictouch-js/ -->
+<!DOCTYPE html>
+<html lang=en>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=UTF-8">
+<style type="text/css">
+body{margin:0px;padding:0;overflow:hidden; background: transparent;}
+
+#canvas{
+    margin:0;
+}
+#container{
+    border-radius: 12px;
+    background: white;
+    margin:0;
+    padding:0;
+}
+</style>
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  event.preventDefault();
+  GLA.SetTuioEnabled(true);
+}
+</script>
+</head>
+<body>
+<div id="container">
+    <canvas id=canvas width=960 height=360></canvas>
+</div>
+<script type="text/javascript">var tuio = {
+    cursors: [],
+    _data: {},
+    _touchstart: function (touch) {
+        this._create_event('tuiotouchstart', touch, {});
+    },
+    _touchmove: function (touch) {
+        this._create_event('tuiotouchmove', touch, {});
+    },
+    _touchend: function (touch) {
+        this._create_event('tuiotouchend', touch, {});
+    },
+    _create_event: function (name, touch, attrs) {
+        var evt = document.createEvent('CustomEvent');
+        evt.initEvent(name, true, true);
+        evt.touches = this.cursors;
+        evt.targetTouches = this._get_target_touches(touch.target);
+        evt.changedTouches = [touch];
+        for (var attr in attrs) {
+            if (attrs.hasOwnProperty(attr)) {
+                evt[attr] = attrs[attr];
+            }
+        }
+
+        if (touch.target) {
+            touch.target.dispatchEvent(evt);
+        } else {
+            document.dispatchEvent(evt);
+        }
+    },
+    _get_target_touches: function (element) {
+        var targetTouches = [];
+        for (var i = 0; i < this.cursors.length; i++) {
+            var touch = this.cursors[i];
+            if (touch.target == element) {
+                targetTouches.push(touch);
+            }
+        }
+        return targetTouches;
+    },
+    callback: function (type, sid, fid, x, y, angle) {
+        var data;
+        if (type !== 3) {
+            data = this._data[sid];
+        } else {
+            data = {
+                sid: sid,
+                fid: fid
+            };
+            this._data[sid] = data;
+        }
+        data.identifier = sid;
+        data.pageX = x;
+        data.pageY = y;
+        data.target = document.getElementById('canvas');
+        switch (type) {
+        case 3:
+            this.cursors.push(data);
+            this._touchstart(data);
+            break;
+        case 4:
+            this._touchmove(data);
+            break;
+        case 5:
+            this.cursors.splice(this.cursors.indexOf(data), 1);
+            this._touchend(data);
+            break;
+        default:
+            break;
+        }
+        if (type === 5) {
+            delete this._data[sid];
+        }
+    }
+};
+
+document.addEventListener('touchstart', onDocumentTouchStart, false);
+document.addEventListener('touchmove', onDocumentTouchMove, false);
+document.addEventListener('touchend', onDocumentTouchEnd, false);   
+
+function onDocumentTouchStart(event) {    
+    event.preventDefault();
+    
+    for (var i = 0; i < event.touches.length; i++) {
+        tuio.callback(3, event.touches[i].identifier, event.touches[i].identifier, event.touches[i].pageX * 960/nw, event.touches[i].pageY * 360/nh, 0);
+    }    
+}
+
+function onDocumentTouchMove(event) {
+    event.preventDefault();
+   
+    for (var i = 0; i < event.touches.length; i++) {
+        tuio.callback(4, event.touches[i].identifier, event.touches[i].identifier, event.touches[i].pageX * 960/nw, event.touches[i].pageY * 360/nh, 0);
+    }   
+}
+
+function onDocumentTouchEnd(event) {
+
+    event.preventDefault();
+    
+    for (var i = 0; i < event.changedTouches.length; i++) {
+        tuio.callback(5, event.changedTouches[i].identifier, event.changedTouches[i].identifier, event.changedTouches[i].pageX * 960/nw, event.changedTouches[i].pageY * 360/nh, 0);
+    }   
+    
+}
+
+</script>
+<script type="text/javascript">
+window.onload = function () {
+    loadUp();
+};
+var nw = window.innerWidth - 8;
+var nh = window.innerHeight - 8;
+
+var canvas;
+var canvasReady = false;
+var ctx;
+var w = 0;
+var h = 0;
+const framerate = 25;
+var timer;
+var touches = [];
+var keys = [];
+var keyInUse = [];
+var keyboardReady = false;
+var keyWidth = 50;
+var keyHeight = 62;
+var keyOffset = 10;
+var rowOffset = 10;
+var keyColorFill = "#cccccc";
+var keyStrokeFill = "#222222";
+var shiftToggle = false;
+var capsToggle = false;
+var startDrawX = 1;
+var startDrawY = 6;
+var myKeyboard = {
+    "rows": [{
+        "keys": [{
+            "startKey": "`",
+            "shiftKey": "~"
+        }, {
+            "startKey": "1",
+            "shiftKey": "!"
+        }, {
+            "startKey": "2",
+            "shiftKey": "@"
+        }, {
+            "startKey": "3",
+            "shiftKey": "#"
+        }, {
+            "startKey": "4",
+            "shiftKey": "$"
+        }, {
+            "startKey": "5",
+            "shiftKey": "%"
+        }, {
+            "startKey": "6",
+            "shiftKey": "^"
+        }, {
+            "startKey": "7",
+            "shiftKey": "&"
+        }, {
+            "startKey": "8",
+            "shiftKey": "*"
+        }, {
+            "startKey": "9",
+            "shiftKey": "("
+        }, {
+            "startKey": "0",
+            "shiftKey": ")"
+        }, {
+            "startKey": "-",
+            "shiftKey": "_"
+        }, {
+            "startKey": "=",
+            "shiftKey": "+"
+        }, {
+            "startKey": "",
+            "shiftKey": "DELETE",
+            "type": 1,
+            "w": 168
+        }]
+    }, {
+        "keys": [{
+            "startKey": "",
+            "shiftKey": "TAB",
+            "type": 2,
+            "w": 110
+        }, {
+            "startKey": "q",
+            "shiftKey": "Q"
+        }, {
+            "startKey": "w",
+            "shiftKey": "W"
+        }, {
+            "startKey": "e",
+            "shiftKey": "E"
+        }, {
+            "startKey": "r",
+            "shiftKey": "R"
+        }, {
+            "startKey": "t",
+            "shiftKey": "T"
+        }, {
+            "startKey": "y",
+            "shiftKey": "Y"
+        }, {
+            "startKey": "u",
+            "shiftKey": "U"
+        }, {
+            "startKey": "i",
+            "shiftKey": "I"
+        }, {
+            "startKey": "o",
+            "shiftKey": "O"
+        }, {
+            "startKey": "p",
+            "shiftKey": "P"
+        }, {
+            "startKey": "[",
+            "shiftKey": "{"
+        }, {
+            "startKey": "]",
+            "shiftKey": "}"
+        }, {
+            "startKey": "\\",
+            "shiftKey": "|",
+            "w": 108
+        }]
+    }, {
+        "keys": [{
+            "startKey": "",
+            "shiftKey": "CAPS",
+            "type": 3,
+            "w": 90
+        }, {
+            "startKey": "a",
+            "shiftKey": "A"
+        }, {
+            "startKey": "s",
+            "shiftKey": "S"
+        }, {
+            "startKey": "d",
+            "shiftKey": "D"
+        }, {
+            "startKey": "f",
+            "shiftKey": "F"
+        }, {
+            "startKey": "g",
+            "shiftKey": "G"
+        }, {
+            "startKey": "h",
+            "shiftKey": "H"
+        }, {
+            "startKey": "j",
+            "shiftKey": "J"
+        }, {
+            "startKey": "k",
+            "shiftKey": "K"
+        }, {
+            "startKey": "l",
+            "shiftKey": "L"
+        }, {
+            "startKey": ";",
+            "shiftKey": ":"
+        }, {
+            "startKey": "'",
+            "shiftKey": "\""
+        }, {
+            "startKey": "",
+            "shiftKey": "ENTER",
+            "type": 4,
+            "w": 188
+        }]
+    }, {
+        "keys": [{
+            "startKey": "",
+            "shiftKey": "SHIFT",
+            "type": 5,
+            "w": 160
+        }, {
+            "startKey": "z",
+            "shiftKey": "Z"
+        }, {
+            "startKey": "x",
+            "shiftKey": "X"
+        }, {
+            "startKey": "c",
+            "shiftKey": "C"
+        }, {
+            "startKey": "v",
+            "shiftKey": "V"
+        }, {
+            "startKey": "b",
+            "shiftKey": "B"
+        }, {
+            "startKey": "n",
+            "shiftKey": "N"
+        }, {
+            "startKey": "m",
+            "shiftKey": "M"
+        }, {
+            "startKey": ",",
+            "shiftKey": "<"
+        }, {
+            "startKey": ".",
+            "shiftKey": ">"
+        }, {
+            "startKey": "/",
+            "shiftKey": "?"
+        }, {
+            "startKey": "",
+            "shiftKey": "SHIFT",
+            "type": 5,
+            "w": 178
+        }]
+    }, {
+        "keys": [{
+            "startKey": "",
+            "shiftKey": "SPACE",
+            "type": 6,
+            "w": 948
+        }]
+    }]
+};
+
+function Key() {
+    this.x;
+    this.y;
+    this.w;
+    this.h;
+    this.key;
+    this.shift;
+    this.type;
+    this.colorfill = null;
+}
+
+function addKey(x, y, w, h, key) {
+    var keyMe = new Key;
+    keyMe.x = x;
+    keyMe.y = y;
+    keyMe.w = w;
+    keyMe.h = h;
+    keyMe.key = key.startKey;
+    keyMe.shift = key.shiftKey;
+    keyMe.type = key.type;
+    keys.push(keyMe);
+}
+
+function drawKey(context, key) {
+    if (key.colorfill != null) {
+        context.fillStyle = key.colorfill;
+    } else {
+        context.fillStyle = keyColorFill;
+    }
+
+    context.fillRectR(key.x, key.y, key.w, key.h);
+    keyThisYo = key.key;
+    if (key.key.toLowerCase() != key.shift.toLowerCase()) {
+        context.font = "14px Arial"
+        context.fillStyle = "#000000";
+        context.fillText(key.shift, key.x + 10, key.y + 20);
+    } else {
+        if (shiftToggle == true || capsToggle == true) {
+            keyThisYo = key.shift;
+        }
+    }
+    context.font = "17px Arial"
+    context.fillStyle = "#000000";
+    context.fillText(keyThisYo, key.x + 20, key.y + 35);
+}
+
+function triggerKey(context, key, flag) {
+    context.strokeStyle = keyStrokeFill;
+    context.strokeRectR(key.x+1, key.y+1, key.w-2, key.h-2);
+    if (flag == 0 && !(key.key in keyInUse)) {
+        keyInUse[key.key] = null;
+        if (key.type == 1) {
+            GLA.KeyboardOnKeyPressed("\b");
+        } else if (key.type == 3) {
+            if (capsToggle == true) {
+                capsToggle = false;
+                context.fillStyle = keyColorFill;
+                context.fillRectR(key.x, key.y, key.w, key.h);
+                key.colorfill = keyColorFill;
+            } else {
+                capsToggle = true;
+                context.fillStyle = "#B1F2AB";
+                key.colorfill = "#B1F2AB";
+                context.fillRectR(key.x, key.y, key.w, key.h);
+                context.font = "16px Arial"
+                context.fillStyle = "#000000";
+                context.fillText(key.key, key.x + 30, key.y + 35);
+            }
+        } else if (key.type == 5) {
+            key.colorfill = "#B1F2AB";
+            context.fillStyle = key.colorfill;
+            context.fillRectR(key.x, key.y, key.w, key.h);
+            context.font = "16px Arial"
+            context.fillStyle = "#000000";
+            context.fillText(key.key, key.x + 30, key.y + 35);
+            shiftToggle = true;
+            keyboardReady = false;
+        } else {
+            if (shiftToggle == true || capsToggle == true) {
+                keyPlacement = key.shift;
+            } else {
+                keyPlacement = key.key;
+            }
+            if (key.type == 4) {
+                keyPlacement = "\n";
+            }
+            if (key.type == 6) {
+                keyPlacement = " ";
+            }
+
+            GLA.KeyboardOnKeyPressed(keyPlacement);
+        }
+
+
+    }
+    if (flag == 1 && (key.key in keyInUse)) {
+        if (key.type == 5) {
+            shiftToggle = false;
+            key.colorfill = "#cccccc";
+            context.fillStyle = key.colorfill;
+            context.fillRectR(key.x, key.y, key.w, key.h);
+            context.font = "16px Arial"
+            context.fillStyle = "#000000";
+            context.fillText(key.key, key.x + 30, key.y + 35);
+        }
+        delete keyInUse[key.key];
+    }
+}
+
+function drawKeyboard() {
+    var l = keys.length;
+
+    for (var i = 0; i < l; i++) {
+        drawKey(ctx, keys[i]);
+    }
+}
+
+function iskeyTouched(pX, pY, flag) {
+    var l = keys.length;
+    for (var i = 0; i < l; i++) {
+        if ((pY >= keys[i].y) && (pY <= keys[i].y + keys[i].h) && (pX >= keys[i].x) && (pX <= keys[i].x + keys[i].w)) {
+            triggerKey(ctx, keys[i], flag);
+        }
+    }
+}
+
+function draw() {
+    if (canvasReady == false) {
+        if ((w != nw) || (h != nh)) {
+            canvas.style.width = nw + 'px';
+            canvas.style.height = nh + 'px';
+            w = nw;
+            h = nh;
+        }
+        canvasReady = true;
+    }
+    if (keyboardReady == false) {
+        ctx.clearRect(0, 0, w, h);
+        drawKeyboard();
+        keyboardReady = true;
+    }
+    var i, len = touches.length;
+    for (i = 0; i < len; i++) {
+        var touch = touches[i];
+        var pX = touch.pageX;
+        var pY = touch.pageY;
+        iskeyTouched(pX, pY, 0);
+    }
+}
+
+function loadUp() {
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    canvas.onselectstart = function () {
+        return false;
+    }
+    var j, rl = myKeyboard.rows.length;
+    for (j = 0; j < rl; j++) {
+        var h, kl = myKeyboard.rows[j].keys.length;
+        var prevkeyWidth = 0;
+        for (h = 0; h < kl; h++) {
+            if (typeof myKeyboard.rows[j].keys[h].w === "undefined") {
+                tmpkeyWidth = keyWidth;
+            } else {
+                tmpkeyWidth = myKeyboard.rows[j].keys[h].w;
+            }
+            myY = ((rowOffset + keyHeight) * j) + startDrawY;
+            if (h == 0) {
+                myX = keyOffset + prevkeyWidth + startDrawX;
+            } else {
+                myX = keyOffset + prevkeyWidth;
+            }
+            prevkeyWidth = myX + tmpkeyWidth;
+            addKey(myX, myY, tmpkeyWidth, keyHeight, myKeyboard.rows[j].keys[h])
+        }
+    }
+    (function animloop() {
+        requestAnimFrame(animloop);
+        draw();
+    })();
+    canvas.addEventListener('tuiotouchend', function (event) {
+        var k, lt = event.changedTouches.length;
+        for (k = 0; k < lt; k++) {
+            var pX = event.changedTouches[k].pageX;
+            var pY = event.changedTouches[k].pageY;
+            iskeyTouched(pX, pY, 1);
+        }
+        keyboardReady = false;
+    });
+    canvas.addEventListener('tuiotouchmove', function (event) {
+        event.preventDefault();
+        touches = event.touches;
+    });
+    canvas.addEventListener('tuiotouchstart', function (event) {});
+};
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+    function (callback, element) {
+        window.setTimeout(callback, 1000 / framerate);
+    };
+})();
+Object.getPrototypeOf(document.createElement('canvas').getContext('2d')).fillRectR = function (x, y, w, h, r) {
+    if (typeof r === "undefined") {
+        r = 5;
+    }
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+    this.closePath();
+    this.fill();
+};
+Object.getPrototypeOf(document.createElement('canvas').getContext('2d')).strokeRectR = function (x, y, w, h, r) {
+    if (typeof r === "undefined") {
+        r = 5;
+    }
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+    this.closePath();
+    this.stroke();
+};
+
+</script>
+</body>
+</html>

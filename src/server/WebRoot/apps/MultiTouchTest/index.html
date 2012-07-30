@@ -1,0 +1,64 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+	<script src="jquery-1.6.3.min.js"></script>
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  event.preventDefault();
+  GLA.SetTuioEnabled(true);
+}
+
+document.addEventListener('touchstart', onDocumentTouchStart, false);
+document.addEventListener('touchmove', onDocumentTouchMove, false);
+document.addEventListener('touchend', onDocumentTouchEnd, false);   
+
+var MAX_TOUCHES = 50;
+
+function onDocumentTouchStart(event) {    
+    for (var i = 0; i < event.touches.length; i++) {
+    	printCursor(event.touches[i]);
+    }    
+}
+
+function onDocumentTouchMove(event) {
+    for (var i = 0; i < event.touches.length; i++) {
+    	printCursor(event.touches[i]);
+    }   
+}
+
+function onDocumentTouchEnd(event) {   
+    for (var i = 0; i < event.changedTouches.length; i++) {
+    	removeCursor(event.changedTouches[i]);
+    }       
+}
+
+function printCursor(cursor){
+	// Exists?
+	if ($(".cursor_" + cursor.identifier).length == 0){
+		$("body").append("<div class='cursor_" + cursor.identifier + "'></div>");
+		GLA.Log("ID: " + cursor.identifier);
+	}
+
+	// Fill
+	$(".cursor_" + cursor.identifier).html("#" + cursor.identifier + " PageX: " + cursor.pageX + " PageY: " + cursor.pageY + " ClientX: " + cursor.clientX + " ClientY: " + cursor.clientY + " screenX: " + cursor.screenX + " screenY: " + cursor.screenY + " target: " + cursor.target);
+}
+
+function removeCursor(cursor){
+	$(".cursor_" + cursor.identifier).remove();
+}
+</script>
+</head>
+<body>
+<style type="text/css">
+body{
+	font-size: 3em;
+	background: white;
+}
+div{
+	margin-bottom: 1em;
+}
+</style>
+
+</body>
+</html>

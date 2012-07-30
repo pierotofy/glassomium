@@ -1,0 +1,11 @@
+prefix=/home/laurent/release/2.0-rc/sfml/SFML-2.0-rc
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: SFML-audio
+Description: The Simple and Fast Multimedia Library, audio module.
+URL: http://www.sfml-dev.org
+Version: 2.0.0
+Libs: -L${libdir} -lsfml-audio
+Cflags: -I${includedir}

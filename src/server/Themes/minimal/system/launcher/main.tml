@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>launcher</title>
+<script type="application/javascript" src="/resources/jquery-1.6.3.min.js"></script>
+<style type="text/css">
+html{
+	margin:0;
+	padding:0;
+}
+body{
+	margin:0;
+	padding:0;
+	background: transparent;
+	overflow: hidden;
+}
+#applist ul{
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	text-align: center;
+}
+img{
+	border:0;
+	width: 100%;
+}
+a:hover{
+	text-decoration: none;
+}
+#applist ul li { display: inline; }
+</style>
+</head>
+<script>
+$(document).ready(function(){
+	// Make sure the icons spawn the whole window
+	var iconWidth = $(window).width() / ($("img").size() + 1);
+
+	// Out of the page? Use height
+	if (iconWidth > $(window).height()){
+		var iconHeight = $(window).height();
+		$("img").css('width', iconHeight + 'px');
+		$("img").css('height', iconHeight + 'px');
+	}else{
+		$("img").css('width', iconWidth + 'px');
+	}
+});
+</script>
+<body>
+<div id="applist">
+	<ul>
+		{ITEM_LIST}
+	</ul>
+</div>
+</body>
+</html>

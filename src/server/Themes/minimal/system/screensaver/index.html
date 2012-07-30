@@ -1,0 +1,37 @@
+<!doctype html> 
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>Screensaver</title>
+        <style type="text/css">
+            body { background-color: #000000; overflow: hidden;}
+            #info{
+                font-size: 2em;
+                color: yellow;
+                font-family: Verdana;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+            }
+        </style>
+        <script src="/resources/jquery-1.6.3.min.js"></script>
+    </head>
+<script>
+$(document).ready(function(){
+    setInterval("reposition();", 10000);
+});
+
+$(document).click(function(){
+    GLA.ExitScreensaver("fadeout", 500);
+});
+
+function reposition(){
+    $("#info").css({'top':Math.random() * 90 + '%',
+                   'left':Math.random() * 90 + '%'});
+};
+</script>
+    <body>
+        <div id="info">Touch to exit</div>       
+    </body>
+</html>
