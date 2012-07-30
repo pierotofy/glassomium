@@ -177,6 +177,7 @@ add_subdirectory(include/ip)
 
 set(SFGUI_STATIC TRUE)
 set(SFGUI_STATIC_LIBRARIES TRUE)
+set(BUILD_SHARED_LIBS FALSE)
 add_subdirectory(include/sfgui)
 
  
