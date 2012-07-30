@@ -8,7 +8,7 @@ project( SFGUI )
 
 ### USER INPUT ###
 
-set( BUILD_SHARED_LIBS true CACHE BOOL "Build dynamic library." )
+set( BUILD_SHARED_LIBS false CACHE BOOL "Build dynamic library." )
 set( BUILD_EXAMPLES true CACHE BOOL "Build SFGUI examples." )
 set( SFML_STATIC_LIBRARIES false CACHE BOOL "Was SFML built as a static library?" )
 
