@@ -190,7 +190,8 @@ void Window::startDragging(const sf::Vector2f &dragTouchPosition){
 void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 	if (dragging && draggable){
 #ifdef SMOOTH_DRAG
-		setPosition(windowCenterOnDragBegin + (dragTouchPosition - beginningDragTouchPosition));
+		sf::Vector2f newPosition = windowCenterOnDragBegin + (dragTouchPosition - beginningDragTouchPosition);
+		setPosition(newPosition);
 #else
 		setPosition(dragTouchPosition); // Temporary solution that doesn't lag, but no smooth movements
 #endif
@@ -201,9 +202,6 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
      if (dragging && draggable){
 
-#ifdef SMOOTH_DRAG
-        setPosition(windowCenterOnDragBegin + (dragTouchPosition - beginningDragTouchPosition));
-#endif
 		// Uncolor
 		setBlendColor(sf::Color(255, 255, 255)); // No blend
 

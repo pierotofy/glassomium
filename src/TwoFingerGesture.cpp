@@ -29,8 +29,8 @@ TwoFingerGesture::TwoFingerGesture(Phase phase, int actionMask)
 TwoFingerGesture* TwoFingerGesture::recognize(TouchGroup &touchGroup, Gesture::Phase phase){
 
 	if (phase == Gesture::BEGINNING){
-		// If there are two touches down, we have a candidate
-		if (touchGroup.getSize() == 2){
+		// Make sure we come from a touch
+		if (touchGroup.getSize() == 2 && touchGroup.getLastGesture() == Gesture::TOUCH){
 			TwoFingerGesture *gesture = new TwoFingerGesture(Gesture::BEGINNING, ALL);
 			gesture->fillGestureData(touchGroup);
 			gesture->fillTransformData(touchGroup);
@@ -39,7 +39,7 @@ TwoFingerGesture* TwoFingerGesture::recognize(TouchGroup &touchGroup, Gesture::P
 
 	}else if (phase == Gesture::UPDATING){
 		// We need always two fingers to do any two finger gesture
-		if (touchGroup.getSize() != 2) return 0;
+		if (touchGroup.getSize() != 2 || touchGroup.getLastGesture() != Gesture::TWOFINGER) return 0;
 
 		int actionMask = NONE;
 		TwoFingerGesture *gesture = new TwoFingerGesture(Gesture::UPDATING, actionMask);

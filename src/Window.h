@@ -233,7 +233,7 @@ protected:
 	unsigned int id; // Unique for each window
 private:
 
-//#define SMOOTH_DRAG 1
+#define SMOOTH_DRAG 1
 #ifdef SMOOTH_DRAG
 	sf::Vector2f beginningDragTouchPosition; // Used to compute the window dragging algorithm
 	sf::Vector2f windowCenterOnDragBegin; // Same

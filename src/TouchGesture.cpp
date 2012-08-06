@@ -30,7 +30,8 @@ TouchGesture::TouchGesture(Gesture::Phase phase, const TouchEvent &touchEvent)
 TouchGesture* TouchGesture::recognize(TouchGroup &touchGroup, Gesture::Phase phase, const TouchEvent &lastEvent){
 
 	if (phase == Gesture::BEGINNING){
-		if (touchGroup.getSize() == 1){
+		// Make sure that we are not doing other gestures
+		if (touchGroup.getSize() == 1 && touchGroup.getLastGesture() == Gesture::NONE){
 			
 			return new TouchGesture(Gesture::BEGINNING, lastEvent);
 		}else return 0;

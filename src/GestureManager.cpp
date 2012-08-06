@@ -106,47 +106,62 @@ int GestureManager::findOverlayingWindowId(TuioCursor *touch){
 	}
 }
 
-/** @param phase what phase of the gesture are we trying to recognize? 
+
+// Uncomment this to enable debug messages for touch gestures
+//#define COUT_GESTURES 1
+
+/** @param touchGroup the touchgroup we are currently processing
+  * @param phase what phase of the gesture are we trying to recognize? 
   * @param lastEvent what was the last event processed? */
-void GestureManager::recognizeGestures(Gesture::Phase phase, const TouchEvent &lastEvent){
-	std::map<int, TouchGroup *>::iterator iter;
-	for (iter = touchGroups.begin(); iter != touchGroups.end(); iter++){
-		Gesture *gesture = Gesture::recognize(*iter->second, phase, lastEvent);
+void GestureManager::recognizeGestures(TouchGroup *touchGroup, Gesture::Phase phase, const TouchEvent &lastEvent){
+	Gesture *gesture = Gesture::recognize(*touchGroup, phase, lastEvent);
 
-		if (gesture != 0){
-			// Update reference
-			iter->second->setLastGesture(gesture->getGestureType());
+	if (gesture != 0){
+		// Update reference
+		touchGroup->setLastGesture(gesture->getGestureType());
 
-			// Retrieve location of the gesture based on average position of the touches in the tough group
-			sf::Vector2f meanLocation = iter->second->getMeanTouchLocation();
+		// Retrieve location of the gesture based on average position of the touches in the tough group
+		sf::Vector2f meanLocation = touchGroup->getMeanTouchLocation();
 
-			// Convert to screen coordinates
-			meanLocation.x *= Application::windowWidth;
-			meanLocation.y *= Application::windowHeight;
+		// Convert to screen coordinates
+		meanLocation.x *= Application::windowWidth;
+		meanLocation.y *= Application::windowHeight;
 
-			// Wrap a GestureEvent and send to UIManager
-			GestureEvent gestureEvent(gesture, meanLocation);
+		// Wrap a GestureEvent and send to UIManager
+		GestureEvent gestureEvent(gesture, meanLocation);
 			
-			if (gesture->getGestureType() == Gesture::TWOFINGER){
-				if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::SCROLL)){
-					UIManager::getSingleton()->onScrollGesture(gestureEvent);
-				}
-
-				if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::TRANSFORM)){
-					UIManager::getSingleton()->onTransformGesture(gestureEvent);
-				}
-				
-				cout << "Two finger " << gesture->getPhase() << endl;
-			}else if (gesture->getGestureType() == Gesture::DRAG){
-				cout << "Drag " << gesture->getPhase() << endl;
-				UIManager::getSingleton()->onDragGesture(gestureEvent);
-			}else if (gesture->getGestureType() == Gesture::TOUCH){
-				cout << "Touch " << gesture->getPhase() << endl;
-				UIManager::getSingleton()->onTouchGesture(gestureEvent);
+		if (gesture->getGestureType() == Gesture::TWOFINGER){
+			if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::SCROLL)){
+				UIManager::getSingleton()->onScrollGesture(gestureEvent);
 			}
 
-			// Cleanup
-			RELEASE_SAFELY(gesture);
+			if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::TRANSFORM)){
+				UIManager::getSingleton()->onTransformGesture(gestureEvent);
+			}
+
+			#ifdef COUT_GESTURES
+				cout << "TwoFinger " << phase << endl;
+			#endif
+				
+		}else if (gesture->getGestureType() == Gesture::DRAG){
+			UIManager::getSingleton()->onDragGesture(gestureEvent);
+
+			#ifdef COUT_GESTURES
+				cout << "Drag " << phase << endl;
+			#endif
+		}else if (gesture->getGestureType() == Gesture::TOUCH){
+			UIManager::getSingleton()->onTouchGesture(gestureEvent);
+
+			#ifdef COUT_GESTURES
+				cout << "Touch " << phase << endl;
+			#endif
+		}
+
+		// Cleanup
+		RELEASE_SAFELY(gesture);
+	}else{
+		if (touchGroup->getSize() == 0){
+			touchGroup->setLastGesture((int)Gesture::NONE);
 		}
 	}
 }
@@ -162,11 +177,10 @@ void GestureManager::updateTouchGroupObjects(TuioCursor *touch){
 	}
 }
 
+//#define MAX_TOUCH_DISTANCE 0.30f
 /** Takes care of handling those events that are queued from other threads
   * (ex. TUIO messages are sent from another thread and queued)
   * this method MUST be called by the rendering thread */
-#define MAX_TOUCH_DISTANCE 0.30f
-
 void GestureManager::processQueue(){
 	TouchEvent touchEvent;
 	while (touchDownQueue.pop(touchEvent)){
@@ -198,11 +212,8 @@ void GestureManager::processQueue(){
 		// Update touch event to include a reference to the touch group
 		touchEvent.group = touchGroups[touchGroupId];
 
-		// Try to identify possible gestures (to be ended)
-		//recognizeGestures(Gesture::ENDING, touchEvent);
-
 		// Try to identify possible (new) gestures
-		recognizeGestures(Gesture::BEGINNING, touchEvent);
+		recognizeGestures(touchGroups[touchGroupId], Gesture::BEGINNING, touchEvent);
 
 		UIManager::getSingleton()->onTrackTouchDown(touchEvent);
 	}
@@ -215,10 +226,10 @@ void GestureManager::processQueue(){
 
 		if (touchGroupId != -1){
 			touchEvent.group = touchGroups[touchGroupId];
-		}
 
-		// Try to identify possible gestures
-		recognizeGestures(Gesture::UPDATING, touchEvent);
+			// Try to identify possible gestures
+			recognizeGestures(touchGroups[touchGroupId], Gesture::UPDATING, touchEvent);
+		}
 
 		UIManager::getSingleton()->onTrackTouchMove(touchEvent);
 	}
@@ -232,15 +243,11 @@ void GestureManager::processQueue(){
 
 		UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 		
-		// Try to identify possible gestures
-		// Note that we call this BEFORE disposing a touchgroup
-		// As a consequence, gestures that want to check
-		// "are there any touches left?" should check if (touches.size() == 1)
-		// instead of (touches.size() == 0)
-		recognizeGestures(Gesture::ENDING, touchEvent);
-
 		// After we add a touch, we (most times) should be able to remove it
 		if (touchGroupId != -1){
+
+			// Try to identify possible gestures
+			recognizeGestures(touchGroups[touchGroupId], Gesture::ENDING, touchEvent);
 
 			// Remove from touch group
 			touchGroups[touchGroupId]->remove(touchEvent.touch);

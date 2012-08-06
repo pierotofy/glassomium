@@ -48,7 +48,7 @@ private:
 	int findTouchGroupForWindow(int windowId);
 	int findOverlayingWindowId(TuioCursor *);
 	void updateTouchGroupObjects(TuioCursor *);
-	void recognizeGestures(Gesture::Phase phase, const TouchEvent &);
+	void recognizeGestures(TouchGroup *touchGroup, Gesture::Phase phase, const TouchEvent &);
 	std::map<int, TouchGroup *> touchGroups;
 	
 	// Touch queues
