@@ -522,7 +522,11 @@ void UIManager::onWindowEnterFullscreenRequested(Window *sender){
 		
 		// Save position/rotation/scale for exiting fullscreen later
 		sender->pushPosition();
+
+		// Normalize first
+		sender->normalizeRotation();
 		sender->pushRotation();
+
 		sender->pushScale();
 
 		animateScaleAndSetFullscreen(sender);
