@@ -58,7 +58,6 @@ TwoFingerGesture* TwoFingerGesture::recognize(TouchGroup &touchGroup, Gesture::P
 		}else return 0;
 
 	}else if (phase == Gesture::ENDING){
-		// If we had a valid gesture and now we don't have the right number of touches it ended
 		if (touchGroup.getLastGesture() == Gesture::TWOFINGER){
 			if (touchGroup.getSize() == 2){
 				TwoFingerGesture *gesture = new TwoFingerGesture(Gesture::ENDING, ALL);

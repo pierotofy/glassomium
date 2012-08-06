@@ -135,9 +135,13 @@ void GestureManager::recognizeGestures(Gesture::Phase phase, const TouchEvent &l
 				if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::TRANSFORM)){
 					UIManager::getSingleton()->onTransformGesture(gestureEvent);
 				}
+				
+				cout << "Two finger " << gesture->getPhase() << endl;
 			}else if (gesture->getGestureType() == Gesture::DRAG){
+				cout << "Drag " << gesture->getPhase() << endl;
 				UIManager::getSingleton()->onDragGesture(gestureEvent);
 			}else if (gesture->getGestureType() == Gesture::TOUCH){
+				cout << "Touch " << gesture->getPhase() << endl;
 				UIManager::getSingleton()->onTouchGesture(gestureEvent);
 			}
 
@@ -195,7 +199,7 @@ void GestureManager::processQueue(){
 		touchEvent.group = touchGroups[touchGroupId];
 
 		// Try to identify possible gestures (to be ended)
-		recognizeGestures(Gesture::ENDING, touchEvent);
+		//recognizeGestures(Gesture::ENDING, touchEvent);
 
 		// Try to identify possible (new) gestures
 		recognizeGestures(Gesture::BEGINNING, touchEvent);
@@ -228,8 +232,11 @@ void GestureManager::processQueue(){
 
 		UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 		
-		// Try to identify possible gestures (particularly TouchGesture
-		// which needs to be notified before the touchGroup is disposed) 
+		// Try to identify possible gestures
+		// Note that we call this BEFORE disposing a touchgroup
+		// As a consequence, gestures that want to check
+		// "are there any touches left?" should check if (touches.size() == 1)
+		// instead of (touches.size() == 0)
 		recognizeGestures(Gesture::ENDING, touchEvent);
 
 		// After we add a touch, we (most times) should be able to remove it
@@ -250,12 +257,6 @@ void GestureManager::processQueue(){
 
 			// Do nothing
 		}
-
-		// Try to identify possible gestures (to be ended)
-		recognizeGestures(Gesture::ENDING, touchEvent);
-
-		// Try to identify possible (new) gestures
-		recognizeGestures(Gesture::BEGINNING, touchEvent);
 
 		// Cleanup
 		RELEASE_SAFELY(touchEvent.touch);

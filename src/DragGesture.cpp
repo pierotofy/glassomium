@@ -29,21 +29,20 @@ DragGesture::DragGesture(Gesture::Phase phase)
 DragGesture* DragGesture::recognize(TouchGroup &touchGroup, Gesture::Phase phase){
 
 	if (phase == Gesture::BEGINNING){
-		// If there are three touches down, we have a candidate for a drag
+		// If there are three touches down, we have a drag
 		if (touchGroup.getSize() == 3){
 			return new DragGesture(Gesture::BEGINNING);
 		}else return 0;
 
 	}else if (phase == Gesture::UPDATING){
-
-		// We need always three fingers to do a drag
-		if (touchGroup.getSize() != 3) return 0;
+		if (touchGroup.getLastGesture() != Gesture::DRAG) return 0;
 
 		return new DragGesture(Gesture::UPDATING);
 	}else if (phase == Gesture::ENDING){
 		// If we had a valid drag gesture and now we don't have the right number of touches, the drag ended
+
 		if (touchGroup.getLastGesture() == Gesture::DRAG){
-			if (touchGroup.getSize() != 3){
+			if (touchGroup.getSize() == 1){
 				return new DragGesture(Gesture::ENDING); // We had a drag, but now the number of touches has changed
 			}else{
 				return 0; // We haven't ended our gesture yet

@@ -36,8 +36,7 @@ TouchGesture* TouchGesture::recognize(TouchGroup &touchGroup, Gesture::Phase pha
 		}else return 0;
 
 	}else if (phase == Gesture::UPDATING){
-
-		if (touchGroup.getSize() != 1) return 0;
+		if (touchGroup.getSize() != 1 || touchGroup.getLastGesture() != Gesture::TOUCH) return 0;
 
 		return new TouchGesture(Gesture::UPDATING, lastEvent);
 
