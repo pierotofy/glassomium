@@ -56,12 +56,12 @@ void TuioManager::addTuioBlob(TuioBlob *tblb){
 		
 /** A blob was moved */
 void TuioManager::updateTuioBlob(TuioBlob *tblb){
-	cout << "Add tuio blob (area: " <<  tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
+	cout << "Update tuio blob (area: " <<  tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
 }
 		
 /** A blob was removed from the surface */
 void TuioManager::removeTuioBlob(TuioBlob *tblb){
-	cout << "Add tuio blob (area: " <<  tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
+	cout << "Remove tuio blob (area: " <<  tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
 }
 
 /** this is called when a new cursor is detected */

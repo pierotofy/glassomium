@@ -62,7 +62,7 @@ $(document).ready(function() {
 	/* Add applications here */
 
 	{ITEM_LIST}
-	add_app("javascript:GLA.OpenNewWebBrowserWindow('http://mrdoob.com/lab/javascript/webgl/clouds/');", "/resources/system/launcher/browser-icon-512x512.png", true);
+	add_app("javascript:GLA.OpenNewWebBrowserWindow('http://www.google.com');", "/resources/system/launcher/browser-icon-512x512.png", true);
 	/*
 	add_app("#", "/Test/icon1.png");
 	add_app("#", "/Test/icon2.png");
