@@ -24,7 +24,7 @@ int TouchGroup::instances_count = 0;
 
 /** @param touch the first touch part of this group
   * @param window ID that this touchgroup is assigned to */
-TouchGroup::TouchGroup(TuioCursor *touch, int windowId)
+TouchGroup::TouchGroup(Blob *touch, int windowId)
 	: windowId(windowId){
 	TouchGroup::instances_count++;
 	id = TouchGroup::instances_count;
@@ -33,13 +33,13 @@ TouchGroup::TouchGroup(TuioCursor *touch, int windowId)
 	add(touch);
 }
 
-void TouchGroup::add(TuioCursor *touch){
+void TouchGroup::add(Blob *touch){
 	touchList.push_back(touch);
 }
 
-void TouchGroup::update(TuioCursor *touch){
+void TouchGroup::update(Blob *touch){
 	for (unsigned int i = 0; i < touchList.size(); i++){
-		if (touchList[i]->getCursorID() == touch->getCursorID()){
+		if (touchList[i]->id == touch->id){
 			RELEASE_SAFELY(touchList[i]); // Delete previous object
 			touchList[i] = touch; // Set reference to new one
 			break;
@@ -47,13 +47,13 @@ void TouchGroup::update(TuioCursor *touch){
 	}
 }
 
-void TouchGroup::remove(TuioCursor *touch){
+void TouchGroup::remove(Blob *touch){
 	for (unsigned int i = 0; i < touchList.size(); i++){
-		if (touchList[i]->getCursorID() == touch->getCursorID()){
+		if (touchList[i]->id == touch->id){
 
 			// If the touch in our list is a duplicate, we take care of deallocating it
 			if (touchList[i] != touch){
-				TuioCursor *elementToErase = touchList[i];
+				Blob *elementToErase = touchList[i];
 				RELEASE_SAFELY(elementToErase);
 			}
 
@@ -63,9 +63,9 @@ void TouchGroup::remove(TuioCursor *touch){
 	}
 }
 
-bool TouchGroup::contains(TuioCursor *touch){
+bool TouchGroup::contains(Blob *touch){
 	for (unsigned int i = 0; i < touchList.size(); i++){
-		if (touchList[i]->getCursorID() == touch->getCursorID()){
+		if (touchList[i]->id == touch->id){
 			return true;
 		}
 	}
@@ -83,7 +83,7 @@ int TouchGroup::getLastGesture(){
 /** Calculates the shortest distance that cursor is relative to all members
  * of this touch group (the distance between the cursor and the closest cursor member of this
  * touch group) */
-float TouchGroup::shortestDistance(TuioCursor *touch){
+float TouchGroup::shortestDistance(Blob *touch){
 	float minDistance = FLT_MAX;
 	for (unsigned int i = 0; i < touchList.size(); i++){
 		float distance = touchList[i]->getDistance(touch);
@@ -101,8 +101,8 @@ sf::Vector2f TouchGroup::getMeanTouchLocation() const{
 	assert(touchList.size() > 0);
 
 	for (unsigned int i = 0; i < touchList.size(); i++){
-		meanTouchLocation.x += touchList[i]->getX();
-		meanTouchLocation.y += touchList[i]->getY();
+		meanTouchLocation.x += touchList[i]->x;
+		meanTouchLocation.y += touchList[i]->y;
 
 	}
 	meanTouchLocation.x /= touchList.size();
@@ -119,8 +119,8 @@ float TouchGroup::getLongestDistanceFromPoint(sf::Vector2f point) const{
 	float longestDistance = FLT_MIN;
 
 	for (unsigned int i = 0; i < touchList.size(); i++){
-		touchLocation.x = touchList[i]->getX();
-		touchLocation.y = touchList[i]->getY();
+		touchLocation.x = touchList[i]->x;
+		touchLocation.y = touchList[i]->y;
 		float distance = pointDistance(point, touchLocation);
 		if (distance > longestDistance) longestDistance = distance;
 	}

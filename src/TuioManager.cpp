@@ -20,6 +20,7 @@
 #include "Application.h"
 #include "TuioManager.h"
 #include "TouchEvent.h"
+#include "Blob.h"
 #include "Utils.h"
 
 /** @param port UDP port where TUIO messages are sent to */
@@ -49,48 +50,41 @@ void TuioManager::updateTuioObject(TuioObject *tobj){
 	cout << "Update tuio object (angle: " << tobj->getAngleDegrees() << " ) X: " << tobj->getX() << " Y: " << tobj->getY() << endl;
 }
 
-/** A blob was added */
+/** A blob was added (tuio 1.1) */
 void TuioManager::addTuioBlob(TuioBlob *tblb){
-	cout << "Add tuio blob (area: " << tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
+	Blob *blob = new Blob(tblb);
+	UIManager::getSingleton()->getGestureManager()->onTouchDown(TouchEvent((int)blob->screenX, (int)blob->screenY, blob->id, blob));
 }
 		
-/** A blob was moved */
+/** A blob was moved (tuio 1.1) */
 void TuioManager::updateTuioBlob(TuioBlob *tblb){
-	cout << "Update tuio blob (area: " <<  tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
+	Blob *blob = new Blob(tblb);
+	UIManager::getSingleton()->getGestureManager()->onTouchMove(TouchEvent((int)blob->screenX, (int)blob->screenY, blob->id, blob));
 }
 		
-/** A blob was removed from the surface */
+/** A blob was removed from the surface (tuio 1.1) */
 void TuioManager::removeTuioBlob(TuioBlob *tblb){
-	cout << "Remove tuio blob (area: " <<  tblb->getArea() << " ) X: " << tblb->getX() << " Y: " << tblb->getY() << endl;
+	Blob *blob = new Blob(tblb);
+	UIManager::getSingleton()->getGestureManager()->onTouchUp(TouchEvent((int)blob->screenX, (int)blob->screenY, blob->id, blob));
 }
 
-/** this is called when a new cursor is detected */
+/** this is called when a new cursor is detected (tuio 1.0) */
 void TuioManager::addTuioCursor(TuioCursor *tcur){
-	UIManager::getSingleton()->getGestureManager()->onTouchDown(TouchEvent((int)(tcur->getX() * Application::windowWidth),
-											(int)(tcur->getY() * Application::windowHeight), 
-											tcur->getCursorID(),
-											new TuioCursor(tcur)));
+	Blob *blob = new Blob(tcur);
+	UIManager::getSingleton()->getGestureManager()->onTouchDown(TouchEvent((int)blob->screenX, (int)blob->screenY, blob->id, blob));
 }
 
-/** a cursor was removed from the table */
+/** a cursor was removed from the table (tuio 1.0) */
 void TuioManager::removeTuioCursor(TuioCursor *tcur){
-	UIManager::getSingleton()->getGestureManager()->onTouchUp(TouchEvent((int)(tcur->getX() * Application::windowWidth),
-											(int)(tcur->getY() * Application::windowHeight), 
-											tcur->getCursorID(),
-											new TuioCursor(tcur)));
+	Blob *blob = new Blob(tcur);
+	UIManager::getSingleton()->getGestureManager()->onTouchUp(TouchEvent((int)blob->screenX, (int)blob->screenY, blob->id, blob));
+
 }
 
-/** a cursor was moving on the table surface */
+/** a cursor was moving on the table surface (tuio 1.0) */
 void TuioManager::updateTuioCursor(TuioCursor *tcur){
-
-	/** NOTE: The TuioCursor constructor has been modified from the original repository to
-	 * carry the x_speed and y_speed of the original cursor. If you update the TUIO library
-	 * make sure to carry those changes */
-
-	UIManager::getSingleton()->getGestureManager()->onTouchMove(TouchEvent((int)(tcur->getX() * Application::windowWidth),
-										(int)(tcur->getY() * Application::windowHeight), 
-										tcur->getCursorID(),
-										new TuioCursor(tcur)));
+	Blob *blob = new Blob(tcur);
+	UIManager::getSingleton()->getGestureManager()->onTouchMove(TouchEvent((int)blob->screenX, (int)blob->screenY, blob->id, blob));
 }
 
 /** this method is called after each bundle, use it to repaint your screen for example */

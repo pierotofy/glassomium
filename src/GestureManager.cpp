@@ -44,12 +44,12 @@ void GestureManager::onTouchMove(const TouchEvent &touchEvent){
 }
 
 
-/** Finds the ID of the touch group to which this touch belongs (if it belongs anywhere)
+/** Finds the ID of the touch group to which this blob belongs (if it belongs anywhere)
   * @return id the touch group if any, -1 otherwise */
-int GestureManager::findTouchGroup(TuioCursor *touch){
+int GestureManager::findTouchGroup(Blob *blob){
 	std::map<int, TouchGroup *>::iterator iter;
 	for (iter = touchGroups.begin(); iter != touchGroups.end(); iter++){
-		if (iter->second->contains(touch)){
+		if (iter->second->contains(blob)){
 			return iter->second->getID();
 		}
 	}
@@ -61,7 +61,7 @@ int GestureManager::findTouchGroup(TuioCursor *touch){
   * @param maxDistance is the threshold level that indicates what maximum distance
 		a touch might have before it's not considered part of a group
 	@return the ID of the touch group if any, -1 otherwise */
-int GestureManager::findClosestTouchGroup(TuioCursor *touch, float maxDistance){
+int GestureManager::findClosestTouchGroup(Blob *touch, float maxDistance){
 	std::map<int, TouchGroup *>::iterator iter;
 	float validClosestDistance = FLT_MAX;
 
@@ -94,11 +94,8 @@ int GestureManager::findTouchGroupForWindow(int windowId){
 
 /** Finds the ID of the window that the cursor is currently over
   * @return ID of the window or -1 if no window is currently covering the location of the touch */
-int GestureManager::findOverlayingWindowId(TuioCursor *touch){
-	float screen_x = touch->getX() * Application::windowWidth;
-	float screen_y = touch->getY() * Application::windowHeight;
-
-	Window *window = UIManager::getSingleton()->findFirstWindow(screen_x, screen_y);
+int GestureManager::findOverlayingWindowId(Blob *touch){
+	Window *window = UIManager::getSingleton()->findFirstWindow(touch->screenX, touch->screenY);
 	if (window){
 		return window->getID();
 	}else{
@@ -170,7 +167,7 @@ void GestureManager::recognizeGestures(TouchGroup *touchGroup, Gesture::Phase ph
  * because we cannot predict when the original objects will be deallocated. This forces us to 
  * make sure that the object in our touch groups are up-to-date. Every time we receive an update
  * for a TuioCursor, we have to iterate our touchgroups and update our references */
-void GestureManager::updateTouchGroupObjects(TuioCursor *touch){
+void GestureManager::updateTouchGroupObjects(Blob *touch){
 	std::map<int, TouchGroup *>::iterator iter;
 	for (iter = touchGroups.begin(); iter != touchGroups.end(); iter++){
 		iter->second->update(touch);
@@ -186,12 +183,12 @@ void GestureManager::processQueue(){
 	while (touchDownQueue.pop(touchEvent)){
 
 		// The first touch will always get -1 here
-		int windowId = findOverlayingWindowId(touchEvent.touch);
+		int windowId = findOverlayingWindowId(touchEvent.blob);
 		int touchGroupId = findTouchGroupForWindow(windowId);
 
 		// if (touchGroupId == -1){
 		// // If we didn't hit any window, find the closest existing touchgroup
-		// 	touchGroupId = findClosestTouchGroup(touchEvent.touch, MAX_TOUCH_DISTANCE);
+		// 	touchGroupId = findClosestTouchGroup(touchEvent.blob, MAX_TOUCH_DISTANCE);
 		// }
 
 		// If we don't hit a window we put the touch in a big group of touches outside any window
@@ -199,10 +196,10 @@ void GestureManager::processQueue(){
 		
 		if (touchGroupId != -1){
 			// Add to existing touch group
-			touchGroups[touchGroupId]->add(touchEvent.touch);
+			touchGroups[touchGroupId]->add(touchEvent.blob);
 		}else{
 			// Create new one
-			TouchGroup *touchGroup = new TouchGroup(touchEvent.touch, windowId);
+			TouchGroup *touchGroup = new TouchGroup(touchEvent.blob, windowId);
 			touchGroups[touchGroup->getID()] = touchGroup;
 
 			// Update group group id
@@ -220,9 +217,9 @@ void GestureManager::processQueue(){
 
 	while (touchMoveQueue.pop(touchEvent)){
 		// Update
-		updateTouchGroupObjects(touchEvent.touch);
+		updateTouchGroupObjects(touchEvent.blob);
 
-		int touchGroupId = findTouchGroup(touchEvent.touch);
+		int touchGroupId = findTouchGroup(touchEvent.blob);
 
 		if (touchGroupId != -1){
 			touchEvent.group = touchGroups[touchGroupId];
@@ -235,7 +232,7 @@ void GestureManager::processQueue(){
 	}
 
 	while (touchUpQueue.pop(touchEvent)){
-		int touchGroupId = findTouchGroup(touchEvent.touch);
+		int touchGroupId = findTouchGroup(touchEvent.blob);
 
 		if (touchGroupId != -1){
 			touchEvent.group = touchGroups[touchGroupId];
@@ -250,7 +247,7 @@ void GestureManager::processQueue(){
 			recognizeGestures(touchGroups[touchGroupId], Gesture::ENDING, touchEvent);
 
 			// Remove from touch group
-			touchGroups[touchGroupId]->remove(touchEvent.touch);
+			touchGroups[touchGroupId]->remove(touchEvent.blob);
 
 			// Check for cleanup (if a touchgroup has no more members, it doesn't have a purpose anymore)
 			if (touchGroups[touchGroupId]->getSize() == 0){
@@ -266,7 +263,7 @@ void GestureManager::processQueue(){
 		}
 
 		// Cleanup
-		RELEASE_SAFELY(touchEvent.touch);
+		RELEASE_SAFELY(touchEvent.blob);
 	}
 }
 

@@ -291,6 +291,8 @@ void WebView::onPaint(Berkelium::Window *wini,
 				);
 		}
 
+		// TODO: in debug mode on Visual Studio while maximizing a window an assertion will fail on texture update! FIX IT!
+
 		// Finally, we perform the main update, just copying the rect that is
 		// marked as dirty but not from scrolled data.
 		texture->update((sf::Uint8 *)scroll_buffer, copy_rects[i].width(), copy_rects[i].height(), copy_rects[i].left(), copy_rects[i].top());

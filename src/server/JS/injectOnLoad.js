@@ -49,32 +49,31 @@ $jsafe(document).ready(function() {
  });
 
 /** TUIO Functions */
-
-GLA._touches = [];
-GLA._changedTouches = [];
-GLA._pushTouchEvent = function(eventName, identifier, pageX, pageY){
-	GLA._changedTouches.push({identifier:identifier, 
-							  clientX:pageX, clientY:pageY,
-							  pageX:(pageX + window.pageXOffset), pageY:(pageY + window.pageYOffset), 
-							  screenX:pageX, screenY:pageY,
-							  target:document.elementFromPoint(pageX, pageY)
-							});
-	if (eventName != "touchend"){
-		GLA._touches = GLA._changedTouches;
+GLA._fireTouchEvents = function(eventName, changedTouches){
+	// Add/modify fields to touches list
+	for (var i = 0; i < changedTouches.length; i++){
+		var touch = changedTouches[i];
+		touch.pageX = touch.pageX + window.pageXOffset;
+		touch.pageY = touch.pageY + window.pageYOffset;
+		touch.screenX = touch.pageX;
+		touch.screenY = touch.pageY;
+		touch.clientX = touch.pageX;
+		touch.clientY = touch.pageY;
+		touch.target = document.elementFromPoint(touch.pageX, touch.pageY);
 	}
-};
 
-GLA._fireTouchEvent = function(name){
-	if (GLA._changedTouches.length > 0){
+	var touches = [];
+	if (eventName != "touchend"){
+		touches = changedTouches;
+	}
+
+	if (changedTouches.length > 0){
 		var evt = document.createEvent("Event");
-		evt.initEvent(name, true, true);
-		evt.touches = GLA._touches;
-		evt.changedTouches = GLA._changedTouches;
-		evt.touch = GLA._touches[0];
+		evt.initEvent(eventName, true, true);
+		evt.touches = touches;
+		evt.changedTouches = changedTouches;
+		evt.touch = touches[0];
 		document.dispatchEvent(evt);
-
-		GLA._touches = [];
-		GLA._changedTouches = [];
 	}
 };
 

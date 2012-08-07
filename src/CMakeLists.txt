@@ -91,6 +91,8 @@ set(HDRS
     ServerManager.h
     UserWindow.h
     Launcher.h
+    Blob.h
+    stdafx.h
 )
  
 set(SRCS
@@ -122,6 +124,7 @@ set(SRCS
     ServerManager.cpp
     UserWindow.cpp
     Launcher.cpp
+    Blob.cpp
 )
 
 include_directories(./include)

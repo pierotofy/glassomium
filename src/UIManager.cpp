@@ -805,7 +805,7 @@ void UIManager::onTrackTouchDown(const TouchEvent &touchEvent){
 		if (touchEvent.mouseSimulated){
 			pointerColor = PointerSprite::Red;
 		}else{
-			int touchGroup = getGestureManager()->findTouchGroup(touchEvent.touch);
+			int touchGroup = getGestureManager()->findTouchGroup(touchEvent.blob);
 
 			pointerColor = (PointerSprite::Color)(touchGroup % 3); // Red (0), blue (1), green (2)
 		}

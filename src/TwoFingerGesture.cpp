@@ -75,11 +75,11 @@ TwoFingerGesture* TwoFingerGesture::recognize(TouchGroup &touchGroup, Gesture::P
 /** @param actionMask, gesture will be updated accordingly if a gesture is found */
 inline void TwoFingerGesture::findScrollGesture(TouchGroup &touchGroup, int &actionMask, TwoFingerGesture *gesture){
 	sf::Vector2f scrollDirection(0.0f, 0.0f);
-	TuioCursor *firstTouch = touchGroup.getTouch(0);
-	TuioCursor *secondTouch = touchGroup.getTouch(1);
+	Blob *firstTouch = touchGroup.getTouch(0);
+	Blob *secondTouch = touchGroup.getTouch(1);
 
-	sf::Vector2f firstScrollDirection(firstTouch->getXSpeed(), -firstTouch->getYSpeed());
-	sf::Vector2f secondScrollDirection(secondTouch->getXSpeed(), -secondTouch->getYSpeed());
+	sf::Vector2f firstScrollDirection(firstTouch->speedX, -firstTouch->speedY);
+	sf::Vector2f secondScrollDirection(secondTouch->speedX, -secondTouch->speedY);
 	
 	// The slowest direction betweent the two touches is the direction we'll use
 	if (squaredLength(firstScrollDirection) < squaredLength(secondScrollDirection)){
@@ -105,11 +105,11 @@ inline void TwoFingerGesture::findScrollGesture(TouchGroup &touchGroup, int &act
 
 inline void TwoFingerGesture::findTransformGesture(TouchGroup &touchGroup, int &actionMask, TwoFingerGesture *gesture){
 	sf::Vector2f transformDirection(0.0f, 0.0f);
-	TuioCursor *firstTouch = touchGroup.getTouch(0);
-	TuioCursor *secondTouch = touchGroup.getTouch(1);
+	Blob *firstTouch = touchGroup.getTouch(0);
+	Blob *secondTouch = touchGroup.getTouch(1);
 
-	sf::Vector2f firstTransformDirection(firstTouch->getXSpeed(), firstTouch->getYSpeed());
-	sf::Vector2f secondTranformDirection(secondTouch->getXSpeed(), secondTouch->getYSpeed());
+	sf::Vector2f firstTransformDirection(firstTouch->speedX, firstTouch->speedY);
+	sf::Vector2f secondTranformDirection(secondTouch->speedX, secondTouch->speedY);
 	
 	// The fastest direction betweent the two touches is the direction we'll use
 	if (squaredLength(firstTransformDirection) > squaredLength(secondTranformDirection)){
@@ -162,8 +162,8 @@ void TwoFingerGesture::fillGestureData(const TouchGroup &touchGroup){
 	assert(touchGroup.getSize() == 2);
 
 	// Save location of the touches
-	firstTouchLocation = sf::Vector2f(touchGroup.getTouch(0)->getX(), touchGroup.getTouch(0)->getY());
-	secondTouchLocation = sf::Vector2f(touchGroup.getTouch(1)->getX(), touchGroup.getTouch(1)->getY());
+	firstTouchLocation = sf::Vector2f(touchGroup.getTouch(0)->x, touchGroup.getTouch(0)->y);
+	secondTouchLocation = sf::Vector2f(touchGroup.getTouch(1)->x, touchGroup.getTouch(1)->y);
 
 	centerLocation = touchGroup.getMeanTouchLocation();
 }

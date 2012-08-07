@@ -1,0 +1,152 @@
+<!-- Based on the work by Boris Smus 
+https://github.com/borismus/MagicTouch/blob/master/samples/tracker.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Touch Tracker Marker</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+<style type="text/css">
+body { background: white; margin: 0px; overflow: hidden; }
+canvas {  }
+</style>
+<script type="text/javascript">
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  event.preventDefault();
+  GLA.SetTuioEnabled(true);
+  GLA.SetTransformable(false);
+  GLA.SetDraggable(false);
+}
+
+var canvas;
+var ctx;
+var w = 0;
+var h = 0;
+
+var timer;
+var updateStarted = false;
+var touches = [];
+
+
+function update() {
+	if (updateStarted) return;
+	updateStarted = true;
+
+	var nw = window.innerWidth;
+	var nh = window.innerHeight;
+
+	if ((w != nw) || (h != nh)) {
+		w = nw;
+		h = nh;
+		canvas.style.width = w+'px';
+		canvas.style.height = h+'px';
+		canvas.width = w;
+		canvas.height = h;
+	}
+
+	ctx.clearRect(0, 0, w, h);
+
+	var i, len = touches.length;
+	for (i=0; i<len; i++) {
+		var touch = touches[i];
+	    var px = touch.pageX;
+	    var py = touch.pageY;
+
+		if (touch.radiusX == 0){
+			ctx.beginPath();
+			ctx.arc(px, py, 20, 0, 2*Math.PI, true);
+			ctx.fillStyle = "rgba(0, 0, 200, 0.2)";
+			ctx.fill();
+
+			ctx.lineWidth = 2.0;
+			ctx.strokeStyle = "rgba(0, 0, 200, 0.8)";
+			ctx.stroke();
+
+		}else{
+			var angle = touch.rotationAngle * Math.PI/180.0;
+			// Arc?
+			if (Math.abs(touch.radiusX - touch.radiusY) <= 20){
+				ctx.beginPath();
+				ctx.arc(px, py, Math.max(touch.radiusX, touch.radiusY), 0, 2*Math.PI, true);
+				ctx.fillStyle = "rgba(0, 0, 200, 0.2)";
+				ctx.fill();
+
+				ctx.lineWidth = 2.0;
+				ctx.strokeStyle = "rgba(0, 0, 200, 0.8)";
+				ctx.stroke();
+			}else{
+				// Rect
+				var rectWidth = touch.radiusX * 2;
+				var rectHeight = touch.radiusY * 2;
+
+				ctx.save();
+				ctx.translate(px, py);
+				ctx.rotate(angle);
+
+				ctx.fillStyle="rgba(0, 0, 200, 0.2)";
+				ctx.fillRect(-rectWidth / 2, -rectHeight / 2, rectWidth, rectHeight);
+
+				ctx.lineWidth = 2.0;
+				ctx.strokeStyle="rgba(0, 0, 200, 0.8)";
+				ctx.strokeRect(-rectWidth / 2, -rectHeight / 2, rectWidth, rectHeight);
+
+				ctx.restore();
+			}
+				
+
+		}
+
+	}
+
+	updateStarted = false;
+}
+
+//http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
+function drawEllipse(ctx, x, y, w, h){
+  var kappa = .5522848;
+      ox = (w / 2) * kappa, // control point offset horizontal
+      oy = (h / 2) * kappa, // control point offset vertical
+      xe = x + w,           // x-end
+      ye = y + h,           // y-end
+      xm = x + w / 2,       // x-middle
+      ym = y + h / 2;       // y-middle
+
+  ctx.beginPath();
+  ctx.moveTo(x, ym);
+  ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+  ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+  ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+  ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+  ctx.closePath();
+  ctx.stroke();
+}
+
+function ol() {
+	canvas = document.getElementById('canvas');
+	ctx = canvas.getContext('2d');
+	timer = setInterval(update, 15);
+
+	document.addEventListener('touchend', function() {
+		ctx.clearRect(0, 0, w, h);
+	});
+
+	document.addEventListener('touchmove', function(event) {
+	  event.preventDefault();
+	  touches = event.touches;
+	});
+
+	document.addEventListener('touchstart', function(event) {
+
+	});
+};
+
+//GLA._fireTouchEvents("touchstart", [{identifier:1,pageX:20,pageY:20,radiusX:30,radiusY:30,rotationAngle:20}]);
+
+</script>
+</head>
+<body onload="ol()">
+	
+<canvas id="canvas" width="300" height="300" style="top:0px; left:0px; width: 300px; height: 300px;"></canvas>
+
+</body>
+</html>

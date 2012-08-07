@@ -21,23 +21,23 @@
 #define TOUCHGROUP_H
 
 #include "stdafx.h"
-using namespace TUIO;
+#include "Blob.h"
 
 class TouchGroup {
 public:
-	TouchGroup(TuioCursor *, int);
+	TouchGroup(Blob *, int);
     ~TouchGroup();
 
-	void add(TuioCursor *);
-	void remove(TuioCursor *);
-	void update(TuioCursor *touch);
+	void add(Blob *);
+	void remove(Blob *);
+	void update(Blob *);
 
 	int getSize() const { return touchList.size(); }
 	int getID() const { return id; }
 	int getWindowID() const { return windowId; }
-	bool contains(TuioCursor *);
-	float shortestDistance(TuioCursor *);
-	TuioCursor *getTouch(int i) const{ return touchList[i]; }
+	bool contains(Blob *);
+	float shortestDistance(Blob *);
+	Blob *getTouch(int i) const{ return touchList[i]; }
 	sf::Vector2f getMeanTouchLocation() const; // Center point
 	float getLongestDistanceFromPoint(sf::Vector2f point) const;
 
@@ -49,7 +49,7 @@ private:
 	int lastGesture; // The last (valid) gesture associated with this touchgroup
 
 	int id;
-	std::vector<TuioCursor *> touchList;
+	std::vector<Blob *> touchList;
 
 };
 

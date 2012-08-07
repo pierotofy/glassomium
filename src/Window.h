@@ -109,7 +109,7 @@ public:
 
 	void setTuioEnabled(bool flag);
 	bool isTuioEnabled(){ return tuioEnabled; }
-	void fireJsTuioEvent(const string &name, TouchGroup *group, int cursor_id, const sf::Vector2f &webviewCoords);
+	void fireJsTuioEvent(const string &name, TouchGroup *group, int blob_id, const sf::Vector2f &webviewCoords);
 
 	pt::Rectangle getRectangle();
 	pt::Rectangle getClientRectangle();

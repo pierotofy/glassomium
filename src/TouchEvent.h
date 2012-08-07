@@ -21,8 +21,7 @@
 #define TOUCHEVENT_H
 
 #include "stdafx.h"
-
-using namespace TUIO;
+#include "Blob.h"
 
 struct TouchEvent
 {
@@ -30,20 +29,20 @@ struct TouchEvent
 	int screen_y;
 	int touch_id;
 	bool mouseSimulated; // If this flag is true, touch = 0 (mouse events don't generate tuio cursors)
-	TuioCursor *touch;
+	Blob *blob;
 	TouchGroup *group; // This can be 0 at any point in time. Code using this member should verify for != NULL before dereferencing it.
 	
 	TouchEvent()
-	    : screen_x(0), screen_y(0), touch_id(0), mouseSimulated(true), touch(0), group(0) {}
+	    : screen_x(0), screen_y(0), touch_id(0), mouseSimulated(true), blob(0), group(0) {}
 
 	TouchEvent(int screen_x, int screen_y, int touch_id)
-	    : screen_x(screen_x), screen_y(screen_y), touch_id(touch_id), mouseSimulated(true), touch(0), group(0) {	    	
+	    : screen_x(screen_x), screen_y(screen_y), touch_id(touch_id), mouseSimulated(true), blob(0), group(0) {	    	
 	}
-	TouchEvent(int screen_x, int screen_y, int touch_id, TuioCursor *touch)
-	    : screen_x(screen_x), screen_y(screen_y), touch_id(touch_id), mouseSimulated(false), touch(touch), group(0) {	    	
+	TouchEvent(int screen_x, int screen_y, int touch_id, Blob *blob)
+	    : screen_x(screen_x), screen_y(screen_y), touch_id(touch_id), mouseSimulated(false), blob(blob), group(0) {	    	
 	}
-	TouchEvent(int screen_x, int screen_y, int touch_id, TuioCursor *touch, TouchGroup *group)
-	    : screen_x(screen_x), screen_y(screen_y), touch_id(touch_id), mouseSimulated(false), touch(touch), group(group) {	    	
+	TouchEvent(int screen_x, int screen_y, int touch_id, Blob *blob, TouchGroup *group)
+	    : screen_x(screen_x), screen_y(screen_y), touch_id(touch_id), mouseSimulated(false), blob(blob), group(group) {	    	
 	}
 
 

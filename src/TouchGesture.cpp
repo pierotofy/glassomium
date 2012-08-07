@@ -28,7 +28,6 @@ TouchGesture::TouchGesture(Gesture::Phase phase, const TouchEvent &touchEvent)
 /** Recognizes a touch gesture
  * @return a TouchGesture object if a valid gesture is recognized, 0 otherwise */
 TouchGesture* TouchGesture::recognize(TouchGroup &touchGroup, Gesture::Phase phase, const TouchEvent &lastEvent){
-
 	if (phase == Gesture::BEGINNING){
 		// Make sure that we are not doing other gestures
 		if (touchGroup.getSize() == 1 && touchGroup.getLastGesture() == Gesture::NONE){

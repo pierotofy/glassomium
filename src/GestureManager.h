@@ -42,12 +42,12 @@ public:
 	void processQueue();
 
 	// Public because we need it when deciding how to color a spritepointer (during debug)
-	int findTouchGroup(TuioCursor *);
+	int findTouchGroup(Blob *);
 private:
-	int findClosestTouchGroup(TuioCursor *, float);
+	int findClosestTouchGroup(Blob *, float);
 	int findTouchGroupForWindow(int windowId);
-	int findOverlayingWindowId(TuioCursor *);
-	void updateTouchGroupObjects(TuioCursor *);
+	int findOverlayingWindowId(Blob *);
+	void updateTouchGroupObjects(Blob *);
 	void recognizeGestures(TouchGroup *touchGroup, Gesture::Phase phase, const TouchEvent &);
 	std::map<int, TouchGroup *> touchGroups;
 	

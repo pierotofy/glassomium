@@ -950,43 +950,62 @@ void Window::setTuioEnabled(bool flag){
 /** Handles the firing of TUIO events on the javascript side. 
  * @param name the name of event to fire ("touchstart", "touchmove" or "touchend") 
  * @param group the touch group associated with the cursor that first raised this event
- * @param cursor_id the identifier of the cursor that raised the event 
+ * @param blob_id the identifier of the blob that raised the event 
  * @param webviewCoords the already translated page coordinates for the cursor that raised this event */
-void Window::fireJsTuioEvent(const string &name, TouchGroup *group, int cursor_id, const sf::Vector2f &webviewCoords){
+void Window::fireJsTuioEvent(const string &name, TouchGroup *group, int blob_id, const sf::Vector2f &webviewCoords){
 	if (tuioEnabled){
 
 		// Do we have a touch group?
 		if (group != NULL){
+			// Build a list of touch objects in Javascript
+			stringstream oss;
+			oss << "GLA._fireTouchEvents('" << name << "' , [";
+
 			for (int i = 0; i < group->getSize(); i++){
-				TUIO::TuioCursor *cursor = group->getTouch(i);
-				stringstream oss;
+				Blob *touch = group->getTouch(i);
+
+				// Params to be sent to JS
+				float x, y;
+				int id;
+				float radiusX = 0.0f, radiusY = 0.0f;
+				Degrees angle = 0.0f;
 
 				// We have already computed the coordinates for this touch
-				if (cursor->getCursorID() == cursor_id){
-					oss << "GLA._pushTouchEvent('" << name << "' ," << cursor_id << "," << webviewCoords.x << "," << webviewCoords.y << ");";
+				if (touch->id == blob_id){
+					id = blob_id;
+					x = webviewCoords.x;
+					y = webviewCoords.y;
 				}else{
 					// Need to compute the webview coordinates for this touch
-					sf::Vector2f coords(cursor->getX() * Application::windowWidth, cursor->getY() * Application::windowHeight);
+					sf::Vector2f coords(touch->screenX, touch->screenY);
 					coords = screenToWebViewCoords(coords);
 
-					oss << "GLA._pushTouchEvent('" << name << "' ," << cursor->getCursorID() << "," << coords.x << "," << coords.y << ");";
+					id = touch->id;
+					x = coords.x;
+					y = coords.y;
 				}
+
+				// Do we have geometry information?
+				if (touch->width != 0.0f){
+					// Transform
+					radiusX = (touch->width / getScale().x * Application::windowWidth) / 2.0f;
+					radiusY = (touch->height / getScale().y * Application::windowHeight) / 2.0f;
+					angle = touch->angle + getRotation();
+				}
+
+				oss << "{identifier:" << id << ",pageX:" << x << ",pageY:" << y << ",radiusX:" << radiusX << ",radiusY:" << radiusY << ",rotationAngle:" << angle << "},";
 
 				webView->executeJavascript(oss.str());
 			}
+			
+			// End touches JS list
+			oss << "]);";
+			webView->executeJavascript(oss.str());
 		}else{
 			// Nop, just evaluate the coordinates that fired the event
 			stringstream oss;
-			oss << "GLA._pushTouchEvent('" << name << "' ," << cursor_id << "," << webviewCoords.x << "," << webviewCoords.y << ");";
+			oss << "GLA._fireTouchEvents('" << name << "' , [{identifier:" << blob_id << ",pageX:" << webviewCoords.x << ",pageY:" << webviewCoords.y << ",radiusX:0,radiusY:0,rotationAngle:0}]);";
 			webView->executeJavascript(oss.str());
-		}
-
-		if (name == "touchstart"){
-			webView->executeJavascript("GLA._fireTouchEvent('touchstart');");
-		}else if (name == "touchmove"){
-			webView->executeJavascript("GLA._fireTouchEvent('touchmove');");
-		}else if (name == "touchend"){
-			webView->executeJavascript("GLA._fireTouchEvent('touchend');");
 		}
 	}
 }
