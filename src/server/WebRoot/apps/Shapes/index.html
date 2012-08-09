@@ -65,7 +65,7 @@ function update() {
 		}else{
 			var angle = touch.rotationAngle * Math.PI/180.0;
 			// Arc?
-			if (Math.abs(touch.radiusX - touch.radiusY) <= 20){
+			if (Math.abs(touch.radiusX - touch.radiusY) <= 30){
 				ctx.beginPath();
 				ctx.arc(px, py, Math.max(touch.radiusX, touch.radiusY), 0, 2*Math.PI, true);
 				ctx.fillStyle = "rgba(0, 0, 200, 0.2)";
