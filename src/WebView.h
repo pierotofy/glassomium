@@ -21,6 +21,13 @@
 #define WEBVIEW_H
 
 #include "stdafx.h"
+#include "include/cef_app.h"
+#include "include/cef_client.h"
+#include "include/cef_display_handler.h"
+#include "include/cef_life_span_handler.h"
+#include "include/cef_request_handler.h"
+#include "include/cef_render_handler.h"
+#include "include/internal/cef_ptr.h"
 
 namespace pt{
 
@@ -29,12 +36,36 @@ class Window;
 using namespace std;
 using namespace pt;
 
-class WebView : public Berkelium::WindowDelegate {
+class WebView : public CefClient,
+			    public CefDisplayHandler,
+				public CefLoadHandler,
+			    public CefLifeSpanHandler,
+			    public CefRequestHandler,
+			    public CefRenderHandler,
+				public CefV8Handler,
+				public Berkelium::WindowDelegate{
 public:
 	static unsigned int webViewCount;
 
 	WebView(float windowRatio, Window *parent);
     ~WebView();
+
+   virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE { return this; }
+   virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE { return this; }
+   virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
+   virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
+
+    // CefLifeSpanHandler methods
+   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
+   virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+
+   virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
+      const RectList& dirtyRects, const void* buffer) OVERRIDE;
+
+   virtual void OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame ) OVERRIDE;
+   virtual void OnLoadEnd( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, int httpStatusCode ) OVERRIDE;
+
+   virtual void OnAddressChange( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, const CefString& url ) OVERRIDE;
 
 	sf::Texture* getTexture(){ return texture; }
 	void loadURI(const string&);
@@ -72,6 +103,15 @@ public:
 	void notifyDomLoaded();
 	std::string getCurrentURL(){ return currentURL; }
 private:
+	// The child browser window
+   CefRefPtr<CefBrowser> cefWindow;
+
+   // Include the default reference counting implementation.
+   IMPLEMENT_REFCOUNTING(WebView);
+
+   // Include the default locking implementation.
+   IMPLEMENT_LOCKING(WebView);
+
 	void bindJSAPI();
 
 	// Reference to the parent object that hosts this webview
@@ -91,8 +131,8 @@ private:
 	// Bool indicating when we need to refresh the entire texture
     bool needs_full_refresh;
 
-    // Buffer used to store data for scrolling
-    char* scroll_buffer;
+    // Buffer used to store the image for the texture
+    char* renderBuffer;
 
 	std::string currentURL; // Keep track of the current URL
 
@@ -113,19 +153,9 @@ private:
 	void calculateTextureSize(float windowRatio, int &width, int &height);
 	string getUniqueIdentifier(const string &);
 
-    virtual void onPaint(Berkelium::Window *wini,
-        const unsigned char *bitmap_in, const Berkelium::Rect &bitmap_rect,
-        size_t num_copy_rects, const Berkelium::Rect *copy_rects,
-        int dx, int dy, const Berkelium::Rect &scroll_rect);
-
-	virtual void onStartLoading (Berkelium::Window *win, Berkelium::URLString newURL);
-	virtual void onLoad (Berkelium::Window *win);
-	virtual void onTitleChanged (Berkelium::Window *win, Berkelium::WideString title);
-	virtual void onCreatedWindow (Berkelium::Window *win, Berkelium::Window *newWindow, const Berkelium::Rect &initialRect);
 	virtual void onJavascriptCallback(Berkelium::Window *win, void* replyMsg, Berkelium::URLString url, 
 				Berkelium::WideString funcName, Berkelium::Script::Variant *args, size_t numArgs);
-	virtual void onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString newURL);
-
+	
 	void handleCrash(const string &description);
       
 	// virtual void onNavigationRequested (Berkelium::Window *win, 

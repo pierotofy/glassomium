@@ -1,0 +1,1335 @@
+Microsoft (R) COFF/PE Dumper Version 10.00.30319.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file libcef.lib
+
+File Type: LIBRARY
+
+FILE HEADER VALUES
+             14C machine (x86)
+               3 number of sections
+        4F99A15C time date stamp Thu Apr 26 14:26:20 2012
+             10A file pointer to symbol table
+               8 number of symbols
+               0 size of optional header
+             100 characteristics
+                   32 bit word machine
+
+SECTION HEADER #1
+.debug$S name
+       0 physical address
+       0 virtual address
+      40 size of raw data
+      8C file pointer to raw data (0000008C to 000000CB)
+       0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+42100040 flags
+         Initialized Data
+         Discardable
+         1 byte align
+         Read Only
+
+SECTION HEADER #2
+.idata$2 name
+       0 physical address
+       0 virtual address
+      14 size of raw data
+      CC file pointer to raw data (000000CC to 000000DF)
+      E0 file pointer to relocation table
+       0 file pointer to line numbers
+       3 number of relocations
+       0 number of line numbers
+C0300040 flags
+         Initialized Data
+         4 byte align
+         Read Write
+
+SECTION HEADER #3
+.idata$6 name
+       0 physical address
+       0 virtual address
+       C size of raw data
+      FE file pointer to raw data (000000FE to 00000109)
+      E0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+C0200040 flags
+         Initialized Data
+         2 byte align
+         Read Write
+
+FILE HEADER VALUES
+             14C machine (x86)
+               2 number of sections
+        4F99A15C time date stamp Thu Apr 26 14:26:20 2012
+              B8 file pointer to symbol table
+               2 number of symbols
+               0 size of optional header
+             100 characteristics
+                   32 bit word machine
+
+SECTION HEADER #1
+.debug$S name
+       0 physical address
+       0 virtual address
+      40 size of raw data
+      64 file pointer to raw data (00000064 to 000000A3)
+       0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+42100040 flags
+         Initialized Data
+         Discardable
+         1 byte align
+         Read Only
+
+SECTION HEADER #2
+.idata$3 name
+       0 physical address
+       0 virtual address
+      14 size of raw data
+      A4 file pointer to raw data (000000A4 to 000000B7)
+       0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+C0300040 flags
+         Initialized Data
+         4 byte align
+         Read Write
+
+FILE HEADER VALUES
+             14C machine (x86)
+               3 number of sections
+        4F99A15C time date stamp Thu Apr 26 14:26:20 2012
+              D4 file pointer to symbol table
+               2 number of symbols
+               0 size of optional header
+             100 characteristics
+                   32 bit word machine
+
+SECTION HEADER #1
+.debug$S name
+       0 physical address
+       0 virtual address
+      40 size of raw data
+      8C file pointer to raw data (0000008C to 000000CB)
+       0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+42100040 flags
+         Initialized Data
+         Discardable
+         1 byte align
+         Read Only
+
+SECTION HEADER #2
+.idata$5 name
+       0 physical address
+       0 virtual address
+       4 size of raw data
+      CC file pointer to raw data (000000CC to 000000CF)
+       0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+C0300040 flags
+         Initialized Data
+         4 byte align
+         Read Write
+
+SECTION HEADER #3
+.idata$4 name
+       0 physical address
+       0 virtual address
+       4 size of raw data
+      D0 file pointer to raw data (000000D0 to 000000D3)
+       0 file pointer to relocation table
+       0 file pointer to line numbers
+       0 number of relocations
+       0 number of line numbers
+C0300040 flags
+         Initialized Data
+         4 byte align
+         Read Write
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000031
+  DLL name     : libcef.dll
+  Symbol name  : _cef_add_cross_origin_whitelist_entry
+  Type         : code
+  Name type    : no prefix
+  Hint         : 0
+  Name         : cef_add_cross_origin_whitelist_entry
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001F
+  DLL name     : libcef.dll
+  Symbol name  : _cef_browser_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 1
+  Name         : cef_browser_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_browser_create_sync
+  Type         : code
+  Name type    : no prefix
+  Hint         : 2
+  Name         : cef_browser_create_sync
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001F
+  DLL name     : libcef.dll
+  Symbol name  : _cef_build_revision
+  Type         : code
+  Name type    : no prefix
+  Hint         : 3
+  Name         : cef_build_revision
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002D
+  DLL name     : libcef.dll
+  Symbol name  : _cef_clear_cross_origin_whitelist
+  Type         : code
+  Name type    : no prefix
+  Hint         : 4
+  Name         : cef_clear_cross_origin_whitelist
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002F
+  DLL name     : libcef.dll
+  Symbol name  : _cef_clear_scheme_handler_factories
+  Type         : code
+  Name type    : no prefix
+  Hint         : 5
+  Name         : cef_clear_scheme_handler_factories
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_command_line_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 6
+  Name         : cef_command_line_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_cookie_manager_create_manager
+  Type         : code
+  Name type    : no prefix
+  Hint         : 7
+  Name         : cef_cookie_manager_create_manager
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000032
+  DLL name     : libcef.dll
+  Symbol name  : _cef_cookie_manager_get_global_manager
+  Type         : code
+  Name type    : no prefix
+  Hint         : 8
+  Name         : cef_cookie_manager_get_global_manager
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_create_url
+  Type         : code
+  Name type    : no prefix
+  Hint         : 9
+  Name         : cef_create_url
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001D
+  DLL name     : libcef.dll
+  Symbol name  : _cef_currently_on
+  Type         : code
+  Name type    : no prefix
+  Hint         : 10
+  Name         : cef_currently_on
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001F
+  DLL name     : libcef.dll
+  Symbol name  : _cef_delete_storage
+  Type         : code
+  Name type    : no prefix
+  Hint         : 11
+  Name         : cef_delete_storage
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_do_message_loop_work
+  Type         : code
+  Name type    : no prefix
+  Hint         : 12
+  Name         : cef_do_message_loop_work
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_get_web_plugin_count
+  Type         : code
+  Name type    : no prefix
+  Hint         : 13
+  Name         : cef_get_web_plugin_count
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_get_web_plugin_info
+  Type         : code
+  Name type    : no prefix
+  Hint         : 14
+  Name         : cef_get_web_plugin_info
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_get_web_plugin_info_byname
+  Type         : code
+  Name type    : no prefix
+  Hint         : 15
+  Name         : cef_get_web_plugin_info_byname
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_initialize
+  Type         : code
+  Name type    : no prefix
+  Hint         : 16
+  Name         : cef_initialize
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001A
+  DLL name     : libcef.dll
+  Symbol name  : _cef_parse_url
+  Type         : code
+  Name type    : no prefix
+  Hint         : 17
+  Name         : cef_parse_url
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_post_data_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 18
+  Name         : cef_post_data_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000029
+  DLL name     : libcef.dll
+  Symbol name  : _cef_post_data_element_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 19
+  Name         : cef_post_data_element_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_post_delayed_task
+  Type         : code
+  Name type    : no prefix
+  Hint         : 20
+  Name         : cef_post_delayed_task
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001A
+  DLL name     : libcef.dll
+  Symbol name  : _cef_post_task
+  Type         : code
+  Name type    : no prefix
+  Hint         : 21
+  Name         : cef_post_task
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_quit_message_loop
+  Type         : code
+  Name type    : no prefix
+  Hint         : 22
+  Name         : cef_quit_message_loop
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000027
+  DLL name     : libcef.dll
+  Symbol name  : _cef_register_custom_scheme
+  Type         : code
+  Name type    : no prefix
+  Hint         : 23
+  Name         : cef_register_custom_scheme
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000023
+  DLL name     : libcef.dll
+  Symbol name  : _cef_register_extension
+  Type         : code
+  Name type    : no prefix
+  Hint         : 24
+  Name         : cef_register_extension
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_register_plugin
+  Type         : code
+  Name type    : no prefix
+  Hint         : 25
+  Name         : cef_register_plugin
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000030
+  DLL name     : libcef.dll
+  Symbol name  : _cef_register_scheme_handler_factory
+  Type         : code
+  Name type    : no prefix
+  Hint         : 26
+  Name         : cef_register_scheme_handler_factory
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000034
+  DLL name     : libcef.dll
+  Symbol name  : _cef_remove_cross_origin_whitelist_entry
+  Type         : code
+  Name type    : no prefix
+  Hint         : 27
+  Name         : cef_remove_cross_origin_whitelist_entry
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001F
+  DLL name     : libcef.dll
+  Symbol name  : _cef_request_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 28
+  Name         : cef_request_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_run_message_loop
+  Type         : code
+  Name type    : no prefix
+  Hint         : 29
+  Name         : cef_run_message_loop
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001C
+  DLL name     : libcef.dll
+  Symbol name  : _cef_set_storage
+  Type         : code
+  Name type    : no prefix
+  Hint         : 30
+  Name         : cef_set_storage
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_set_storage_path
+  Type         : code
+  Name type    : no prefix
+  Hint         : 31
+  Name         : cef_set_storage_path
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000019
+  DLL name     : libcef.dll
+  Symbol name  : _cef_shutdown
+  Type         : code
+  Name type    : no prefix
+  Hint         : 32
+  Name         : cef_shutdown
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_stream_reader_create_for_data
+  Type         : code
+  Name type    : no prefix
+  Hint         : 33
+  Name         : cef_stream_reader_create_for_data
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_stream_reader_create_for_file
+  Type         : code
+  Name type    : no prefix
+  Hint         : 34
+  Name         : cef_stream_reader_create_for_file
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000031
+  DLL name     : libcef.dll
+  Symbol name  : _cef_stream_reader_create_for_handler
+  Type         : code
+  Name type    : no prefix
+  Hint         : 35
+  Name         : cef_stream_reader_create_for_handler
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_stream_writer_create_for_file
+  Type         : code
+  Name type    : no prefix
+  Hint         : 36
+  Name         : cef_stream_writer_create_for_file
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000031
+  DLL name     : libcef.dll
+  Symbol name  : _cef_stream_writer_create_for_handler
+  Type         : code
+  Name type    : no prefix
+  Hint         : 37
+  Name         : cef_stream_writer_create_for_handler
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_ascii_to_utf16
+  Type         : code
+  Name type    : no prefix
+  Hint         : 38
+  Name         : cef_string_ascii_to_utf16
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_ascii_to_wide
+  Type         : code
+  Name type    : no prefix
+  Hint         : 39
+  Name         : cef_string_ascii_to_wide
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_alloc
+  Type         : code
+  Name type    : no prefix
+  Hint         : 40
+  Name         : cef_string_list_alloc
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000023
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_append
+  Type         : code
+  Name type    : no prefix
+  Hint         : 41
+  Name         : cef_string_list_append
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_clear
+  Type         : code
+  Name type    : no prefix
+  Hint         : 42
+  Name         : cef_string_list_clear
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_copy
+  Type         : code
+  Name type    : no prefix
+  Hint         : 43
+  Name         : cef_string_list_copy
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_free
+  Type         : code
+  Name type    : no prefix
+  Hint         : 44
+  Name         : cef_string_list_free
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_size
+  Type         : code
+  Name type    : no prefix
+  Hint         : 45
+  Name         : cef_string_list_size
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_list_value
+  Type         : code
+  Name type    : no prefix
+  Hint         : 46
+  Name         : cef_string_list_value
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_alloc
+  Type         : code
+  Name type    : no prefix
+  Hint         : 47
+  Name         : cef_string_map_alloc
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_append
+  Type         : code
+  Name type    : no prefix
+  Hint         : 48
+  Name         : cef_string_map_append
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_clear
+  Type         : code
+  Name type    : no prefix
+  Hint         : 49
+  Name         : cef_string_map_clear
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_find
+  Type         : code
+  Name type    : no prefix
+  Hint         : 50
+  Name         : cef_string_map_find
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_free
+  Type         : code
+  Name type    : no prefix
+  Hint         : 51
+  Name         : cef_string_map_free
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001F
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_key
+  Type         : code
+  Name type    : no prefix
+  Hint         : 52
+  Name         : cef_string_map_key
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_size
+  Type         : code
+  Name type    : no prefix
+  Hint         : 53
+  Name         : cef_string_map_size
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_map_value
+  Type         : code
+  Name type    : no prefix
+  Hint         : 54
+  Name         : cef_string_map_value
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_alloc
+  Type         : code
+  Name type    : no prefix
+  Hint         : 55
+  Name         : cef_string_multimap_alloc
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000027
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_append
+  Type         : code
+  Name type    : no prefix
+  Hint         : 56
+  Name         : cef_string_multimap_append
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_clear
+  Type         : code
+  Name type    : no prefix
+  Hint         : 57
+  Name         : cef_string_multimap_clear
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002A
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_enumerate
+  Type         : code
+  Name type    : no prefix
+  Hint         : 58
+  Name         : cef_string_multimap_enumerate
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_find_count
+  Type         : code
+  Name type    : no prefix
+  Hint         : 59
+  Name         : cef_string_multimap_find_count
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_free
+  Type         : code
+  Name type    : no prefix
+  Hint         : 60
+  Name         : cef_string_multimap_free
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_key
+  Type         : code
+  Name type    : no prefix
+  Hint         : 61
+  Name         : cef_string_multimap_key
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_size
+  Type         : code
+  Name type    : no prefix
+  Hint         : 62
+  Name         : cef_string_multimap_size
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_multimap_value
+  Type         : code
+  Name type    : no prefix
+  Hint         : 63
+  Name         : cef_string_multimap_value
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002C
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_userfree_utf16_alloc
+  Type         : code
+  Name type    : no prefix
+  Hint         : 64
+  Name         : cef_string_userfree_utf16_alloc
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_userfree_utf16_free
+  Type         : code
+  Name type    : no prefix
+  Hint         : 65
+  Name         : cef_string_userfree_utf16_free
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_userfree_utf8_alloc
+  Type         : code
+  Name type    : no prefix
+  Hint         : 66
+  Name         : cef_string_userfree_utf8_alloc
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002A
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_userfree_utf8_free
+  Type         : code
+  Name type    : no prefix
+  Hint         : 67
+  Name         : cef_string_userfree_utf8_free
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002B
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_userfree_wide_alloc
+  Type         : code
+  Name type    : no prefix
+  Hint         : 68
+  Name         : cef_string_userfree_wide_alloc
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002A
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_userfree_wide_free
+  Type         : code
+  Name type    : no prefix
+  Hint         : 69
+  Name         : cef_string_userfree_wide_free
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000023
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf16_clear
+  Type         : code
+  Name type    : no prefix
+  Hint         : 70
+  Name         : cef_string_utf16_clear
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf16_cmp
+  Type         : code
+  Name type    : no prefix
+  Hint         : 71
+  Name         : cef_string_utf16_cmp
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000021
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf16_set
+  Type         : code
+  Name type    : no prefix
+  Hint         : 72
+  Name         : cef_string_utf16_set
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf16_to_utf8
+  Type         : code
+  Name type    : no prefix
+  Hint         : 73
+  Name         : cef_string_utf16_to_utf8
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf16_to_wide
+  Type         : code
+  Name type    : no prefix
+  Hint         : 74
+  Name         : cef_string_utf16_to_wide
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf8_clear
+  Type         : code
+  Name type    : no prefix
+  Hint         : 75
+  Name         : cef_string_utf8_clear
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf8_cmp
+  Type         : code
+  Name type    : no prefix
+  Hint         : 76
+  Name         : cef_string_utf8_cmp
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf8_set
+  Type         : code
+  Name type    : no prefix
+  Hint         : 77
+  Name         : cef_string_utf8_set
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf8_to_utf16
+  Type         : code
+  Name type    : no prefix
+  Hint         : 78
+  Name         : cef_string_utf8_to_utf16
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_utf8_to_wide
+  Type         : code
+  Name type    : no prefix
+  Hint         : 79
+  Name         : cef_string_utf8_to_wide
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_wide_clear
+  Type         : code
+  Name type    : no prefix
+  Hint         : 80
+  Name         : cef_string_wide_clear
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_wide_cmp
+  Type         : code
+  Name type    : no prefix
+  Hint         : 81
+  Name         : cef_string_wide_cmp
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_wide_set
+  Type         : code
+  Name type    : no prefix
+  Hint         : 82
+  Name         : cef_string_wide_set
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_wide_to_utf16
+  Type         : code
+  Name type    : no prefix
+  Hint         : 83
+  Name         : cef_string_wide_to_utf16
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_string_wide_to_utf8
+  Type         : code
+  Name type    : no prefix
+  Hint         : 84
+  Name         : cef_string_wide_to_utf8
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_time_from_doublet
+  Type         : code
+  Name type    : no prefix
+  Hint         : 85
+  Name         : cef_time_from_doublet
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_time_from_timet
+  Type         : code
+  Name type    : no prefix
+  Hint         : 86
+  Name         : cef_time_from_timet
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000020
+  DLL name     : libcef.dll
+  Symbol name  : _cef_time_to_doublet
+  Type         : code
+  Name type    : no prefix
+  Hint         : 87
+  Name         : cef_time_to_doublet
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_time_to_timet
+  Type         : code
+  Name type    : no prefix
+  Hint         : 88
+  Name         : cef_time_to_timet
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8context_get_current_context
+  Type         : code
+  Name type    : no prefix
+  Hint         : 89
+  Name         : cef_v8context_get_current_context
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000002E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8context_get_entered_context
+  Type         : code
+  Name type    : no prefix
+  Hint         : 90
+  Name         : cef_v8context_get_entered_context
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8context_in_context
+  Type         : code
+  Name type    : no prefix
+  Hint         : 91
+  Name         : cef_v8context_in_context
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000025
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_array
+  Type         : code
+  Name type    : no prefix
+  Hint         : 92
+  Name         : cef_v8value_create_array
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_bool
+  Type         : code
+  Name type    : no prefix
+  Hint         : 93
+  Name         : cef_v8value_create_bool
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_date
+  Type         : code
+  Name type    : no prefix
+  Hint         : 94
+  Name         : cef_v8value_create_date
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_double
+  Type         : code
+  Name type    : no prefix
+  Hint         : 95
+  Name         : cef_v8value_create_double
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000028
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_function
+  Type         : code
+  Name type    : no prefix
+  Hint         : 96
+  Name         : cef_v8value_create_function
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000023
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_int
+  Type         : code
+  Name type    : no prefix
+  Hint         : 97
+  Name         : cef_v8value_create_int
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000024
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_null
+  Type         : code
+  Name type    : no prefix
+  Hint         : 98
+  Name         : cef_v8value_create_null
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000034
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_object_with_accessor
+  Type         : code
+  Name type    : no prefix
+  Hint         : 99
+  Name         : cef_v8value_create_object_with_accessor
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_string
+  Type         : code
+  Name type    : no prefix
+  Hint         : 100
+  Name         : cef_v8value_create_string
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000029
+  DLL name     : libcef.dll
+  Symbol name  : _cef_v8value_create_undefined
+  Type         : code
+  Name type    : no prefix
+  Hint         : 101
+  Name         : cef_v8value_create_undefined
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 0000001E
+  DLL name     : libcef.dll
+  Symbol name  : _cef_visit_storage
+  Type         : code
+  Name type    : no prefix
+  Hint         : 102
+  Name         : cef_visit_storage
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000026
+  DLL name     : libcef.dll
+  Symbol name  : _cef_web_urlrequest_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 103
+  Name         : cef_web_urlrequest_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_xml_reader_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 104
+  Name         : cef_xml_reader_create
+
+  Version      : 0
+  Machine      : 14C (x86)
+  TimeDateStamp: 4F99A15C Thu Apr 26 14:26:20 2012
+  SizeOfData   : 00000022
+  DLL name     : libcef.dll
+  Symbol name  : _cef_zip_reader_create
+  Type         : code
+  Name type    : no prefix
+  Hint         : 105
+  Name         : cef_zip_reader_create
+
+  Summary
+
+          C0 .debug$S
+          14 .idata$2
+          14 .idata$3
+           4 .idata$4
+           4 .idata$5
+           C .idata$6

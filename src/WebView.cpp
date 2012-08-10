@@ -52,8 +52,8 @@ WebView::WebView(float windowRatio, pt::Window *parent)
 
 	const int kNumPixels = textureWidth*(textureHeight+1)*4;
 
-	// Allocate scroll buffer
-	scroll_buffer = new char[kNumPixels];
+	// Allocate buffer
+	renderBuffer = new char[kNumPixels];
 
 	// Setup berkelium
 	Berkelium::Context *bk_context = Berkelium::Context::create();
@@ -61,6 +61,17 @@ WebView::WebView(float windowRatio, pt::Window *parent)
 	bkWindow->resize(textureWidth, textureHeight); 
 	RELEASE_SAFELY(bk_context);
 	bkWindow->setDelegate(this);
+	
+
+	// Setup CEF
+    CefWindowInfo info;
+    info.SetAsOffScreen(NULL);
+    CefBrowserSettings browserSettings;
+
+    CefBrowser::CreateBrowserSync(info, static_cast<CefRefPtr<CefClient>>(this), "http://www.bing.com", browserSettings);
+
+    // set default browser size
+    cefWindow->SetSize(PET_VIEW, textureWidth, textureHeight);
 
 	// Setup texture
 	texture = new sf::Texture();
@@ -70,6 +81,40 @@ WebView::WebView(float windowRatio, pt::Window *parent)
 
 	domLoaded = false;
  }
+
+void WebView::OnAfterCreated(CefRefPtr<CefBrowser> browser)
+{
+   AutoLock lock_scope(this);
+
+   // keep browser reference
+   cefWindow = browser;
+}
+
+void WebView::OnBeforeClose(CefRefPtr<CefBrowser> browser)
+{
+   AutoLock lock_scope(this);
+
+   // Free the browser pointer so that the browser can be destroyed
+   cefWindow = NULL;
+}
+
+
+void WebView::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer)
+{
+	const int kBytesPerPixel = 4;
+	const int numPixels = textureHeight * textureWidth;
+
+	// Copy buffer
+	memcpy(renderBuffer, buffer, numPixels * kBytesPerPixel);
+
+	// Convert BGRA to RGBA
+	unsigned int *tmpBuf = (unsigned int *)renderBuffer;
+	for (int i = 0; i < numPixels; i++){
+		tmpBuf[i] = (tmpBuf[i] & 0xFF00FF00) | ((tmpBuf[i] & 0x00FF0000) >> 16) | ((tmpBuf[i] & 0x000000FF) << 16);
+	}
+
+	texture->update((sf::Uint8 *)renderBuffer, textureWidth, textureHeight, 0, 0);
+}
 
 int WebView::getTextureWidth(){
 	return textureWidth;
@@ -138,27 +183,28 @@ string WebView::getUniqueIdentifier(const string &name){
 /** @param dx,dy the amount scrolled vertically and horizontally */
 void WebView::injectScroll(int dx, int dy)
 {
-	bkWindow->mouseWheel(dx, dy);
+	//bkWindow->mouseWheel(dx, dy);
+	cout << "injectScroll NOT IMPLEMENTED" << endl;
 }
 
 /* @param x,y are relative */
 void WebView::injectMouseDown(int x, int y)
 {
-	bkWindow->mouseMoved(x, y);
-	bkWindow->mouseButton(0, true);
+	cefWindow->SendMouseMoveEvent(x, y, false);
+	cefWindow->SendMouseClickEvent(x, y, MBT_LEFT, false, 1);
 }
 
 /* @param x,y are relative */
 void WebView::injectMouseUp(int x, int y)
 {
-	bkWindow->mouseMoved(x, y);
-    bkWindow->mouseButton(0, false);
+	cefWindow->SendMouseMoveEvent(x, y, false);
+	cefWindow->SendMouseClickEvent(x, y, MBT_LEFT, true, 1);
 }
 
 /* @param x,y are relative */
 void WebView::injectMouseMove(int x, int y)
 {
-	bkWindow->mouseMoved(x, y);
+	cefWindow->SendMouseMoveEvent(x, y, false);
 }
 
 /** @param scancode the original scancode that generated the event
@@ -184,149 +230,42 @@ void WebView::injectTextEvent(const std::string &utf8){
     RELEASE_SAFELY(buffer);
 }
 
-void WebView::onPaint(Berkelium::Window *wini,
-    const unsigned char *bitmap_in, const Berkelium::Rect &bitmap_rect,
-    size_t num_copy_rects, const Berkelium::Rect *copy_rects,
-    int dx, int dy, const Berkelium::Rect &scroll_rect) {
-
-	const int kBytesPerPixel = 4;
-
-	// Convert BGRA to RGBA
-	unsigned int *tmpBuf = (unsigned int *)bitmap_in;
-	const int numPixels = bitmap_rect.height() * bitmap_rect.width();
-	for (int i = 0; i < numPixels; i++){
-		tmpBuf[i] = (tmpBuf[i] & 0xFF00FF00) | ((tmpBuf[i] & 0x00FF0000) >> 16) | ((tmpBuf[i] & 0x000000FF) << 16);
-	}
-
-	// If we've reloaded the page and need a full update, ignore updates
-	// until a full one comes in. This handles out of date updates due to
-	// delays in event processing.
-	if (needs_full_refresh) {
-
-		// Ignore partial ones
-		if (bitmap_rect.left() != 0 || bitmap_rect.top() != 0 || bitmap_rect.right() != textureWidth || bitmap_rect.bottom() != textureHeight) {
-			return;
+void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame ){
+	if (frame->IsMain()){
+		domLoaded = false;
+		parent->onStartLoading();
+		if (g_debug){
+			cout << "on start loading " << browser->GetMainFrame()->GetURL().ToString() << endl;
 		}
-      
-		// Here's our full refresh
-		texture->update((sf::Uint8 *)bitmap_in, textureWidth, textureHeight, 0, 0);
-
-		needs_full_refresh = false;
-		return;
 	}
+}
 
 
-	// Now, we first handle scrolling. We need to do this first since it
-	// requires shifting existing data, some of which will be overwritten by
-	// the regular dirty rect update.
-	if (dx != 0 || dy != 0) {
+//void WebView::onStartLoading(Berkelium::Window *win, Berkelium::URLString newURL){
+//
+//}
 
-		// scroll_rect contains the Rect we need to move
-		// First we figure out where the the data is moved to by translating it
-		Berkelium::Rect scrolled_rect = scroll_rect.translate(-dx, -dy);
+void WebView::OnAddressChange( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, const CefString& url ){
+	currentURL = url.ToString();
+}
 
-		// Next we figure out where they intersect, giving the scrolled
-		// region
-		Berkelium::Rect scrolled_shared_rect = scroll_rect.intersect(scrolled_rect);
+//void WebView::onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString newURL){
+//
+//}
 
-		// Only do scrolling if they have non-zero intersection
-		if (scrolled_shared_rect.width() > 0 && scrolled_shared_rect.height() > 0) {
-
-			// And the scroll is performed by moving shared_rect by (dx,dy)
-			Berkelium::Rect shared_rect = scrolled_shared_rect.translate(dx, dy);
-
-			int wid = scrolled_shared_rect.width();
-			int hig = scrolled_shared_rect.height();
-
-			int inc = 1;
-			char *outputBuffer = scroll_buffer;
-			// source data is offset by 1 line to prevent memcpy aliasing
-			// In this case, it can happen if dy==0 and dx!=0.
-			char *inputBuffer = scroll_buffer+(textureWidth*1*kBytesPerPixel);
-			int jj = 0;
-			if (dy > 0) {
-
-				// Here, we need to shift the buffer around so that we start in the
-				// extra row at the end, and then copy in reverse so that we
-				// don't clobber source data before copying it.
-				outputBuffer = scroll_buffer+((scrolled_shared_rect.top()+hig+1)*textureWidth - hig*wid)*kBytesPerPixel;
-				inputBuffer = scroll_buffer;
-				inc = -1;
-				jj = hig-1;
-			}
-
-			// Copy the data out of the texture
-			texture->bind(sf::Texture::Pixels);
-			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputBuffer);
-			
-			// Annoyingly, OpenGL doesn't provide convenient primitives, so
-			// we manually copy out the region to the beginning of the
-			// buffer
-			
-			for(; jj < hig && jj >= 0; jj+=inc) {
-				memcpy(
-					outputBuffer + (jj*wid) * kBytesPerPixel,
-					inputBuffer + ((scrolled_shared_rect.top()+jj)*textureWidth + scrolled_shared_rect.left()) * kBytesPerPixel,
-					wid*kBytesPerPixel
-				);
-			}
-
-			// And finally, we push it back into the texture in the right
-			// location
-			texture->update((sf::Uint8 *)outputBuffer, shared_rect.width(), shared_rect.height(), shared_rect.left(), shared_rect.top());
+void WebView::OnLoadEnd( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, int httpStatusCode ){
+	if (frame->IsMain()){
+		if (!domLoaded){
+			cout << " On load end" << endl;
+			processPostLoad();
 		}
 	}
 
-	for (size_t i = 0; i < num_copy_rects; i++) {
-		int wid = copy_rects[i].width();
-		int hig = copy_rects[i].height();
-		int top = copy_rects[i].top() - bitmap_rect.top();
-		int left = copy_rects[i].left() - bitmap_rect.left();
-
-		for(int jj = 0; jj < hig; jj++) {
-			memcpy(
-				scroll_buffer + jj*wid*kBytesPerPixel,
-				bitmap_in + (left + (jj+top)*bitmap_rect.width())*kBytesPerPixel,
-				wid*kBytesPerPixel
-				);
-		}
-
-		// TODO: in debug mode on Visual Studio while maximizing a window an assertion will fail on texture update! FIX IT!
-
-		// Finally, we perform the main update, just copying the rect that is
-		// marked as dirty but not from scrolled data.
-		texture->update((sf::Uint8 *)scroll_buffer, copy_rects[i].width(), copy_rects[i].height(), copy_rects[i].left(), copy_rects[i].top());
-	}
-
-	needs_full_refresh = false;
 }
 
-
-void WebView::onStartLoading(Berkelium::Window *win, Berkelium::URLString newURL){
-	domLoaded = false;
-	parent->onStartLoading();
-	if (g_debug){
-		wcout << L"on start loading " << newURL.data() << endl;
-	}
-}
-
-void WebView::onCreatedWindow (Berkelium::Window *win, Berkelium::Window *newWindow, const Berkelium::Rect &initialRect){
-
-}
-
-void WebView::onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString newURL){
-	currentURL = string(newURL.data(), newURL.size());
-}
-
-void WebView::onTitleChanged (Berkelium::Window *win, Berkelium::WideString title){
-
-}
-
-void WebView::onLoad(Berkelium::Window *win){
-	if (!domLoaded){
-		processPostLoad();
-	}
-}
+//void WebView::onLoad(Berkelium::Window *win){
+//
+//}
 
 /** Called from javascript whenever the DOM is ready */
 void WebView::notifyDomLoaded(){ 
@@ -341,31 +280,34 @@ void WebView::processPostLoad(){
 	executeJavascriptFromFile("js/injectOnLoad.js");
 
 	parent->injectJavascriptResources();  
-	
-    // TODO: add callback to notify of successful javascript document load!
-    // then apply zoom
 }
 
 /** Binds the javascript API for interaction between JS<-->Glassomium  */
 void WebView::bindJSAPI(){
 	std::vector<std::wstring> bindings = parent->getJavascriptBindings();
+	/*
 	for (unsigned int i = 0; i < bindings.size(); i++){
 		bkWindow->bind(Berkelium::WideString::point_to(bindings[i]),
 			Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(bindings[i]), false));   
-	}
+	}*/
+
+
 }
 
 /** Executes javascript code in the current window 
  * @param code ASCII javascript code (not multibyte), see see http://stackoverflow.com/questions/246806/i-want-to-convert-stdstring-into-a-const-wchar-t */
 void WebView::executeJavascript(const string &code){
     std::wstring wide_code = std::wstring(code.begin(), code.end());
-    bkWindow->executeJavascript(Berkelium::WideString::point_to(wide_code.c_str()));
+
+	CefRefPtr<CefFrame> frame = cefWindow->GetMainFrame();
+	frame->ExecuteJavaScript(CefString(code), frame->GetURL(), 0);
 }
 
 /** Executes javascript code from a file in the current window */
 void WebView::executeJavascriptFromFile(const string &file){
     wstring content = FileManager::getSingleton()->readAllWide(file);
-    bkWindow->executeJavascript(Berkelium::WideString::point_to(content.c_str()));
+	CefRefPtr<CefFrame> frame = cefWindow->GetMainFrame();
+	frame->ExecuteJavaScript(CefString(content), frame->GetURL(), 0);
 }
 
 /** Goes back by one history item */
@@ -454,7 +396,7 @@ WebView::~WebView(){
 
 	RELEASE_SAFELY(texture);
 
-	RELEASE_SAFELY(scroll_buffer);
+	RELEASE_SAFELY(renderBuffer);
 
     WebView::webViewCount--;
 }

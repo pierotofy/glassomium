@@ -129,6 +129,8 @@ set(SRCS
 
 include_directories(./include)
 include_directories(./include/sfgui/include)
+include_directories(./include/cef1)
+
 
 # Add precompiled headers on windows and icon resource
 if (WIN32)
@@ -158,6 +160,8 @@ endif()
 
 if (WIN32)
   target_link_libraries(${PROJECT_NAME} Opengl32.lib) 
+  target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/cef1-win32/lib/libcef.lib)
+  target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/cef1-win32/lib/libcef_dll_wrapper.lib)
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-win32/lib/berkelium.lib)
 endif()
 if (UNIX)
@@ -174,7 +178,7 @@ add_subdirectory(include/ip)
 
 set(SFGUI_STATIC TRUE)
 set(SFGUI_STATIC_LIBRARIES TRUE)
-set(BUILD_SHARED_LIBS FALSE)
+#set(BUILD_SHARED_LIBS FALSE)
 add_subdirectory(include/sfgui)
 
  
@@ -222,6 +226,22 @@ if(WIN32)
 		DESTINATION bin
 	
 	)
+
+    # Copy cef1 stuff
+    
+    FILE(GLOB bk_dll "${CMAKE_SOURCE_DIR}/lib/cef1-win32/bin/*.dll")
+    install(FILES ${bk_dll} 
+        DESTINATION bin
+    )
+
+    FILE(GLOB bk_pak "${CMAKE_SOURCE_DIR}/lib/cef1-win32/bin/*.pak")
+    install(FILES ${bk_pak} 
+        DESTINATION bin
+    )
+
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/lib/cef1-win32/bin/locales
+        DESTINATION bin
+    )
 endif(WIN32)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist

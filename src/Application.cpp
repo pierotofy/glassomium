@@ -164,12 +164,20 @@ void Application::go(){
         return;
 	}
 
+	// use this as the UI/main thread
+	CefRefPtr<CefApp> app;
+    CefSettings settings;
+    settings.multi_threaded_message_loop = false;
+
+    // initialize CEF
+    CefInitialize(settings, app);
+
 	FileManager::initialize();
 
 	ServerManager::initialize("localhost", 5555);
 
 	tuioManager = new TuioManager(3333);
-
+	
 	// Initialize window manager
 	UIManager::initialize();
 	
@@ -182,10 +190,17 @@ void Application::go(){
 		return;
 	}
 
+	Window *w = UIManager::getSingleton()->createWindow(0.8f, 0.8f, User);
+	w->loadURL("http://www.google.com");
+	w->setPosition(400, 300);
+
+/*
 	// Create the layout
 	UIManager::getSingleton()->setupSystemLayout();
-
+	*/
 	// Start loop
+	sf::Clock cefClock;
+			
 	while (renderWindow->isOpen())
     {
         // Process events
@@ -218,8 +233,16 @@ void Application::go(){
 		// Display our stuff
 		UIManager::getSingleton()->draw(renderWindow);
 
+		//renderWindow->draw(*w->getSprite());
+
 		// Display window contents on screen
 		renderWindow->display();
+		
+		CefDoMessageLoopWork();
+		//if (cefClock.getElapsedTime().asSeconds() > 0.0166666666666667f){
+		//	CefDoMessageLoopWork();
+		//	cefClock.restart();
+		//}
     }
 }
 
