@@ -20,13 +20,13 @@
 #ifndef STDAFX_H
 #define STDAFX_H
 
-#include "berkelium/Berkelium.hpp"
-#include "berkelium/Context.hpp"
-#include "berkelium/Window.hpp"
-#include "berkelium/WindowDelegate.hpp"
-#include "berkelium/Rect.hpp"
-#include "berkelium/WeakString.hpp"
-#include "berkelium/ScriptUtil.hpp"
+#include "include/cef_app.h"
+#include "include/cef_client.h"
+#include "include/cef_display_handler.h"
+#include "include/cef_life_span_handler.h"
+#include "include/cef_request_handler.h"
+#include "include/cef_render_handler.h"
+#include "include/internal/cef_ptr.h"
 
 #include "TUIO/TuioCursor.h"
 #include "TUIO/TuioClient.h"

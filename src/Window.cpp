@@ -1103,7 +1103,7 @@ void Window::repaint(){
 
 Window::~Window(){
 	RELEASE_SAFELY(sprite);
-	RELEASE_SAFELY(webView);
+	webView->release();
 }
 
 }

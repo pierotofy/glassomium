@@ -37,11 +37,9 @@ unsigned int WebView::webViewCount = 0;
 /** Creates a new web view
  * @param windowRatio this value is used to calculate the dimensions of the window
 	 (it takes the resolution of the application and creates a window with the specified ratio)*/
-WebView::WebView(float windowRatio, pt::Window *parent)
- : needs_full_refresh(true){
+WebView::WebView(float windowRatio, pt::Window *parent){
 	this->windowRatio = windowRatio;
     this->parent = parent;
-	this->bkWindow = NULL;
 
 	// Calculate the optimal texture size
 	calculateTextureSize(this->windowRatio, this->textureWidth, this->textureHeight);
@@ -55,20 +53,13 @@ WebView::WebView(float windowRatio, pt::Window *parent)
 	// Allocate buffer
 	renderBuffer = new char[kNumPixels];
 
-	// Setup berkelium
-	Berkelium::Context *bk_context = Berkelium::Context::create();
-	bkWindow = Berkelium::Window::create(bk_context);
-	bkWindow->resize(textureWidth, textureHeight); 
-	RELEASE_SAFELY(bk_context);
-	bkWindow->setDelegate(this);
-	
-
 	// Setup CEF
     CefWindowInfo info;
+	info.SetTransparentPainting(true);
     info.SetAsOffScreen(NULL);
     CefBrowserSettings browserSettings;
 
-    CefBrowser::CreateBrowserSync(info, static_cast<CefRefPtr<CefClient>>(this), "http://www.bing.com", browserSettings);
+    cefWindow = CefBrowser::CreateBrowserSync(info, static_cast<CefRefPtr<CefClient>>(this), "", browserSettings);
 
     // set default browser size
     cefWindow->SetSize(PET_VIEW, textureWidth, textureHeight);
@@ -81,23 +72,6 @@ WebView::WebView(float windowRatio, pt::Window *parent)
 
 	domLoaded = false;
  }
-
-void WebView::OnAfterCreated(CefRefPtr<CefBrowser> browser)
-{
-   AutoLock lock_scope(this);
-
-   // keep browser reference
-   cefWindow = browser;
-}
-
-void WebView::OnBeforeClose(CefRefPtr<CefBrowser> browser)
-{
-   AutoLock lock_scope(this);
-
-   // Free the browser pointer so that the browser can be destroyed
-   cefWindow = NULL;
-}
-
 
 void WebView::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer)
 {
@@ -130,7 +104,7 @@ void WebView::resize(int width, int height){
 	textureWidth = width;
 	textureHeight = height;
 
-	bkWindow->resize(width, height);
+	cefWindow->SetSize(PET_VIEW, width, height);
 	
 	// Switch old texture with new one
 	sf::Texture *oldTexture = texture;
@@ -144,8 +118,10 @@ void WebView::resize(int width, int height){
 
 /** Set the transparent property */
 void WebView::setTransparent(bool transparent){
+	// TODO: how do we do this?
+
 	this->transparent = transparent;
-    bkWindow->setTransparent(transparent);
+    //bkWindow->setTransparent(transparent);
 }
 
 bool WebView::isTransparent(){
@@ -168,7 +144,7 @@ void WebView::calculateTextureSize(float windowRatio, int &width, int &height){
 
 /** Instruct berkelium to load a URI*/
 void WebView::loadURI(const string &url){
-	bkWindow->navigateTo(Berkelium::URLString::point_to(url.data(), url.length()));
+	cefWindow->GetMainFrame()->LoadURL(url);
 	currentURL = url;
 }
 
@@ -211,23 +187,29 @@ void WebView::injectMouseMove(int x, int y)
  *  @param mods    a modifier code created by a logical or of KeyModifiers 
  *  @param vkCode     the virtual key code received from the OS */
 void WebView::injectKeyDown(int modifiers, int vkCode, int scancode){
-    bkWindow->keyEvent(true, modifiers, vkCode, scancode);
-	injectTextEvent(string(1, vkCode));
+    //bkWindow->keyEvent(true, modifiers, vkCode, scancode);
+	//injectTextEvent(string(1, vkCode));
+
+	cefWindow->SendKeyEvent(KT_KEYDOWN, vkCode, modifiers, false, false);
 }
 
 /** @param scancode the original scancode that generated the event
  *  @param mods    a modifier code created by a logical or of KeyModifiers 
  *  @param vkCode     the virtual key code received from the OS */
 void WebView::injectKeyUp(int modifiers, int vkCode, int scancode){
-    bkWindow->keyEvent(false, modifiers, vkCode, scancode);
+	cefWindow->SendKeyEvent(KT_KEYUP, vkCode, modifiers, false, false);
+    //bkWindow->keyEvent(false, modifiers, vkCode, scancode);
 }
 
 void WebView::injectTextEvent(const std::string &utf8){
+	// TODO: finish!
+	/*
 	// Convert from multibyte to wide character string
     wchar_t *buffer = new wchar_t[utf8.size() + 1];
     size_t length = mbstowcs(buffer, utf8.c_str(), utf8.size());
     bkWindow->textEvent(buffer, length);
     RELEASE_SAFELY(buffer);
+	*/
 }
 
 void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame ){
@@ -240,18 +222,9 @@ void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame 
 	}
 }
 
-
-//void WebView::onStartLoading(Berkelium::Window *win, Berkelium::URLString newURL){
-//
-//}
-
 void WebView::OnAddressChange( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, const CefString& url ){
 	currentURL = url.ToString();
 }
-
-//void WebView::onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString newURL){
-//
-//}
 
 void WebView::OnLoadEnd( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, int httpStatusCode ){
 	if (frame->IsMain()){
@@ -263,10 +236,6 @@ void WebView::OnLoadEnd( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > 
 
 }
 
-//void WebView::onLoad(Berkelium::Window *win){
-//
-//}
-
 /** Called from javascript whenever the DOM is ready */
 void WebView::notifyDomLoaded(){ 
 	domLoaded = true; 
@@ -274,24 +243,10 @@ void WebView::notifyDomLoaded(){
 
 /** This method must be called after every page load (including during history navigation) */
 void WebView::processPostLoad(){
-	bindJSAPI();
-
 	// Inject javascript on load
 	executeJavascriptFromFile("js/injectOnLoad.js");
 
 	parent->injectJavascriptResources();  
-}
-
-/** Binds the javascript API for interaction between JS<-->Glassomium  */
-void WebView::bindJSAPI(){
-	std::vector<std::wstring> bindings = parent->getJavascriptBindings();
-	/*
-	for (unsigned int i = 0; i < bindings.size(); i++){
-		bkWindow->bind(Berkelium::WideString::point_to(bindings[i]),
-			Berkelium::Script::Variant::bindFunction(Berkelium::WideString::point_to(bindings[i]), false));   
-	}*/
-
-
 }
 
 /** Executes javascript code in the current window 
@@ -312,52 +267,58 @@ void WebView::executeJavascriptFromFile(const string &file){
 
 /** Goes back by one history item */
 void WebView::goBack(){
-	if (bkWindow->canGoBack()){
-		bkWindow->goBack();
-		processPostLoad();
+	if (cefWindow->CanGoBack()){
+		cefWindow->GoBack();
+		processPostLoad();// TODO : do we need this?
 	}
 }
 
 /** Goes forward by one history item */
 void WebView::goForward(){
-	if (bkWindow->canGoForward()){
-		bkWindow->goForward();
-		processPostLoad();
+	if (cefWindow->CanGoForward()){
+		cefWindow->GoForward();
+		processPostLoad(); // TODO : do we need this?
 	}
 }
 
 
 /** Reload the page */
 void WebView::reload(){
-	bkWindow->refresh();
+	cefWindow->Reload();
 }
 
-
-/** @param replyMsg if true is synchronous, asynchronous otherwise
-    @param funcName name of the function called
-    @param args argument list */
-void WebView::onJavascriptCallback(Berkelium::Window *win, void* replyMsg, Berkelium::URLString url, 
-                Berkelium::WideString funcName, Berkelium::Script::Variant *args, size_t numArgs){
-    if (g_debug){
-		std::cout << "*** onJavascriptCallback at URL " << url << ", " << (replyMsg?"synchronous":"async") << std::endl;
-		std::wcout << L" Function name: " << funcName << std::endl;
+/** Intercepts Javascript bindings (public JS API) */
+bool WebView::Execute( const CefString& name, CefRefPtr< CefV8Value > object, const CefV8ValueList& arguments, CefRefPtr< CefV8Value >& retval, CefString& exception){
+	if (g_debug){
+		cout << "Intercepted " << name.ToString() << endl;
 	}
 
-    wstring fname = wstring(funcName.data());
 	std::vector<std::string> params;
-	for (unsigned int i = 0; i < numArgs; i++){
-		wstring wparam = Berkelium::Script::toJSON(args[i]).data();
-        string param = std::string(wparam.begin() + 1, wparam.end() - 1);
-		params.push_back(param);
+	for (unsigned int i = 0; i < arguments.size(); i++){
+		params.push_back(arguments.at(i).get()->GetStringValue().ToString());
 	}
 
-	parent->onJavascriptCallback(fname, params);
+	parent->onJavascriptCallback(name.ToWString(), params);
 
-    if (replyMsg) {
-        win->synchronousScriptReturn(replyMsg, numArgs ? args[0] : Berkelium::Script::Variant());
-    }
+    return true;
 }
 
+void WebView::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
+{
+	if (frame->IsMain()){
+		if (g_debug){
+			cout << "Binding JS API" << endl;
+		}
+		std::vector<std::wstring> bindings = parent->getJavascriptBindings();
+
+		CefRefPtr<CefV8Value> object = context->GetGlobal();
+		for (unsigned int i = 0; i < bindings.size(); i++){
+			object->SetValue(bindings[i], CefV8Value::CreateFunction(bindings[i], this), V8_PROPERTY_ATTRIBUTE_NONE);
+		}
+	}
+}
+
+// TODO: adapt to CEF
 /** Bug, doesn't seem to get fired by berkelium */
 /** Intercept requests for new window creation, otherwise we won't be able display popups and company */
 // void WebView::onNavigationRequested (Berkelium::Window *win, Berkelium::URLString newUrl, Berkelium::URLString referrer, bool isNewWindow, bool &cancelDefaultAction){
@@ -367,16 +328,11 @@ void WebView::onJavascriptCallback(Berkelium::Window *win, void* replyMsg, Berke
 //     }
 // }
 
-/** Same as pressing Ctrl-- or Ctrl-+ on a webbrowser
- @param mode -1 (zoom out), 0 (reset zoom), 1 (zoom in) */
-void WebView::adjustZoom(int mode){
-    bkWindow->adjustZoom(mode); 
-}
-
 /** Creates a new berkelium window and notifies the parent that we have crashed!
  * @param description a brief description of what happened. */
 void WebView::handleCrash(const string &description){
 	cerr << "CRASH: " << description << endl;
+	/* TODO: FINISH!!!
 
 	Berkelium::Window *previousWindow = bkWindow;
 	Berkelium::Context *bk_context = Berkelium::Context::create();
@@ -385,19 +341,38 @@ void WebView::handleCrash(const string &description){
 	RELEASE_SAFELY(bk_context);
 	bkWindow->setDelegate(this);
 	RELEASE_SAFELY(previousWindow);
-
+	*/
 	parent->onCrash(description);
 }
 
-WebView::~WebView(){
-    if (bkWindow){
-		RELEASE_SAFELY(bkWindow);
-	}
+void WebView::OnBeforeClose(CefRefPtr<CefBrowser> browser){
+   AutoLock lock_scope(this);
 
+   // Free the browser pointer so that the browser can be destroyed
+   cefWindow = NULL;
+
+   UIManager::getSingleton()->addWebViewToDisposeQueue(this);
+}
+
+/** Deallocates the webview 
+ * Use this method instead of the destructor to deallocate a webview */
+void WebView::release(){
+
+	// TODO: this crashes when a page is still loading and it gets closed
+
+	// This call is async and will return immediately
+	// We will dispose the actual object when onBeforeClose is called
+	cefWindow->CloseBrowser();
+}
+
+WebView::~WebView(){
+   // Free the browser pointer so that the browser can be destroyed
+	cout << "DEALLOCATING webview" << endl;
+		
 	RELEASE_SAFELY(texture);
 
 	RELEASE_SAFELY(renderBuffer);
-
+	
     WebView::webViewCount--;
 }
 

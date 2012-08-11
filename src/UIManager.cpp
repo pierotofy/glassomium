@@ -179,6 +179,8 @@ void UIManager::update(){
 	if (screensaverWait > 0 && screensaverClock.getElapsedTime().asSeconds() > screensaverWait && !screensaverShowing){
 		showScreensaver();
 	}
+
+	processWebViewDisposeQueue();
 }
 
 /** Creates a screensaver window and displays it to the user, provided that a screensaver
@@ -890,6 +892,20 @@ void UIManager::pushUpZOrdering(Window *w){
 	for (unsigned int i = 0; i < windows.size(); i++){
 		int currentZ = windows[i]->getZOrder();
 		if (currentZ <= 0 && !windows[i]->isZStatic()) windows[i]->setZOrder(currentZ + 1);
+	}
+}
+
+/** Adds a webview pointer to a dispose queue that will be processed on 
+ * the next update */
+void UIManager::addWebViewToDisposeQueue(pt::WebView *webView){
+	wvDisposeQueue.push(webView);
+}
+
+/** Deallocates any object in the webview dispose queue */
+void UIManager::processWebViewDisposeQueue(){
+	while (wvDisposeQueue.size() > 0){
+		RELEASE_SAFELY(wvDisposeQueue.front());
+		wvDisposeQueue.pop();
 	}
 }
 

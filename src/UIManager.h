@@ -99,6 +99,9 @@ public:
 	GestureManager *getGestureManager(){ return gestureManager; }
 	AnimationManager *getAnimationManager() { return animationManager; }
 	sf::Color getDragColor() const{ return dragColor; } 
+
+	void addWebViewToDisposeQueue(pt::WebView *webView);
+	void processWebViewDisposeQueue();
 private:
 	static UIManager *singleton;
 
@@ -138,6 +141,9 @@ private:
 
 	// Keeps track of all the windows
 	std::vector<Window *> windows;
+
+	// Queue of webview objects waiting to be disposed
+	std::queue<pt::WebView *> wvDisposeQueue;
 
 	// Keeps the configuration information about the applications that will be launched
 	std::map<std::string, AppConfiguration *> *appConfigs;

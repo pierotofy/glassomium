@@ -159,10 +159,6 @@ void Application::go(){
 	float displace = (newH - Application::windowHeight)/(-2.0f);
 	renderWindow->setView(sf::View(sf::FloatRect(0.0f, displace, Application::windowWidth, newH)));
 	*/
-	if (!Berkelium::init(Berkelium::FileString::empty(), 0, NULL)){
-		std::cout << "Failed to initialize berkelium!" << std::endl;
-        return;
-	}
 
 	// use this as the UI/main thread
 	CefRefPtr<CefApp> app;
@@ -189,17 +185,16 @@ void Application::go(){
 		cerr << e.what() << endl;
 		return;
 	}
-
+	/*
 	Window *w = UIManager::getSingleton()->createWindow(0.8f, 0.8f, User);
 	w->loadURL("http://www.google.com");
 	w->setPosition(400, 300);
-
-/*
+	*/
 	// Create the layout
 	UIManager::getSingleton()->setupSystemLayout();
-	*/
+
 	// Start loop
-	sf::Clock cefClock;
+	//sf::Clock cefClock;
 			
 	while (renderWindow->isOpen())
     {
@@ -225,7 +220,7 @@ void Application::go(){
 
 		UIManager::getSingleton()->update();
 
-		Berkelium::update();
+		CefDoMessageLoopWork();
 
 		// Clear screen
 		renderWindow->clear(sf::Color(76, 76, 76));
@@ -233,16 +228,8 @@ void Application::go(){
 		// Display our stuff
 		UIManager::getSingleton()->draw(renderWindow);
 
-		//renderWindow->draw(*w->getSprite());
-
 		// Display window contents on screen
 		renderWindow->display();
-		
-		CefDoMessageLoopWork();
-		//if (cefClock.getElapsedTime().asSeconds() > 0.0166666666666667f){
-		//	CefDoMessageLoopWork();
-		//	cefClock.restart();
-		//}
     }
 }
 
@@ -304,8 +291,7 @@ bool Application::isPointOnScreenCorner(const sf::Vector2f &point, float cornerS
 Application::~Application(){
 	UIManager::destroy();
 
-	// Don't forget!
-	Berkelium::destroy();
+	CefShutdown();
 
 	RELEASE_SAFELY(tuioManager);
 	RELEASE_SAFELY(renderWindow);

@@ -21,13 +21,6 @@
 #define WEBVIEW_H
 
 #include "stdafx.h"
-#include "include/cef_app.h"
-#include "include/cef_client.h"
-#include "include/cef_display_handler.h"
-#include "include/cef_life_span_handler.h"
-#include "include/cef_request_handler.h"
-#include "include/cef_render_handler.h"
-#include "include/internal/cef_ptr.h"
 
 namespace pt{
 
@@ -43,7 +36,7 @@ class WebView : public CefClient,
 			    public CefRequestHandler,
 			    public CefRenderHandler,
 				public CefV8Handler,
-				public Berkelium::WindowDelegate{
+				public CefV8ContextHandler{
 public:
 	static unsigned int webViewCount;
 
@@ -54,9 +47,9 @@ public:
    virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE { return this; }
    virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
    virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE { return this; }
+   virtual CefRefPtr<CefV8ContextHandler> GetV8ContextHandler() OVERRIDE { return this; }
+   virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE { return this; }
 
-    // CefLifeSpanHandler methods
-   virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
    virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 
    virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
@@ -66,6 +59,10 @@ public:
    virtual void OnLoadEnd( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, int httpStatusCode ) OVERRIDE;
 
    virtual void OnAddressChange( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, const CefString& url ) OVERRIDE;
+
+   virtual void OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) OVERRIDE;
+
+   virtual bool	Execute( const CefString& name, CefRefPtr< CefV8Value > object, const CefV8ValueList& arguments, CefRefPtr< CefV8Value >& retval, CefString& exception) OVERRIDE;
 
 	sf::Texture* getTexture(){ return texture; }
 	void loadURI(const string&);
@@ -93,8 +90,6 @@ public:
 
 	void reload();
 
-	void adjustZoom(int mode);
-
 	void setTransparent(bool);
 	bool isTransparent();
 
@@ -102,6 +97,8 @@ public:
 
 	void notifyDomLoaded();
 	std::string getCurrentURL(){ return currentURL; }
+
+	void release();
 private:
 	// The child browser window
    CefRefPtr<CefBrowser> cefWindow;
@@ -112,13 +109,8 @@ private:
    // Include the default locking implementation.
    IMPLEMENT_LOCKING(WebView);
 
-	void bindJSAPI();
-
 	// Reference to the parent object that hosts this webview
 	Window *parent;
-
-    // The Berkelium window, i.e. our web page
-    Berkelium::Window* bkWindow;
 
 	float windowRatio;
 
@@ -127,9 +119,6 @@ private:
 
 	// The actual thing that gets rendered
 	sf::Texture *texture;
-
-	// Bool indicating when we need to refresh the entire texture
-    bool needs_full_refresh;
 
     // Buffer used to store the image for the texture
     char* renderBuffer;
@@ -141,28 +130,15 @@ private:
 
 	bool transparent;
 
-	// The color used to blend the texture with during shading
-	//Ogre::Vector4 blendColor;
-
 	// Unique for each existing web view
 	unsigned int webViewId;
-
-	// This method needs to be called after some of the material properties have changed
-	void updateMaterial();
 
 	void calculateTextureSize(float windowRatio, int &width, int &height);
 	string getUniqueIdentifier(const string &);
 
-	virtual void onJavascriptCallback(Berkelium::Window *win, void* replyMsg, Berkelium::URLString url, 
-				Berkelium::WideString funcName, Berkelium::Script::Variant *args, size_t numArgs);
-	
 	void handleCrash(const string &description);
       
-	// virtual void onNavigationRequested (Berkelium::Window *win, 
-	// 		Berkelium::URLString newUrl, 
-	// 		Berkelium::URLString referrer, 
-	// 		bool isNewWindow, bool &cancelDefaultAction);
-
+	/* TODO: catch crashes
 	virtual void onCrashedWorker (Berkelium::Window *win){
 		handleCrash("A worker crashed!");
 	}
@@ -177,7 +153,7 @@ private:
 
 	virtual void onCrashedPlugin (Berkelium::Window *win, Berkelium::WideString pluginName){
 		handleCrash("Plugin crashed!");
-	}
+	}*/
 };
 
 }
