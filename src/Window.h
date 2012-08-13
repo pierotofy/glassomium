@@ -259,6 +259,7 @@ private:
 
 	// And other properties
 	bool draggableBeforeFullscreen;
+	bool transparentBeforeFullscreen;
 
 	std::stack<Degrees> rotationStack;
 	std::stack<sf::Vector2f> positionStack;

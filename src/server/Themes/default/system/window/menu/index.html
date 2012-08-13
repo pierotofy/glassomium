@@ -88,7 +88,7 @@ GLA.HideWindowMenu = function(immediate){
 GLA.AdjustMenu = function(adjustVertical){
 	if (adjustVertical == undefined) adjustVertical = true;
 
-	var PERCENTAGE = 0.05; /* The menu will take 5% of the width of the window */
+	var PERCENTAGE = 0.07; /* The menu will take 7% of the width of the window */
 	var zoom = GLA.GetZoom();
 
 	var winWidth = $jsafe(window).width();
@@ -111,6 +111,10 @@ GLA.AdjustMenu = function(adjustVertical){
 };
 
 $jsafe(window).scroll(function(){
+	GLA.AdjustMenu();
+});
+
+$jsafe(document).ready(function(){
 	GLA.AdjustMenu();
 });
 
