@@ -75,6 +75,7 @@ WebView::WebView(float windowRatio, pt::Window *parent){
 
 void WebView::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer)
 {
+	AutoLock lock_scope(this);
 	const int kBytesPerPixel = 4;
 	const int numPixels = textureHeight * textureWidth;
 
@@ -213,6 +214,7 @@ void WebView::injectTextEvent(const std::string &utf8){
 }
 
 void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame ){
+	AutoLock lock_scope(this);
 	if (frame->IsMain()){
 		domLoaded = false;
 		parent->onStartLoading();
@@ -223,10 +225,12 @@ void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame 
 }
 
 void WebView::OnAddressChange( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, const CefString& url ){
+	AutoLock lock_scope(this);
 	currentURL = url.ToString();
 }
 
 void WebView::OnLoadEnd( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, int httpStatusCode ){
+	AutoLock lock_scope(this);
 	if (frame->IsMain()){
 		if (!domLoaded){
 			cout << " On load end" << endl;
@@ -281,6 +285,11 @@ void WebView::goForward(){
 	}
 }
 
+/** Prevents popups from showing */
+bool WebView::OnBeforePopup( CefRefPtr< CefBrowser > parentBrowser, const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo, const CefString& url, CefRefPtr< CefClient >& client, CefBrowserSettings& settings ){
+	AutoLock lock_scope(this);
+	return true;
+}
 
 /** Reload the page */
 void WebView::reload(){
@@ -289,6 +298,8 @@ void WebView::reload(){
 
 /** Intercepts Javascript bindings (public JS API) */
 bool WebView::Execute( const CefString& name, CefRefPtr< CefV8Value > object, const CefV8ValueList& arguments, CefRefPtr< CefV8Value >& retval, CefString& exception){
+   AutoLock lock_scope(this);
+
 	if (g_debug){
 		cout << "Intercepted " << name.ToString() << endl;
 	}
@@ -305,6 +316,8 @@ bool WebView::Execute( const CefString& name, CefRefPtr< CefV8Value > object, co
 
 void WebView::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
+	AutoLock lock_scope(this);
+
 	if (frame->IsMain()){
 		if (g_debug){
 			cout << "Binding JS API" << endl;
@@ -351,7 +364,7 @@ void WebView::OnBeforeClose(CefRefPtr<CefBrowser> browser){
    // Free the browser pointer so that the browser can be destroyed
    cefWindow = NULL;
 
-   UIManager::getSingleton()->addWebViewToDisposeQueue(this);
+   // Webview will be disposed by CEF
 }
 
 /** Deallocates the webview 
@@ -366,9 +379,10 @@ void WebView::release(){
 }
 
 WebView::~WebView(){
-   // Free the browser pointer so that the browser can be destroyed
-	cout << "DEALLOCATING webview" << endl;
-		
+	if (g_debug){
+		cout << "Deallocated webview" << endl;
+	}
+
 	RELEASE_SAFELY(texture);
 
 	RELEASE_SAFELY(renderBuffer);

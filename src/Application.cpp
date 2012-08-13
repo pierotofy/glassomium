@@ -160,12 +160,11 @@ void Application::go(){
 	renderWindow->setView(sf::View(sf::FloatRect(0.0f, displace, Application::windowWidth, newH)));
 	*/
 
-	// use this as the UI/main thread
 	CefRefPtr<CefApp> app;
     CefSettings settings;
     settings.multi_threaded_message_loop = false;
 
-    // initialize CEF
+	// initialize CEF
     CefInitialize(settings, app);
 
 	FileManager::initialize();
@@ -194,15 +193,15 @@ void Application::go(){
 	UIManager::getSingleton()->setupSystemLayout();
 
 	// Start loop
-	//sf::Clock cefClock;
-			
+	//sf::Clock cefClock;	
+
 	while (renderWindow->isOpen())
     {
-        // Process events
-        sf::Event e;
+		// Process events
+		sf::Event e;
 		while (renderWindow->pollEvent(e))
-        {
-            // Close window : exit
+		{
+			// Close window : exit
 			if (e.type == sf::Event::Closed){
 				renderWindow->close();
 				return;
@@ -230,6 +229,7 @@ void Application::go(){
 
 		// Display window contents on screen
 		renderWindow->display();
+
     }
 }
 

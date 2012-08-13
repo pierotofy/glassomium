@@ -51,6 +51,7 @@ public:
    virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE { return this; }
 
    virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+   virtual bool OnBeforePopup( CefRefPtr< CefBrowser > parentBrowser, const CefPopupFeatures& popupFeatures, CefWindowInfo& windowInfo, const CefString& url, CefRefPtr< CefClient >& client, CefBrowserSettings& settings ) OVERRIDE;
 
    virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
       const RectList& dirtyRects, const void* buffer) OVERRIDE;
