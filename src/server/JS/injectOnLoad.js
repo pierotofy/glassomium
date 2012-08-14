@@ -342,3 +342,12 @@ GLA.SetTransformable = function(flag){
 GLA.SetPinchableOutOfFullscreen = function(flag){
 	_GLASetPinchableOutOfFullscreen(flag ? "1" : "0");
 };
+
+/** Sets whether the current window should perform a scroll movement in the vertical direction
+ * (simulating a mouse wheel) during a pinch gesture when in fullscreen mode AND when not touching
+ * one of the corners. This is useful for web applications that use mouse wheel events
+ * to zoom in and out (maps, for example).
+ * @param flag boolean indicating whether the window should perform a scroll on pinch */ 
+GLA.SetScrollOnPinch = function(flag){
+	_GLASetScrollOnPinch(flag ? "1" : "0");
+};

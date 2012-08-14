@@ -45,6 +45,8 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	mouseDown = false;
 	scrolledOnMouseMove = false;
 
+	scrollOnPinch = false;
+
 	// Don't fire tuio events unless specified otherwise
 	tuioEnabled = false;
 
@@ -215,7 +217,7 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
      }         
 }
 
-/** All vector3 are points in range 0..1 (as received from the gesture manager) */
+/** All vectors are points in range 0..1 (as received from the gesture manager) */
 void Window::startTransforming(const sf::Vector2f &centerLocation, float transformDistanceFromCenter, const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
 	if (transformable){
 		blockTransformsFlag = false;
@@ -231,6 +233,8 @@ void Window::startTransforming(const sf::Vector2f &centerLocation, float transfo
 		deltaRotationBigEnough = false;
 
 		pinchedOutOfFullscreen = false;
+
+		previousDy = 0;
 
 		previousFirstTouchLocation = firstTouchLocationOnTransformBegin = firstTouchLocation;
 		previousSecondTouchLocation = secondTouchLocationOnTransformBegin = secondTouchLocation;
@@ -262,16 +266,37 @@ void Window::stopTransforming(){
  */
 void Window::updateTransform(const sf::Vector2f &centerLocation, float transformDistanceFromCenter, const sf::Vector2f &firstTouchLocation, 
 							const sf::Vector2f &secondTouchLocation){
-	if (blockTransformsFlag || !transformable) return;
-	if (fullscreen && !pinchableOutOfFullscreen) return;
+	
+	// Start checks for validity here, the function might return without doing anything
+								
+	if (blockTransformsFlag) return;
 
-	// In fullscreen, only pinching one of the corners of the window will allow resizing
+	if (!transformable && !(fullscreen && scrollOnPinch)) return;
+
+	bool performScroll = false;
 	if (fullscreen){
-		#define CORNER_SIZE 0.10f
+		// Not pinchable and we are not scrolling on pinch either, nothing to do here!
+		if (!(pinchableOutOfFullscreen || scrollOnPinch)) return;
 
-		if (!(Application::isPointOnScreenCorner(firstTouchLocationOnTransformBegin, CORNER_SIZE) ||
-			  Application::isPointOnScreenCorner(secondTouchLocationOnTransformBegin, CORNER_SIZE))) return;
+		// In fullscreen, only pinching one of the corners of the window will allow resizing
+		#define CORNER_SIZE 0.10f
+		bool pinchedCorner = Application::isPointOnScreenCorner(firstTouchLocationOnTransformBegin, CORNER_SIZE) ||
+			  Application::isPointOnScreenCorner(secondTouchLocationOnTransformBegin, CORNER_SIZE);
+
+		if (!pinchedCorner){
+			if (scrollOnPinch){
+				performScroll = true;
+
+				// Continue execution after this
+			}
+			else return; // Didn't pinch a corner and we are not performing a scroll either. nothing to do here!
+		}else{
+			// Pinched a corner, continue execution after this
+		}
+
 	}
+
+	// End checks, start actual transforms
 
 	#define SCALE_SENSITIVITY 2
 	#define DELTA_SCALE_THRESHOLD 0.010f
@@ -288,15 +313,29 @@ void Window::updateTransform(const sf::Vector2f &centerLocation, float transform
 	// Don't start scaling if delta is not big enough (the user could be doing another gesture)
 	// Also don't scale if the scale is too big (it could have been a sudden bad input from TUIO)
 	if (deltaScaleBigEnough){
-
-		// If we are in fullscreen, before resizing we need to get back to windowed mode
-		if (fullscreen){
-			UIManager::getSingleton()->onWindowExitFullscreenRequested(this);
-			pinchedOutOfFullscreen = true;
-		}
+		if (!performScroll){
+			// If we are in fullscreen, before resizing we need to get back to windowed mode
+			if (fullscreen){
+				UIManager::getSingleton()->onWindowExitFullscreenRequested(this);
+				pinchedOutOfFullscreen = true;
+			}
 		
-		this->setScale(sf::Vector2f(previousWindowScale.x + deltaScale, 
-							previousWindowScale.y + deltaScale));
+			this->setScale(sf::Vector2f(previousWindowScale.x + deltaScale, 
+								previousWindowScale.y + deltaScale));
+		}else{
+			// Perform scroll instead
+			int dy;
+			const float PINCHSCALESENSITIVITY = 20.0f;
+			if (deltaScale > 0.0f){
+				dy = (int)floor(deltaScale * PINCHSCALESENSITIVITY);
+			}else{
+				dy = (int)ceil(deltaScale * PINCHSCALESENSITIVITY);
+			}
+			
+			// Scroll is always in the vertical direction
+			this->scroll(0, dy - previousDy);
+			previousDy = dy;
+		}
 	}
 
 	// Handle rotation
@@ -375,6 +414,7 @@ std::vector<std::wstring> Window::getJavascriptBindings(){
 	result.push_back(L"_GLASetTransformable");
 	result.push_back(L"_GLASetDraggable");
 	result.push_back(L"_GLASetPinchableOutOfFullscreen");	
+	result.push_back(L"_GLASetScrollOnPinch");	
 	result.push_back(L"_GLAShowScreensaver");
 	return result;
 }
@@ -410,6 +450,11 @@ void Window::onJavascriptCallback(std::wstring functionName, std::vector<std::st
 		if (params.size() == 1){
 			int flag = abs(str_to_int(params[0].c_str()));
 			setPinchableOutOfFullscreen(flag == 1);
+		}
+	}else if (functionName == L"_GLASetScrollOnPinch"){
+		if (params.size() == 1){
+			int flag = abs(str_to_int(params[0].c_str()));
+			setScrollOnPinch(flag == 1);
 		}
 	}else if (functionName == L"_GLASetTransformable"){
         if (params.size() == 1){
@@ -939,6 +984,12 @@ pt::Rectangle Window::getClientRectangle(){
 /** When set to true, a mouse move event will translate into a scroll event */
 void Window::setScrollOnMouseMove(bool flag){
 	scrollOnMouseMove = flag;
+}
+
+/** When set to true, when the window is in fullscreen AND the pinch does not touch
+ * one of the corners of the window, it will cause a scroll event */
+void Window::setScrollOnPinch(bool flag){
+	scrollOnPinch = flag;
 }
 
 /** Executes the javascript code in the current browser window */

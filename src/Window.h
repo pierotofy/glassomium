@@ -104,6 +104,7 @@ public:
 
 	void scroll(int dx, int dy);
 	void setScrollOnMouseMove(bool flag);
+	void setScrollOnPinch(bool flag);
 
 	void executeJavascript(const string &code);
 
@@ -212,6 +213,8 @@ protected:
 	// Current zoom level
 	float currentZoom;
 
+	bool scrollOnPinch; // Whether a pinch during full screen will cause a scroll event
+
 	bool scrollOnMouseMove; // This flag tells whether a mouse move will cause a scroll event instead of a mouse move
 	bool scrolledOnMouseMove; // Whether we have scrolled in the last mouse move
 	bool mouseDown; // Whether the mouse is down on this window
@@ -243,6 +246,7 @@ private:
 	float transformDistanceFromCenterOnTransformBegin;
 	sf::Vector2f windowScaleOnTransformBegin;
 	sf::Vector2f previousWindowScale;
+	int previousDy;
 	Radians previousWindowRotation;
 	bool deltaScaleBigEnough;
 	bool deltaRotationBigEnough;
