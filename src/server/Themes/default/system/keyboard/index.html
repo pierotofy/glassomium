@@ -3,6 +3,7 @@
 <html lang=en>
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
+<script src="/resources/jquery-1.6.3.min.js"></script>
 <style type="text/css">
 body{margin:0px;padding:0;overflow:hidden; background: transparent;}
 
@@ -15,6 +16,13 @@ body{margin:0px;padding:0;overflow:hidden; background: transparent;}
     margin:0;
     padding:0;
 }
+#speech{
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    zoom: 5;
+    border: 0;
+}
 </style>
 <script>
 document.addEventListener('GLALoad', onGLALoad, false);
@@ -22,9 +30,19 @@ function onGLALoad(event) {
   event.preventDefault();
   GLA.SetTuioEnabled(true);
 }
+
+$(document).ready(function(){
+  var zoom = parseInt($("#speech").css('zoom'));
+  var speechWidth = $(document).width() / (20 * zoom);
+  var speechHeight = $(document).height() / (8 * zoom);
+  $("#speech").css({'width':speechWidth + 'px',
+                    'height':speechHeight + 'px'});
+});
 </script>
 </head>
 <body>
+<input type="text" x-webkit-speech id="speech" />
+
 <div id="container">
     <canvas id=canvas width=960 height=360></canvas>
 </div>
@@ -349,7 +367,8 @@ var myKeyboard = {
             "startKey": "",
             "shiftKey": "SPACE",
             "type": 6,
-            "w": 948
+            "w": 880,
+            "marginLeft" : 68
         }]
     }]
 };
@@ -374,6 +393,10 @@ function addKey(x, y, w, h, key) {
     keyMe.key = key.startKey;
     keyMe.shift = key.shiftKey;
     keyMe.type = key.type;
+
+    if (key.marginLeft === undefined) keyMe.marginLeft = 0;
+    else keyMe.marginLeft = key.marginLeft;
+
     keys.push(keyMe);
 }
 
@@ -384,12 +407,12 @@ function drawKey(context, key) {
         context.fillStyle = keyColorFill;
     }
 
-    context.fillRectR(key.x, key.y, key.w, key.h);
+    context.fillRectR(key.x + key.marginLeft, key.y, key.w, key.h);
     keyThisYo = key.key;
     if (key.key.toLowerCase() != key.shift.toLowerCase()) {
         context.font = "14px Arial"
         context.fillStyle = "#000000";
-        context.fillText(key.shift, key.x + 10, key.y + 20);
+        context.fillText(key.shift, key.x + 10 + key.marginLeft, key.y + 20);
     } else {
         if (shiftToggle == true || capsToggle == true) {
             keyThisYo = key.shift;
@@ -397,12 +420,12 @@ function drawKey(context, key) {
     }
     context.font = "17px Arial"
     context.fillStyle = "#000000";
-    context.fillText(keyThisYo, key.x + 20, key.y + 35);
+    context.fillText(keyThisYo, key.x + 20 + key.marginLeft, key.y + 35);
 }
 
 function triggerKey(context, key, flag) {
     context.strokeStyle = keyStrokeFill;
-    context.strokeRectR(key.x+1, key.y+1, key.w-2, key.h-2);
+    context.strokeRectR(key.x+1  + key.marginLeft, key.y+1, key.w-2, key.h-2);
     if (flag == 0 && !(key.key in keyInUse)) {
         keyInUse[key.key] = null;
         if (key.type == 1) {
@@ -474,7 +497,8 @@ function drawKeyboard() {
 function iskeyTouched(pX, pY, flag) {
     var l = keys.length;
     for (var i = 0; i < l; i++) {
-        if ((pY >= keys[i].y) && (pY <= keys[i].y + keys[i].h) && (pX >= keys[i].x) && (pX <= keys[i].x + keys[i].w)) {
+
+        if ((pY >= keys[i].y) && (pY <= keys[i].y + keys[i].h) && (pX >= keys[i].x + keys[i].marginLeft) && (pX <= keys[i].x + keys[i].w + keys[i].marginLeft)) {
             triggerKey(ctx, keys[i], flag);
         }
     }
@@ -590,6 +614,23 @@ Object.getPrototypeOf(document.createElement('canvas').getContext('2d')).strokeR
     this.stroke();
 };
 
+</script>
+
+<script>
+$("#speech").click(function(){
+    $(this).blur();    
+});
+
+$("#speech").bind("webkitspeechchange", function (e) {
+     var val = $(this).val();
+     $(this).val("");
+     for (var i = 0; i < val.length; i++){
+        GLA.KeyboardOnKeyPressed(val.charAt(i));
+        console.log(val.charAt(i));
+     }
+
+     $(this).blur();
+});
 </script>
 </body>
 </html>
