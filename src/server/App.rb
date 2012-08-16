@@ -18,11 +18,12 @@
 =end
 
 class App
-	attr_accessor :app_url, :icon_url, :configuration
+	attr_accessor :app_url, :icon_url, :configuration, :servlet_file
 
-	def initialize(app_url, icon_url, configuration)
+	def initialize(app_url, icon_url, configuration, servlet_file)
 		@app_url = app_url
 		@icon_url = icon_url
 		@configuration = configuration
+      @servlet_file = servlet_file
 	end
 end

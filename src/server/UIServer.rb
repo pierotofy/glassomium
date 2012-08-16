@@ -52,6 +52,21 @@ class UIServer
    
    @webrick.mount "/resources", WEBrick::HTTPServlet::FileHandler, "./Themes/#{ThemeManager.getCurrentTheme}/resources"
    @webrick.mount "/apps", Servlets::Apps, "./WebRoot/apps"
+
+   # Mount servlet plugins (if any)
+   $g_apps.each do |app_name, app|
+      if app.servlet_file
+        puts "Found servlet plugin for #{app_name}" if $g_verbose
+
+        require "./#{app.servlet_file[0..-4]}"
+
+        servlet_plugin = ServletPlugin.new
+        servlet_plugin.get_servlet_handlers.each do |mount_name, handler|
+          @webrick.mount "/apps/#{app_name}/#{mount_name}", handler
+          puts "Mounted plugin at /apps/#{app_name}/#{mount_name}" if $g_verbose
+        end
+      end
+   end
   end
   
   def start

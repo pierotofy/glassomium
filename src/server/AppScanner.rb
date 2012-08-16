@@ -42,8 +42,10 @@ class AppScanner
 				configuration = ConfigurationReader.look_for_configuration(["assets/application.cfg", "assets/app.cfg"], current_path, false)
 				configuration = {} if configuration == nil
 
-				result[current_dir] = App.new(index_url, icon_url, configuration)
-				puts "Found #{current_dir}: #{index_url}, #{icon_url}, #{configuration}" if $g_verbose
+				servlet_file = AppScanner.look_for(["assets/uiserver/servlet.rb"], current_path, current_dir, "WebRoot/apps/")
+
+				result[current_dir] = App.new(index_url, icon_url, configuration, servlet_file)
+				puts "Found #{current_dir}: #{index_url}, #{icon_url}, #{configuration}, #{servlet_file}" if $g_verbose
 			end
 		end
 
