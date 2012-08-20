@@ -343,6 +343,14 @@ GLA.SetPinchableOutOfFullscreen = function(flag){
 	_GLASetPinchableOutOfFullscreen(flag ? "1" : "0");
 };
 
+/** Sets whether the current window can be pinched to fullscreen. When a user scales a window
+ * to occupy the majority of the screen, by default we switch the application to fullscreen. This 
+ * can be turned off by passing false to this function. 
+ * @param flag boolean indicating whether the window is pinchable to fullscreen or not */ 
+GLA.SetPinchableToFullscreen = function(flag){
+	_GLASetPinchableToFullscreen(flag ? "1" : "0");
+};
+
 /** Sets whether the current window should perform a scroll movement in the vertical direction
  * (simulating a mouse wheel) during a pinch gesture when in fullscreen mode AND when not touching
  * one of the corners. This is useful for web applications that use mouse wheel events

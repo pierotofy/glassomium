@@ -63,6 +63,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	draggableBeforeFullscreen = false;
 	pinchedOutOfFullscreen = false;
 	pinchableOutOfFullscreen = true;
+	pinchableToFullscreen = true;
 }
 
 /** Sets a color that will blend the content of the window */
@@ -103,6 +104,12 @@ void Window::updateScrolling(const sf::Vector2f &scrollDirection){
  * When set to false, the only way to bring an application back to windowed mode is by system call */
 void Window::setPinchableOutOfFullscreen(bool flag){
 	pinchableOutOfFullscreen = flag;
+}
+
+/** When set to true, a window can be pinched to cover the majority of the screen
+ * and automatically be put in fullscreen mode. */
+void Window::setPinchableToFullscreen(bool flag){
+	pinchableToFullscreen = flag;
 }
 
 void Window::setFullscreen(bool flag){
@@ -244,7 +251,7 @@ void Window::startTransforming(const sf::Vector2f &centerLocation, float transfo
 
 void Window::stopTransforming(){
 	// Have we reached full screen threshold?
-	if (transformable && !fullscreen && !pinchedOutOfFullscreen){
+	if (transformable && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
 		const float fullscreenThreshold = 0.9f;
 		WindowOrientation orientation = getOrientation();
 		float sizeX = this->getScale().x * webView->getTextureWidth();
@@ -414,6 +421,7 @@ std::vector<std::wstring> Window::getJavascriptBindings(){
 	result.push_back(L"_GLASetTransformable");
 	result.push_back(L"_GLASetDraggable");
 	result.push_back(L"_GLASetPinchableOutOfFullscreen");	
+	result.push_back(L"_GLASetPinchableToFullscreen");	
 	result.push_back(L"_GLASetScrollOnPinch");	
 	result.push_back(L"_GLAShowScreensaver");
 	return result;
@@ -450,6 +458,11 @@ void Window::onJavascriptCallback(std::wstring functionName, std::vector<std::st
 		if (params.size() == 1){
 			int flag = abs(str_to_int(params[0].c_str()));
 			setPinchableOutOfFullscreen(flag == 1);
+		}
+	}else if (functionName == L"_GLASetPinchableToFullscreen"){
+		if (params.size() == 1){
+			int flag = abs(str_to_int(params[0].c_str()));
+			setPinchableToFullscreen(flag == 1);
 		}
 	}else if (functionName == L"_GLASetScrollOnPinch"){
 		if (params.size() == 1){

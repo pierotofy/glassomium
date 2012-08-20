@@ -153,6 +153,7 @@ public:
 	void setScrollable(bool);
 
 	void setPinchableOutOfFullscreen(bool);
+	void setPinchableToFullscreen(bool);
 	void setFullscreen(bool);
 	bool isFullscreen();
 
@@ -192,6 +193,7 @@ protected:
 
 	bool fullscreen; // Is the window running in full screen?
 	bool pinchableOutOfFullscreen; // Can this window be pinched out of full screen?
+	bool pinchableToFullscreen; // Can this window be pinched to full screen?
 
 	bool dragging; // Flag that tells whether this window is being dragged
 

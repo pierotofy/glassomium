@@ -1,36 +1,24 @@
-<!DOCTYPE html>
-<!-- saved from url=(0070)http://www.ernestdelgado.com/public-tests/canvasphoto/demo/canvas.html -->
-<html style="overflow: hidden;"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
-  <meta charset="utf-8"> 
-  <title>Canvas Photo Demo</title> 
-  <script src="jquery-1.6.3.min.js"></script>
-    <!--[if IE]><script type="text/javascript" src="excanvas.js"></script><![endif]--> 
-    <style> 
-    body   { font: 75% "Lucida Grande", "Trebuchet MS", Verdana, sans-serif; }
-    canvas { background-color: transparent; border: 1px solid gray; top: 0; left: 0; position: absolute; }
-    canvas.resize-ne { cursor: ne-resize; }
-    canvas.resize-se { cursor: se-resize; }
-    canvas.resize-sw { cursor: sw-resize; }
-    canvas.resize-nw { cursor: nw-resize; }
-    canvas.move { cursor: move; }
-    canvas.default { cursor: default; }
-    img.photo   { display: block; visibility: hidden; position: absolute; top: -1000; left: -1000; }
-    input   { margin-left: 20px; }
-    fieldset { width: 280px; float: left; }
-    .fieldset { width: 200px; float: left; }
-    #ft   { background-color: #eee; height: 70px; width: 99%; border-top: 1px solid #ccc; padding: 5px; position: absolute; top: 0; left: 0; }
-    #ft span { width: 100%; }
-  </style> 
-  <script src="./utilities.js" type="text/javascript" charset="utf-8"></script> 
-  <script src="./canvasElement.js" type="text/javascript" charset="utf-8"></script> 
-  <script src="./canvasImg.js" type="text/javascript" charset="utf-8"></script> 
-  <script> 
-    var serverImageList = [];
+<!DOCTYPE HTML>
+<html style="overflow: hidden;">
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
 
-    $(document).ready(function(){
-        setInterval("pool();", 3000);
-        setTimeout("pool();", 500);
-    });
+    </style>
+    <script src="kinetic-v3.10.5.min.js"></script>
+    <script src="jquery-1.6.3.min.js"></script>
+    <script src="magicgesture.js"></script>
+    <script>
+    document.addEventListener('GLALoad', onGLALoad, false);
+    function onGLALoad(event) {
+      GLA.SetTuioEnabled(true);
+    }
+
+    var stage;
+    var serverImageList = [];
 
     function pool(){
       $.ajax({
@@ -41,136 +29,92 @@
         error: function(xhr, statusText) { },
         success: function(imageList){
           if (imageList.length == 0){
-            removeAll();
+            stage.clear();
           }else if (serverImageList.length != imageList.length){
+            stage.clear();
             for (var i = 0; i < imageList.length; i++){
               addImage("photo?id=" + imageList[i]);
             }
 
-            serverImageList = imageList;
           }
+          
+          serverImageList = imageList;
         }
       });  
     }
 
+    window.onload = function() {
+      stage = new Kinetic.Stage({
+        container: "container",
+        width: $(document).width() - 4,
+        height: $(document).height() - 4,
+      });
+
+      pool();
+      setInterval("pool();", 3000);
+
+      MagicGesture.init();
+    };
+
     function addImage(url){
-        var tempImg = new Image();
-        tempImg.onload = function() {
-          var id = 'img' + img.length;
+      var layer = new Kinetic.Layer({alpha:0});
 
-          var width = this.width;
-          var height = this.height;
-          var ratio = width / height;
-          var maxDimension = 4;
-          if (width > $(window).width() / maxDimension){
-            width = $(window).width() / maxDimension;
-            height = width / ratio;
-          }else if (height > $(window).height() / maxDimension){
-            height = $(window).height() / maxDimension;
-            width = height * ratio;
-          }
-
-          $("body").append('<img id="'+id+'" src="'+url+'" class="photo canvas-img" width="'+width+'" height="'+height+'">');
-
-          var image = new Canvas.Img(id, {});
-          canvas.addImage(image);
-          img.push(image);
-
-          // Done loading all images
-          if (img.length == serverImageList.length){
-            setTimeout("canvas.renderAll(true);", 500);
-          }
+      var imageObj = new Image();
+      imageObj.onload = function() {
+        var width = this.width;
+        var height = this.height;
+        var ratio = width / height;
+        var maxDimension = 4;
+        if (width > $(window).width() / maxDimension){
+          width = $(window).width() / maxDimension;
+          height = width / ratio;
+        }else if (height > $(window).height() / maxDimension){
+          height = $(window).height() / maxDimension;
+          width = height * ratio;
         }
-        tempImg.src = url;
+
+        var kImage = new Kinetic.Image({
+          x: Math.random()*stage.getWidth() - 100,
+          y: Math.random()*stage.getHeight() - 100,
+          image: imageObj,
+          width: width,
+          height: height,
+          draggable: true,
+          alpha: 1,
+        });
+
+        layer.on('mousedown', function(evt){
+          this.remove();
+          stage.add(this);
+        });
+
+        layer.add(kImage);
+        stage.add(layer);
+
+        layer.transitionTo({alpha:1, duration:0.5});
+      };
+      imageObj.src = url;
     }
 
-    function removeAll(){
-        for (var i = 0; i < img.length; i++){
-          delete img[i];
-        }
-        img = [];
-        canvas.removeAllImages();
-        $(".photo").remove();
-    }
+document.addEventListener("gesturestart", gestureStart, false);
+document.addEventListener("gesturechange", gestureChange, false);
+function gestureChange(event){
+  GLA.Log("Scale: " + event.scale);
+}
+function gestureStart(event){
+  GLA.Log("Gesture started");
+}
+  </script>
+  </head>
+  <body>
+    <div style="width: 300px; height: 200px; background-color: red; position: absolute; top: 10px; left: 10px;">
+      DIV 1
+    </div>
 
-    var canvas;
-    var img = [];
+    <div style="width: 300px; height: 200px; background-color: green; position: absolute; top: 200px; left: 500px;">
+      DIV 1
+    </div>
 
-    var CanvasDemo = function() {
-      var YD = YAHOO.util.Dom;
-      var YE = YAHOO.util.Event;
-
-      return {
-        init: function() {
-          canvas = new Canvas.Element();
-          canvas.init('canvid1', { width: YD.getViewportWidth() - 5, height: YD.getViewportHeight() - 5 });      
-
-          var background = new Canvas.Img('bg', {});
-          
-          // @param array of images ToDo: individual images
-          canvas.setCanvasBackground(background);
-
-          this.initEvents();
-        },
-        initEvents: function() {
-          YE.on('togglebg','click', this.toggleBg, this, true);
-          YE.on('showcorners','click', this.showCorners, this, true);
-          YE.on('togglenone','click', this.toggleNone, this, true);
-          YE.on('toggleborders','click', this.toggleBorders, this, true);
-          YE.on('togglepolaroid','click', this.togglePolaroid, this, true);
-          YE.on('pngbutton','click', function() { this.convertTo('png') }, this, true);
-          YE.on('jpegbutton','click', function() { this.convertTo('jpeg') }, this, true);
-        },
-        switchBg: function() {
-          canvas.fillBackground = (canvas.fillBackground) ? false : true;              
-          canvas.renderAll();
-        },
-
-        showCorners: function() {
-          this.cornersvisible = (this.cornersvisible) ? false : true;
-          this.modifyImages(function(image) {
-            image.setCornersVisibility(this.cornersvisible);
-          });
-        },
-        toggleNone: function() {
-          this.modifyImages(function(image) {
-            image.setBorderVisibility(false);
-          });
-        },
-        toggleBorders: function() {
-          this.modifyImages(function(image) {
-            image.setBorderVisibility(true);
-          });
-        },
-        togglePolaroid: function() {
-          this.modifyImages(function(image) {
-            image.setPolaroidVisibility(true);
-          });
-        },
-        modifyImages: function(fn) {
-          for (var i = 0, l = canvas._aImages.length; i < l; i += 1) {
-            fn.call(this, canvas._aImages[i]);
-          }
-          canvas.renderAll();
-        },
-        convertTo: function(format) {
-          var imgData = canvas.canvasTo(format);
-          window.open(imgData, "_blank");
-        },
-        whatever: function(e, o) {
-          // console.log(e);
-          // console.log(o);
-        }
-      }
-    }();
-    
-    YAHOO.util.Event.on(window, 'load', CanvasDemo.init, CanvasDemo, true);
-  </script> 
-<style type="text/css">
-</style></head> 
-<body id="canvasdemo"> 
-  <canvas id="canvid1-canvas-background" width="1361" height="662" style="width: 1361px; height: 662px; "></canvas><canvas id="canvid1-canvas-container" width="1361" height="662" style="width: 1361px; height: 662px; "></canvas><canvas id="canvid1" width="1361" height="662" style="width: 1361px; height: 662px; cursor: default; "></canvas> 
-  
-  <img class"photo" id="bg" src="./bg.jpg" class="canvas-img" width="1600" height="1200"> 
-   
-</body></html>
+    <div id="container"></div>
+  </body>
+</html>
