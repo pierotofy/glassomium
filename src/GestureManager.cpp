@@ -234,20 +234,17 @@ void GestureManager::processQueue(){
 	while (touchUpQueue.pop(touchEvent)){
 		int touchGroupId = findTouchGroup(touchEvent.blob);
 
-		if (touchGroupId != -1){
-			touchEvent.group = touchGroups[touchGroupId];
-		}
-
-		UIManager::getSingleton()->onTrackTouchUp(touchEvent);
-		
 		// After we add a touch, we (most times) should be able to remove it
 		if (touchGroupId != -1){
+			touchEvent.group = touchGroups[touchGroupId];
 
 			// Try to identify possible gestures
 			recognizeGestures(touchGroups[touchGroupId], Gesture::ENDING, touchEvent);
 
 			// Remove from touch group
 			touchGroups[touchGroupId]->remove(touchEvent.blob);
+
+			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 
 			// Check for cleanup (if a touchgroup has no more members, it doesn't have a purpose anymore)
 			if (touchGroups[touchGroupId]->getSize() == 0){
@@ -258,8 +255,9 @@ void GestureManager::processQueue(){
 		}else{
 			// Caught an orphan touch up event (we might have missed a touch down event or received multiple touch up)
 			// Remember, these messages are sent throgh UDP!			
-
-			// Do nothing
+			
+			// Still need to track it
+			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 		}
 
 		// Cleanup

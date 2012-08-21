@@ -1,6 +1,14 @@
 <!DOCTYPE HTML>
 <html style="overflow: hidden;">
   <head>
+    <title>PhotoCanvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HTML5 Multi Touch Photo Viewer">
+    <meta name="author" content="Piero Toffanin">
+    <!-- Styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+    <link href="css/modern.css" rel="stylesheet">
     <style>
       body {
         margin: 0px;
@@ -43,6 +51,15 @@
       });  
     }
 
+    var findLayerAt = function(pageX, pageY){
+          var intersections = stage.getIntersections({x:pageX, y:pageY});
+          if (intersections.length > 0){
+            return intersections[intersections.length - 1].getParent();
+          }else{ 
+            return null;
+          }
+    };
+
     window.onload = function() {
       stage = new Kinetic.Stage({
         container: "container",
@@ -53,14 +70,23 @@
       pool();
       setInterval("pool();", 3000);
 
-      MagicGesture.init();
+      MagicGesture.init(
+        findLayerAt,
+        function(id){
+          return stage.get('#' + id)[0];
+        },
+        function(element){
+          return element.getId();
+        }
+      );
     };
 
     function addImage(url){
-      var layer = new Kinetic.Layer({alpha:0});
+      var layer = new Kinetic.Layer({id:PseudoGuid.GetNew(), alpha:0});
 
       var imageObj = new Image();
       imageObj.onload = function() {
+
         var width = this.width;
         var height = this.height;
         var ratio = width / height;
@@ -74,18 +100,13 @@
         }
 
         var kImage = new Kinetic.Image({
-          x: Math.random()*stage.getWidth() - 100,
-          y: Math.random()*stage.getHeight() - 100,
+          x: Math.random()*(stage.getWidth() - 100),
+          y: Math.random()*(stage.getHeight() - 100),
           image: imageObj,
           width: width,
           height: height,
-          draggable: true,
           alpha: 1,
-        });
-
-        layer.on('mousedown', function(evt){
-          this.remove();
-          stage.add(this);
+          offset: [width / 2, height / 2],
         });
 
         layer.add(kImage);
@@ -96,25 +117,98 @@
       imageObj.src = url;
     }
 
+//http://stackoverflow.com/questions/226689/unique-element-id-even-if-element-doesnt-have-one
+var PseudoGuid = new (function() {
+    this.empty = "00000000-0000-0000-0000-000000000000";
+    this.GetNew = function() {
+        var fourChars = function() {
+                return (((1 + Math.random()) * 0x10000)|0).toString(16).substring(1).toUpperCase();
+        }
+        return (fourChars() + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + fourChars() + fourChars());
+    };
+})();
+
 document.addEventListener("gesturestart", gestureStart, false);
 document.addEventListener("gesturechange", gestureChange, false);
-function gestureChange(event){
-  GLA.Log("Scale: " + event.scale);
+document.addEventListener("gestureend", gestureEnd, false);
+function gestureChange(e){
+    e.preventDefault();
+    var layer = e._target;
+    var image = layer.getChildren()[0];
+    
+    image.setRotationDeg(e.rotation + image.rotationOnGestureStart);
+    var scale = e.scale - 1.0;
+    image.setScale(image.scaleOnGestureStart + scale, image.scaleOnGestureStart + scale);
+    layer.draw();
 }
-function gestureStart(event){
-  GLA.Log("Gesture started");
+function gestureStart(e){
+    e.preventDefault();
+    var layer = e._target;
+    var image = layer.getChildren()[0];
+
+    image.rotationOnGestureStart = image.getRotationDeg();
+    image.scaleOnGestureStart = image.getScale().x;
 }
+function gestureEnd(e){
+    e.preventDefault();
+    var layer = e._target;
+    var image = layer.getChildren()[0];
+}
+
+document.addEventListener('touchstart', onTouchStart, false);
+document.addEventListener('touchmove', onTouchMove, false);
+document.addEventListener('touchend', onTouchEnd, false);
+
+var touchLayer = {};
+
+function onTouchStart(e){
+  e.preventDefault();
+  var layer = findLayerAt(e.touch.pageX, e.touch.pageY);
+  if (layer){
+    layer.remove();
+    stage.add(layer);
+    layer.dragging = true;
+    layer.touchPositionOnStartDragging = [e.touch.pageX, e.touch.pageY];
+    layer.positionOnStartDragging = [layer.getPosition().x, layer.getPosition().y];
+    touchLayer[e.touch.identifier] = layer;
+  }
+}
+
+function onTouchMove(e){
+  e.preventDefault();
+  var layer = touchLayer[e.touch.identifier];
+  if (layer){
+    if (layer.dragging){
+        var dx = e.touch.pageX - layer.touchPositionOnStartDragging[0];
+        var dy = e.touch.pageY - layer.touchPositionOnStartDragging[1];
+
+       layer.setPosition(layer.positionOnStartDragging[0] + dx, layer.positionOnStartDragging[1] + dy);
+       layer.draw();
+    }
+  }
+}
+
+function onTouchEnd(e){
+  var layer = touchLayer[e.touch.identifier];
+  if (layer){
+    layer.dragging = false;
+    delete touchLayer[e.touch.identifier];
+  }
+}
+
+
   </script>
   </head>
   <body>
-    <div style="width: 300px; height: 200px; background-color: red; position: absolute; top: 10px; left: 10px;">
+<!--
+    <div id="test" style="-webkit-transform: rotate(0deg); z-index: 600; width: 300px; height: 200px; background-color: red; position: absolute; top: 10px; left: 10px;">
       DIV 1
     </div>
 
-    <div style="width: 300px; height: 200px; background-color: green; position: absolute; top: 200px; left: 500px;">
+    <div style="-webkit-transform: rotate(0deg); z-index: 600; width: 300px; height: 200px; background-color: green; position: absolute; top: 200px; left: 500px;">
       DIV 1
     </div>
-
+//-->
     <div id="container"></div>
   </body>
 </html>

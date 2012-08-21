@@ -47,14 +47,17 @@ module Servlets
             GLA._devMouseDown = false;
 
             $jsafe(document).mousedown(function(event) {
+              event.preventDefault();
               GLA._devMouseDown = true;
               GLA._fireTouchEvents("touchstart", [{identifier:-1, pageX:event.pageX, pageY:event.pageY,radiusX:0,radiusY:0,rotationAngle:0}]);
             });
             $jsafe(document).mouseup(function(event) { 
+              event.preventDefault();
               GLA._devMouseDown = false;
               GLA._fireTouchEvents("touchend", [{identifier:-1, pageX:event.pageX, pageY:event.pageY,radiusX:0,radiusY:0,rotationAngle:0}]);
             });
             $jsafe(document).mousemove(function(event) { 
+              event.preventDefault();
               if (GLA._devMouseDown){
                 GLA._fireTouchEvents("touchmove", [{identifier:-1, pageX:event.pageX, pageY:event.pageY,radiusX:0,radiusY:0,rotationAngle:0}]);
               }
