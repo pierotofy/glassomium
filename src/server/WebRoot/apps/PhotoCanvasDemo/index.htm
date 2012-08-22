@@ -9,6 +9,14 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/responsive.css" rel="stylesheet">
     <link href="css/modern.css" rel="stylesheet">
+    <!-- Google Web Font-->
+    <link href='http://fonts.googleapis.com/css?family=Dosis:300,400,600' rel='stylesheet' type='text/css'>
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- fav icons -->
+    <link rel="shortcut icon" href="img/favicon.ico">
+
     <style>
       body {
         margin: 0px;
@@ -16,9 +24,13 @@
       }
 
     </style>
-    <script src="kinetic-v3.10.5.min.js"></script>
-    <script src="jquery-1.6.3.min.js"></script>
-    <script src="magicgesture.js"></script>
+    <script src="js/kinetic-v3.10.5.min.js"></script>
+    <script src="js/jquery-1.7.2.js"></script>
+    <script src="js/jquery.validate.js"></script>
+    <script src="js/bootstrap-tooltip.js"></script>
+    <script src="js/bootstrap-popover.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/magicgesture.js"></script>
     <script>
     document.addEventListener('GLALoad', onGLALoad, false);
     function onGLALoad(event) {
@@ -61,8 +73,25 @@
     };
 
     window.onload = function() {
+      initPhotoCanvas();
+
+      $(".dropdown-open").click(function(event){
+        event.stopPropagation();
+        $(this).nextAll(".dropdown-menu").each(function(index){
+          if (!($(this).hasClass("open"))){
+            $(this).addClass("open");
+          }
+        })
+      });
+
+      $(document).click(function(){
+          $(".dropdown-menu.open").removeClass("open");
+      });
+    };
+
+    function initPhotoCanvas(){
       stage = new Kinetic.Stage({
-        container: "container",
+        container: "canvas",
         width: $(document).width() - 4,
         height: $(document).height() - 4,
       });
@@ -73,13 +102,14 @@
       MagicGesture.init(
         findLayerAt,
         function(id){
-          return stage.get('#' + id)[0];
+          var elements = stage.get('#' + id);
+          return elements[0];
         },
         function(element){
           return element.getId();
         }
       );
-    };
+    }
 
     function addImage(url){
       var layer = new Kinetic.Layer({id:PseudoGuid.GetNew(), alpha:0});
@@ -99,6 +129,9 @@
           width = height * ratio;
         }
 
+
+        var rotation = Math.random() * 360;
+
         var kImage = new Kinetic.Image({
           x: Math.random()*(stage.getWidth() - 100),
           y: Math.random()*(stage.getHeight() - 100),
@@ -107,6 +140,8 @@
           height: height,
           alpha: 1,
           offset: [width / 2, height / 2],
+          rotationDeg: rotation,
+          name: "picture",
         });
 
         layer.add(kImage);
@@ -116,6 +151,41 @@
       };
       imageObj.src = url;
     }
+
+var piles = {};
+var width = $(window).width();
+var height = $(window).height();
+piles[1] = [{x:width/2, y:height/2}];
+piles[2] = [{x:width/4, y:height/2}, {x:width/4 * 3, y:height/2}];
+piles[3] = [{x:width/4, y:height/4}, {x:width/4 * 3, y:height/4}, {x:width/2, y:height/4 * 3}];
+piles[4] = [{x:width/4, y:height/4}, {x:width/4 * 3, y:height/4}, {x:width/4, y:height/4 * 3}, {x:width/4 * 3, y:height/4 * 3}];
+
+function makePile(number){
+    if (number < 1) number = 1;
+    if (number > 4) number = 4;
+
+    var pictures = stage.get(".picture");
+    var pile = piles[number];
+
+    if (pictures.length > 0){
+      for (var i in pictures){
+        var image = pictures[i];
+
+        var pilePosition = pile[i % number];
+        var rotation = Math.random() * 0.3;
+        console.log("Width: " + image.getWidth());
+        if (image.getWidth() > image.getHeight()) rotation += Math.PI / 2;
+
+        image.transitionTo({
+            x: pilePosition.x,
+            y: pilePosition.y,
+            rotation: rotation,
+            duration: 1,
+        });
+      }
+    } 
+}
+
 
 //http://stackoverflow.com/questions/226689/unique-element-id-even-if-element-doesnt-have-one
 var PseudoGuid = new (function() {
@@ -133,7 +203,7 @@ document.addEventListener("gesturechange", gestureChange, false);
 document.addEventListener("gestureend", gestureEnd, false);
 function gestureChange(e){
     e.preventDefault();
-    var layer = e._target;
+    var layer = e.magicTarget;
     var image = layer.getChildren()[0];
     
     image.setRotationDeg(e.rotation + image.rotationOnGestureStart);
@@ -143,7 +213,7 @@ function gestureChange(e){
 }
 function gestureStart(e){
     e.preventDefault();
-    var layer = e._target;
+    var layer = e.magicTarget;
     var image = layer.getChildren()[0];
 
     image.rotationOnGestureStart = image.getRotationDeg();
@@ -151,8 +221,6 @@ function gestureStart(e){
 }
 function gestureEnd(e){
     e.preventDefault();
-    var layer = e._target;
-    var image = layer.getChildren()[0];
 }
 
 document.addEventListener('touchstart', onTouchStart, false);
@@ -162,53 +230,91 @@ document.addEventListener('touchend', onTouchEnd, false);
 var touchLayer = {};
 
 function onTouchStart(e){
-  e.preventDefault();
-  var layer = findLayerAt(e.touch.pageX, e.touch.pageY);
-  if (layer){
-    layer.remove();
-    stage.add(layer);
-    layer.dragging = true;
-    layer.touchPositionOnStartDragging = [e.touch.pageX, e.touch.pageY];
-    layer.positionOnStartDragging = [layer.getPosition().x, layer.getPosition().y];
-    touchLayer[e.touch.identifier] = layer;
+  if (e.magic){
+    var layer = e.magicTarget;
+    var touch = e.touch;
+    if (layer){
+      var image = layer.getChildren()[0];
+      layer.remove();
+      stage.add(layer);
+
+      image.dragging = true;
+      image.touchPositionOnStartDragging = [touch.pageX, touch.pageY];
+      image.positionOnStartDragging = [image.getPosition().x, image.getPosition().y];
+      e.preventDefault();
+    }
   }
 }
 
 function onTouchMove(e){
-  e.preventDefault();
-  var layer = touchLayer[e.touch.identifier];
-  if (layer){
-    if (layer.dragging){
-        var dx = e.touch.pageX - layer.touchPositionOnStartDragging[0];
-        var dy = e.touch.pageY - layer.touchPositionOnStartDragging[1];
+  if (e.magic){
+    var layer = e.magicTarget;
+    var touch = e.touch;
+    if (layer){
+      var image = layer.getChildren()[0];
+      var touch = e.touches[0];
+      if (image.dragging){
+          var dx = touch.pageX - image.touchPositionOnStartDragging[0];
+          var dy = touch.pageY - image.touchPositionOnStartDragging[1];
 
-       layer.setPosition(layer.positionOnStartDragging[0] + dx, layer.positionOnStartDragging[1] + dy);
-       layer.draw();
+         image.setPosition(image.positionOnStartDragging[0] + dx, image.positionOnStartDragging[1] + dy);
+         layer.draw();
+      }
+      e.preventDefault();
     }
   }
 }
 
 function onTouchEnd(e){
-  var layer = touchLayer[e.touch.identifier];
-  if (layer){
-    layer.dragging = false;
-    delete touchLayer[e.touch.identifier];
+  if (e.magic){
+    var layer = e.magicTarget;
+    if (layer){
+      var image = layer.getChildren()[0];
+      image.dragging = false;
+      e.preventDefault();
+    }
   }
 }
 
 
   </script>
+
+<style type="text/css">
+  #canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -100;
+  }
+
+  #pileBtn{
+    position: absolute; 
+    top: 20px; 
+    left: 20px;    
+    z-index: 100;
+  }
+
+  ul.dropdown-menu li a{
+    text-align: center;
+  }
+
+  .dropdown-menu.open{
+    display: block;
+  }
+</style>
   </head>
   <body>
-<!--
-    <div id="test" style="-webkit-transform: rotate(0deg); z-index: 600; width: 300px; height: 200px; background-color: red; position: absolute; top: 10px; left: 10px;">
-      DIV 1
-    </div>
+  <div id="pileBtn" class="btn-group">
+    <a class="btn btn-inverse dropdown-open" href="#">Make a pile</a>
+    <a class="btn btn-inverse dropdown-toggle dropdown-open" href="#" style="min-height: 18px;"><span class="caret"></span></a>
+    <ul class="dropdown-menu " style="min-width: 113px; line-height: 32px; ">
+      <li><a href="javascript:makePile(1);">One</a></li>
+      <li><a href="javascript:makePile(2);">Two</a></li>
+      <li><a href="javascript:makePile(3);">Three</a></li>
+      <li><a href="javascript:makePile(4);">Four</a></li>
+    </ul>
+  </div>
 
-    <div style="-webkit-transform: rotate(0deg); z-index: 600; width: 300px; height: 200px; background-color: green; position: absolute; top: 200px; left: 500px;">
-      DIV 1
-    </div>
-//-->
-    <div id="container"></div>
+  <div id="canvas"></div>
   </body>
 </html>
