@@ -26,7 +26,7 @@
 class TwoFingerGesture : public Gesture {
 public:
 	enum TwoFingerGestureAction { NONE = 0x0, // 00000000
-								  ALL = 0xFFFFFFFF, // 11111111
+								  ALL = 0xFF, // 11111111
 								  SCROLL = 0x1,	   // 00000001
 								  TRANSFORM = 0x2};   // 00000100
 

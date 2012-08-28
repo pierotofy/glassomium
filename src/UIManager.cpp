@@ -569,6 +569,9 @@ void UIManager::animateScaleAndSetFullscreen(Window *window){
 		case Right:
 			targetRotation = 270.0f;
 			break;
+		case Bottom: // Never executed, but compiler complains if it's not here
+			targetRotation = 0.0f;
+			break;
 		}
 	}
 

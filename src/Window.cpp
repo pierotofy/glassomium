@@ -38,7 +38,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 
 	// Create sprite to hold the webviews texture
 	sprite = new sf::Sprite(*webView->getTexture());
-	sprite->setOrigin(webView->getTextureWidth() / 2.0f, webView->getTextureHeight() / 2.0f);
+	sprite->setOrigin((float)webView->getTextureWidth() / 2.0f, (float)webView->getTextureHeight() / 2.0f);
 
 	// By default a mouse move is a mouse move
 	scrollOnMouseMove = false;
@@ -254,8 +254,8 @@ void Window::stopTransforming(){
 	if (transformable && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
 		const float fullscreenThreshold = 0.9f;
 		WindowOrientation orientation = getOrientation();
-		float sizeX = this->getScale().x * webView->getTextureWidth();
-		float sizeY = this->getScale().y * webView->getTextureHeight();
+		float sizeX = this->getScale().x * (float)webView->getTextureWidth();
+		float sizeY = this->getScale().y * (float)webView->getTextureHeight();
 		if (((orientation == Top || orientation == Bottom) && 
 			(sizeX >= Application::windowWidth * fullscreenThreshold || sizeY >= Application::windowHeight * fullscreenThreshold))
 			||
@@ -696,12 +696,12 @@ sf::Vector2f Window::getScale() const{
 
 /** @return the width of the window in screen coordinates */
 float Window::getWidth() const{
-	return webView->getTextureWidth() * getScale().x;
+	return (float)webView->getTextureWidth() * getScale().x;
 }
 
 /** @return the height of the window in screen coordinates */
 float Window::getHeight() const{
-	return webView->getTextureHeight() * getScale().y;
+	return (float)webView->getTextureHeight() * getScale().y;
 }
 
 /** @return the normalized width (0..1) of the window as passed to the constructor */
@@ -732,7 +732,7 @@ void Window::resizeSprite(float width, float height){
 	webView->resize((int)width, (int)height);
 
 	sprite->setTexture(*webView->getTexture(), true);
-	sprite->setOrigin(webView->getTextureWidth() / 2.0f, webView->getTextureHeight() / 2.0f);
+	sprite->setOrigin((float)webView->getTextureWidth() / 2.0f, (float)webView->getTextureHeight() / 2.0f);
 }
 
 /** Turns transparency on or off. When transparent, every browser page
@@ -776,8 +776,8 @@ sf::Vector2f Window::transformCoordinatesForWebView(pt::Rectangle &windowRect, c
 	webviewCoords.x *= transformX;
 	webviewCoords.y *= transformY;
 
-	float screenToTextureWidthRatio = webView->getTextureWidth() / ((windowRect.getWidth()) * transformX);
-	float screenToTextureHeightRatio = webView->getTextureHeight() / ((windowRect.getHeight()) * transformY);
+	float screenToTextureWidthRatio = (float)webView->getTextureWidth() / ((windowRect.getWidth()) * transformX);
+	float screenToTextureHeightRatio = (float)webView->getTextureHeight() / ((windowRect.getHeight()) * transformY);
 	
 	// Scale to the proper texture range
 	webviewCoords.x *= screenToTextureWidthRatio;
