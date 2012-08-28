@@ -113,11 +113,11 @@ bool WebView::isTransparent(){
  * rendering window, but as long as we don't have too many webviews we should be OK */
 void WebView::calculateTextureSize(float windowRatio, int &width, int &height){
     width = (int)ceil(Application::windowWidth);
-    height = (int)ceil(width  / windowRatio);
+    height = (int)ceil((float)width  / windowRatio);
 
     if (height > Application::windowHeight){
         height = (int)ceil(Application::windowHeight);
-        width = (int)ceil(width * windowRatio);
+        width = (int)ceil((float)width * windowRatio);
     }
 }
 

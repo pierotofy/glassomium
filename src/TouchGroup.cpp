@@ -105,8 +105,8 @@ sf::Vector2f TouchGroup::getMeanTouchLocation() const{
 		meanTouchLocation.y += touchList[i]->y;
 
 	}
-	meanTouchLocation.x /= touchList.size();
-	meanTouchLocation.y /= touchList.size();
+	meanTouchLocation.x /= (float)touchList.size();
+	meanTouchLocation.y /= (float)touchList.size();
 
 	return meanTouchLocation;
 }
