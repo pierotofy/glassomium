@@ -4,7 +4,7 @@ require 'find'
 class PictureScanner
 	def initialize(delegate)
 		@delegate = delegate
-		@config = YAML.load_file("#{File.dirname(__FILE__)}/../configuration")
+		@config = YAML.load_file("#{File.dirname(__FILE__)}/../media.cfg")
 		@thread = nil
 		@running = false
 

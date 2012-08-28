@@ -62,7 +62,10 @@ GLA._fireTouchEvents = function(eventName, changedTouches){
 		touch.target = document.elementFromPoint(touch.pageX, touch.pageY);
 	}
 
-	var touches = changedTouches;
+	var touches = [];
+	if (eventName != "touchend"){
+		touches = changedTouches;
+	}
 
 	if (changedTouches.length > 0){
 		var evt = document.createEvent("Event");

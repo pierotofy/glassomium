@@ -102,8 +102,13 @@ var MagicGesture = {
 			MagicGesture._touchGroups[id].touches = [];
 		}
 
-	    for (var i = 0; i < event.touches.length; i++) {
-	    	var element = MagicGesture._pointToObject(event.touches[i].pageX, event.touches[i].pageY);
+		var touches = event.touches;
+		if (touches.length == 0 && event.changedTouches.length > 0){
+			touches = event.changedTouches;
+		}
+
+	    for (var i = 0; i < touches.length; i++) {
+	    	var element = MagicGesture._pointToObject(touches[i].pageX, touches[i].pageY);
 	    	if (!element) continue;
 
 	    	// Not all elements have an ID, if that's the case we'll create one
@@ -114,7 +119,7 @@ var MagicGesture = {
 
 	    	if (MagicGesture._touchGroups[elementId] == undefined) MagicGesture._touchGroups[elementId] = {touches:[], initialDistance:0, initialVector:[]};
 
-	    	MagicGesture._touchGroups[elementId].touches.push(event.touches[i]);
+	    	MagicGesture._touchGroups[elementId].touches.push(touches[i]);
 	    }
 
 	    for (var id in MagicGesture._touchGroups){

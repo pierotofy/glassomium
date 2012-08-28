@@ -26,7 +26,7 @@ enyo.kind({
 			{classes: "enyo-fit header", style: "height: 39px;", components: [
 				{classes: "enyo-fit", style: "right: 39px;", components: [
 					{classes: "enyo-fit", components: [
-						{name: "input", classes: "enyo-view-fit search-input", tag: "input", onkeypress: "inputKeypress"}
+						{name: "input", classes: "enyo-view-fit search-input", tag: "input", onkeypress: "inputKeypress", ontap: "showKeyboard"}
 					]},
 					{name: "spinner", tag: "img", src: "images/spinner.gif", showing: false, classes: "search-spinner"}
 				]},
@@ -107,6 +107,9 @@ enyo.kind({
 	search: function() {
 		this.$.spinner.setShowing(true);
 		this.doSearch(this.getSearchQuery());
+	},
+	showKeyboard: function() {
+		GLA.ShowKeyboard();
 	},
 	//* @public
 	//* display the given search results

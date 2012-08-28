@@ -168,8 +168,6 @@ void Application::go(){
 
 	ServerManager::initialize("localhost", 5555);
 
-	tuioManager = new TuioManager(3333);
-
 	// Initialize window manager
 	UIManager::initialize();
 	
@@ -184,6 +182,8 @@ void Application::go(){
 
 	// Create the layout
 	UIManager::getSingleton()->setupSystemLayout();
+
+	tuioManager = new TuioManager(3333);
 
 	// Start loop
 	while (renderWindow->isOpen())

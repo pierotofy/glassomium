@@ -56,6 +56,12 @@ function onGLAZoomCompleted(event) {
 	if (GLA.menuVisible) GLA.ShowWindowMenu();
 }
 
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+	GLA.menuLoaded = true;
+}
+
+GLA.menuLoaded = false;
 GLA.menuSpeed = 350;
 GLA.menuMoveThreshold = 25;
 GLA.menuVisible = false;
@@ -63,15 +69,17 @@ GLA.PADDING = 4;
 GLA.overflowSettings = $jsafe("body").css("overflow");
 
 GLA.ShowWindowMenu = function(){
-  var menu = $jsafe("#GLAWindowMenu");
-  $jsafe("body").css("overflow", "hidden");
-  menu.show();
-  menu.animate({
-      marginRight: 0,
-      top: $jsafe(window).scrollTop() / GLA.GetZoom()
-  }, GLA.menuSpeed, function(){
-  	 GLA.menuVisible  = true;
-  });
+  if (GLA.menuLoaded){
+	  var menu = $jsafe("#GLAWindowMenu");
+	  $jsafe("body").css("overflow", "hidden");
+	  menu.show();
+	  menu.animate({
+	      marginRight: 0,
+	      top: $jsafe(window).scrollTop() / GLA.GetZoom()
+	  }, GLA.menuSpeed, function(){
+	  	 GLA.menuVisible  = true;
+	  });
+  }
 };
 
 GLA.HideWindowMenu = function(immediate){
