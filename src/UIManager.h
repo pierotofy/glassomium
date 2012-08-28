@@ -65,7 +65,6 @@ public:
 
 
 	void onTouchGesture(const GestureEvent &);
-	void onScrollGesture(const GestureEvent &);
 	void onDragGesture(const GestureEvent &);
 	void onTransformGesture(const GestureEvent &);
 

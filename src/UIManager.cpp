@@ -411,17 +411,18 @@ Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf
 /** Returns the window with the highest Z order that is being hit by all the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstWindow(sf::Vector2f screenCoords[], int numCoords){
-	
 	for (unsigned int i = 0; i < windows.size(); i++){
-		bool allInside = true;
-		for (int j = 0; j < numCoords; j++){
-			if (!windows[i]->coordsInsideWindow(screenCoords[j].x, screenCoords[j].y)){
-				allInside = false;
-				break;
+		if (windows[i]->isVisible()){
+			bool allInside = true;
+			for (int j = 0; j < numCoords; j++){
+				if (!windows[i]->coordsInsideWindow(screenCoords[j].x, screenCoords[j].y)){
+					allInside = false;
+					break;
+				}
 			}
-		}
 
-		if (allInside) return windows[i];
+			if (allInside) return windows[i];
+		}
 	}
 	
 	return NULL;
@@ -722,17 +723,6 @@ void UIManager::onTouchUp(const TouchEvent &touchEvent){
 	}
 }
 
-void UIManager::onScrollGesture(const GestureEvent &gestureEvent){
-	TwoFingerGesture *scroll = static_cast<TwoFingerGesture *>(gestureEvent.gesture);
-
-	sf::Vector2f scrollDirection = scroll->getScrollDirection();
-
-	Window *window = findFirstWindow(gestureEvent.location.x, gestureEvent.location.y);
-	if (window != NULL){
-		window->updateScrolling(scrollDirection);
-	}
-}
-
 void UIManager::onDragGesture(const GestureEvent &gestureEvent){
 	DragGesture *drag = static_cast<DragGesture *>(gestureEvent.gesture);
 	
@@ -768,21 +758,17 @@ void UIManager::onTransformGesture(const GestureEvent &gestureEvent){
 	touches[1].y *= Application::windowHeight;
 
 	Window *window = findFirstWindow(touches, 2);
+
 	if (window != NULL){
 		if (twoFingerGesture->getPhase() == Gesture::BEGINNING){
-			window->startTransforming(twoFingerGesture->getCenterLocation(),
-										twoFingerGesture->getTransformDistanceFromCenter(),
-										twoFingerGesture->getFirstTouchLocation(), 
+			window->startTransforming(twoFingerGesture->getFirstTouchLocation(), 
 										twoFingerGesture->getSecondTouchLocation());
 		}
 
 		if (twoFingerGesture->getPhase() == Gesture::UPDATING){
-			if (twoFingerGesture->containsAction(TwoFingerGesture::TRANSFORM)){
-				window->updateTransform(	twoFingerGesture->getCenterLocation(),
-											twoFingerGesture->getTransformDistanceFromCenter(),
-											twoFingerGesture->getFirstTouchLocation(), 
-											twoFingerGesture->getSecondTouchLocation());
-			}
+			window->updateTransform(twoFingerGesture->getFirstTouchLocation(), 
+										twoFingerGesture->getSecondTouchLocation());
+
 		}
 
 		if (twoFingerGesture->getPhase() == Gesture::ENDING){

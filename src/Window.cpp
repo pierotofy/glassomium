@@ -225,16 +225,17 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
 }
 
 /** All vectors are points in range 0..1 (as received from the gesture manager) */
-void Window::startTransforming(const sf::Vector2f &centerLocation, float transformDistanceFromCenter, const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
+void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
 	if (transformable){
 		blockTransformsFlag = false;
-		centerLocationOnTransformBegin = centerLocation;
 		
-		transformDistanceFromCenterOnTransformBegin = transformDistanceFromCenter;
+		float dx = firstTouchLocation.x - secondTouchLocation.y;
+		float dy = firstTouchLocation.y - secondTouchLocation.y;
+		distanceBetweenTouchesOnTransformBegin = sqrt(dx * dx + dy * dy);
+		transformVectorOnTransformBegin = sf::Vector2f(dx, dy);
 		
 		windowScaleOnTransformBegin = this->getScale();
-		previousWindowScale = this->getScale();
-		previousWindowRotation = this->getRotation() * DEGREES_TO_RADIANS;
+		windowRotationOnTransformBegin = this->getRotation() * DEGREES_TO_RADIANS;
 
 		deltaScaleBigEnough = false;
 		deltaRotationBigEnough = false;
@@ -243,8 +244,8 @@ void Window::startTransforming(const sf::Vector2f &centerLocation, float transfo
 
 		previousDy = 0;
 
-		previousFirstTouchLocation = firstTouchLocationOnTransformBegin = firstTouchLocation;
-		previousSecondTouchLocation = secondTouchLocationOnTransformBegin = secondTouchLocation;
+		firstTouchLocationOnTransformBegin = firstTouchLocation;
+		secondTouchLocationOnTransformBegin = secondTouchLocation;
 	}
 }
 
@@ -252,6 +253,7 @@ void Window::startTransforming(const sf::Vector2f &centerLocation, float transfo
 void Window::stopTransforming(){
 	// Have we reached full screen threshold?
 	if (transformable && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
+
 		const float fullscreenThreshold = 0.9f;
 		WindowOrientation orientation = getOrientation();
 		float sizeX = this->getScale().x * webView->getTextureWidth();
@@ -271,14 +273,11 @@ void Window::stopTransforming(){
 
 /** Handles the transformations on this window. This includes scaling and rotating.
  */
-void Window::updateTransform(const sf::Vector2f &centerLocation, float transformDistanceFromCenter, const sf::Vector2f &firstTouchLocation, 
-							const sf::Vector2f &secondTouchLocation){
-	
-	// Start checks for validity here, the function might return without doing anything
-								
+void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
+	// Start checks for validity here, the function might return without doing anything				
 	if (blockTransformsFlag) return;
 
-	if (!transformable && !(fullscreen && scrollOnPinch)) return;
+	if ((!transformable) && (!(fullscreen && scrollOnPinch))) return;
 
 	bool performScroll = false;
 	if (fullscreen){
@@ -304,17 +303,19 @@ void Window::updateTransform(const sf::Vector2f &centerLocation, float transform
 	}
 
 	// End checks, start actual transforms
+	#define DELTA_SCALE_THRESHOLD 0.1f
 
-	#define SCALE_SENSITIVITY 2
-	#define DELTA_SCALE_THRESHOLD 0.010f
-
-	float deltaScale = (transformDistanceFromCenter - transformDistanceFromCenterOnTransformBegin) * SCALE_SENSITIVITY;
+	float dx = firstTouchLocation.x - secondTouchLocation.x;
+	float dy = firstTouchLocation.y - secondTouchLocation.y;
+	float newDistanceBetweenTouches = sqrt(dx * dx + dy * dy);
+	float deltaScale = (newDistanceBetweenTouches / distanceBetweenTouchesOnTransformBegin) - 1.0f;
 
 	if (fabs(deltaScale) > DELTA_SCALE_THRESHOLD && !deltaScaleBigEnough){
 		deltaScaleBigEnough = true;
 		
 		// Setting this value avoids sudden scaling at the beginning
-		previousWindowScale = getScale();
+		distanceBetweenTouchesOnTransformBegin = newDistanceBetweenTouches;
+		deltaScale = 0.0f;
 	}
 
 	// Don't start scaling if delta is not big enough (the user could be doing another gesture)
@@ -327,8 +328,8 @@ void Window::updateTransform(const sf::Vector2f &centerLocation, float transform
 				pinchedOutOfFullscreen = true;
 			}
 		
-			this->setScale(sf::Vector2f(previousWindowScale.x + deltaScale, 
-								previousWindowScale.y + deltaScale));
+			this->setScale(sf::Vector2f(windowScaleOnTransformBegin.x + deltaScale, 
+								windowScaleOnTransformBegin.y + deltaScale));
 		}else{
 			// Perform scroll instead
 			int dy;
@@ -346,53 +347,35 @@ void Window::updateTransform(const sf::Vector2f &centerLocation, float transform
 	}
 
 	// Handle rotation
-	#define DELTA_ROTATION_DEGREES_THRESHOLD 2.5f
-	#define ROTATION_SENSIBILITY 1
+	#define DELTA_ROTATION_DEGREES_THRESHOLD 5.0f
 
 	// Cannot rotate in fullscreen mode
 	if (fullscreen) return;
 
-	sf::Vector2f previousVec1 = previousFirstTouchLocation - centerLocation;
-	sf::Vector2f currentVec1 = firstTouchLocation - centerLocation;
-
-	sf::Vector2f previousVec2 = previousSecondTouchLocation - centerLocation;
-	sf::Vector2f currentVec2 = secondTouchLocation - centerLocation;
-
-	// These thetas do not give us the sign (+ or -), only an absolute value
-
-	Radians firstTheta = angleBetween(previousVec1, currentVec1);
-	Radians secondTheta = angleBetween(previousVec2, currentVec2);
+	sf::Vector2f transformVector(dx, dy);
 	
-	// Use the maximum angle to do the rotation between the two touches
-	Radians deltaTheta;
-	float cross; // calculating the cross product allows us to decide the sign of the angle
-	if (firstTheta > secondTheta){
-		deltaTheta = firstTheta;
-		cross = crossProduct(previousVec1, currentVec1);
-	}else{
-		deltaTheta = secondTheta;
-		cross = crossProduct(previousVec2, currentVec2);	
-	}
+	// This theta does not give us the sign (+ or -), only an absolute value
+	Radians theta = angleBetween(transformVectorOnTransformBegin, transformVector);
+	
+	// Calculating the cross product allows us to decide the sign of the angle
+	float cross = crossProduct(transformVectorOnTransformBegin, transformVector); 
 
-	if (deltaTheta * RADIANS_TO_DEGREES > DELTA_ROTATION_DEGREES_THRESHOLD && !deltaRotationBigEnough){
+	if (theta * RADIANS_TO_DEGREES > DELTA_ROTATION_DEGREES_THRESHOLD && !deltaRotationBigEnough){
 		deltaRotationBigEnough = true;
 
 		// Setting this value avoids sudden rotating at the beginning
-		previousWindowRotation = getRotation() * DEGREES_TO_RADIANS;
+		theta = 0.0f;
+		transformVectorOnTransformBegin = transformVector;
 	}
 
 	if (deltaRotationBigEnough){
 		// Flip the sign if needed
 		if (cross < 0.0f){
-			deltaTheta = -deltaTheta;
+			theta = -theta;
 		}
 
-		Radians rotation = deltaTheta * ROTATION_SENSIBILITY + previousWindowRotation;
+		Radians rotation = theta + windowRotationOnTransformBegin;
 		this->setRotation(rotation * RADIANS_TO_DEGREES);
-
-		previousFirstTouchLocation = firstTouchLocation;
-		previousSecondTouchLocation = secondTouchLocation;
-		previousWindowRotation = rotation;
 	}
 }
 

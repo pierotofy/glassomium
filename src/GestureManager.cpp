@@ -105,7 +105,7 @@ int GestureManager::findOverlayingWindowId(Blob *touch){
 
 
 // Uncomment this to enable debug messages for touch gestures
-//#define COUT_GESTURES 1
+#define COUT_GESTURES 1
 
 /** @param touchGroup the touchgroup we are currently processing
   * @param phase what phase of the gesture are we trying to recognize? 
@@ -128,13 +128,7 @@ void GestureManager::recognizeGestures(TouchGroup *touchGroup, Gesture::Phase ph
 		GestureEvent gestureEvent(gesture, meanLocation);
 			
 		if (gesture->getGestureType() == Gesture::TWOFINGER){
-			if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::SCROLL)){
-				UIManager::getSingleton()->onScrollGesture(gestureEvent);
-			}
-
-			if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::TRANSFORM)){
-				UIManager::getSingleton()->onTransformGesture(gestureEvent);
-			}
+			UIManager::getSingleton()->onTransformGesture(gestureEvent);
 
 			#ifdef COUT_GESTURES
 				cout << "TwoFinger " << phase << endl;
@@ -241,10 +235,10 @@ void GestureManager::processQueue(){
 			// Try to identify possible gestures
 			recognizeGestures(touchGroups[touchGroupId], Gesture::ENDING, touchEvent);
 
+			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
+
 			// Remove from touch group
 			touchGroups[touchGroupId]->remove(touchEvent.blob);
-
-			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 
 			// Check for cleanup (if a touchgroup has no more members, it doesn't have a purpose anymore)
 			if (touchGroups[touchGroupId]->getSize() == 0){
@@ -254,7 +248,7 @@ void GestureManager::processQueue(){
 			}
 		}else{
 			// Caught an orphan touch up event (we might have missed a touch down event or received multiple touch up)
-			// Remember, these messages are sent throgh UDP!			
+			// Remember, these messages are sent throgh UDP!
 			
 			// Still need to track it
 			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
