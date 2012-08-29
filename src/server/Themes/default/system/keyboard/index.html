@@ -129,16 +129,20 @@ document.addEventListener('touchend', onDocumentTouchEnd, false);
 function onDocumentTouchStart(event) {    
     event.preventDefault();
     
-    for (var i = 0; i < event.touches.length; i++) {
-        tuio.callback(3, event.touches[i].identifier, event.touches[i].identifier, event.touches[i].pageX * 960/nw, event.touches[i].pageY * 360/nh, 0);
+    for (var i = 0; i < event.changedTouches.length; i++) {
+        tuio.callback(3, event.changedTouches[i].identifier, event.changedTouches[i].identifier, event.changedTouches[i].pageX * 960/nw, event.changedTouches[i].pageY * 360/nh, 0);
     }    
+
+    for (var i = 0; i < event.changedTouches.length; i++) {
+        tuio.callback(4, event.changedTouches[i].identifier, event.changedTouches[i].identifier, event.changedTouches[i].pageX * 960/nw, event.changedTouches[i].pageY * 360/nh, 0);
+    }   
 }
 
 function onDocumentTouchMove(event) {
     event.preventDefault();
    
-    for (var i = 0; i < event.touches.length; i++) {
-        tuio.callback(4, event.touches[i].identifier, event.touches[i].identifier, event.touches[i].pageX * 960/nw, event.touches[i].pageY * 360/nh, 0);
+    for (var i = 0; i < event.changedTouches.length; i++) {
+        tuio.callback(4, event.changedTouches[i].identifier, event.changedTouches[i].identifier, event.changedTouches[i].pageX * 960/nw, event.changedTouches[i].pageY * 360/nh, 0);
     }   
 }
 

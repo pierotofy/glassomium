@@ -105,7 +105,7 @@ int GestureManager::findOverlayingWindowId(Blob *touch){
 
 
 // Uncomment this to enable debug messages for touch gestures
-#define COUT_GESTURES 1
+//#define COUT_GESTURES 1
 
 /** @param touchGroup the touchgroup we are currently processing
   * @param phase what phase of the gesture are we trying to recognize? 

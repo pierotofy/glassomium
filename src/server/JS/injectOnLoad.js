@@ -49,10 +49,10 @@ $jsafe(document).ready(function() {
  });
 
 /** TUIO Functions */
-GLA._fireTouchEvents = function(eventName, changedTouches){
+GLA._fireTouchEvents = function(eventName, touches){
 	// Add/modify fields to touches list
-	for (var i = 0; i < changedTouches.length; i++){
-		var touch = changedTouches[i];
+	for (var i = 0; i < touches.length; i++){
+		var touch = touches[i];
 		touch.pageX = touch.pageX + window.pageXOffset;
 		touch.pageY = touch.pageY + window.pageYOffset;
 		touch.screenX = touch.pageX;
@@ -62,9 +62,21 @@ GLA._fireTouchEvents = function(eventName, changedTouches){
 		touch.target = document.elementFromPoint(touch.pageX, touch.pageY);
 	}
 
-	var touches = [];
-	if (eventName != "touchend"){
-		touches = changedTouches;
+	var changedTouches = [];
+	if (eventName == "touchmove"){
+		// All touches have changed during move
+		changedTouches = touches;
+	}else if (eventName == "touchstart"){
+		// The last changed touch is always the last one that was pressed
+		changedTouches = [touches[touches.length - 1]];
+	}else if (eventName == "touchend"){
+		for (var i in touches){
+			if (touches[i].raisedEvent){
+				changedTouches = [touches[i]];
+				touches.remove(i);
+				break;
+			}
+		}
 	}
 
 	if (changedTouches.length > 0){
@@ -110,6 +122,14 @@ GLA._repaint = function(){
     window.setTimeout($jsafe.proxy(function() {
             $jsafe("body").css('padding-left', padding);
     }, this), 1);  
+};
+
+/** Array delete helper */
+// By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
 };
 
 /* Wrapper functions (public JS API) */

@@ -358,9 +358,6 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 	// This theta does not give us the sign (+ or -), only an absolute value
 	Radians theta = angleBetween(transformVectorOnTransformBegin, transformVector);
 	
-	// Calculating the cross product allows us to decide the sign of the angle
-	float cross = crossProduct(transformVectorOnTransformBegin, transformVector); 
-
 	if (theta * RADIANS_TO_DEGREES > DELTA_ROTATION_DEGREES_THRESHOLD && !deltaRotationBigEnough){
 		deltaRotationBigEnough = true;
 
@@ -370,7 +367,8 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 	}
 
 	if (deltaRotationBigEnough){
-		// Flip the sign if needed
+		// Calculating the cross product allows us to decide the sign of the angle
+		float cross = crossProduct(transformVectorOnTransformBegin, transformVector); 
 		if (cross < 0.0f){
 			theta = -theta;
 		}
@@ -1023,12 +1021,14 @@ void Window::fireJsTuioEvent(const string &name, TouchGroup *group, int blob_id,
 				int id;
 				float radiusX = 0.0f, radiusY = 0.0f;
 				Degrees angle = 0.0f;
+				bool raisedEvent = false; // false = this touch did not raise this event, true = this touch raised this event
 
 				// We have already computed the coordinates for this touch
 				if (touch->id == blob_id){
 					id = blob_id;
 					x = webviewCoords.x;
 					y = webviewCoords.y;
+					raisedEvent = true;
 				}else{
 					// Need to compute the webview coordinates for this touch
 					sf::Vector2f coords(touch->screenX, touch->screenY);
@@ -1047,18 +1047,16 @@ void Window::fireJsTuioEvent(const string &name, TouchGroup *group, int blob_id,
 					angle = touch->angle + getRotation();
 				}
 
-				oss << "{identifier:" << id << ",pageX:" << x << ",pageY:" << y << ",radiusX:" << radiusX << ",radiusY:" << radiusY << ",rotationAngle:" << angle << "},";
-
-				webView->executeJavascript(oss.str());
+				oss << "{identifier:" << id << ",pageX:" << x << ",pageY:" << y << ",radiusX:" << radiusX << ",radiusY:" << radiusY << ",rotationAngle:" << angle << ",raisedEvent:" << (raisedEvent ? "true" : "false") << "},";
 			}
 			
 			// End touches JS list
 			oss << "]);";
 			webView->executeJavascript(oss.str());
 		}else{
-			// Nop, just evaluate the coordinates that fired the event
+			// Nop, just evaluate the coordinates that fired the event (simulated with mouse)
 			stringstream oss;
-			oss << "GLA._fireTouchEvents('" << name << "' , [{identifier:" << blob_id << ",pageX:" << webviewCoords.x << ",pageY:" << webviewCoords.y << ",radiusX:0,radiusY:0,rotationAngle:0}]);";
+			oss << "GLA._fireTouchEvents('" << name << "' , [{identifier:" << blob_id << ",pageX:" << webviewCoords.x << ",pageY:" << webviewCoords.y << ",radiusX:0,radiusY:0,rotationAngle:0,raisedEvent:true}]);";
 			webView->executeJavascript(oss.str());
 		}
 	}
@@ -1120,7 +1118,7 @@ sf::Vector2f Window::popPosition(){
 	if (positionStack.empty()) return getPosition();
 	else{
 		sf::Vector2f result = positionStack.top();
-		scaleStack.pop();
+		positionStack.pop();
 		return result;
 	}
 }
