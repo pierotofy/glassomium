@@ -144,7 +144,7 @@ void Application::go(){
 
 	// Create the main rendering window
 	renderWindow = new sf::RenderWindow(videoMode, 
-										APP_NAME, 
+										APP_NAME" "APP_VERSION, 
 										(fullscreen ? sf::Style::Fullscreen : sf::Style::Default));
 	renderWindow->setFramerateLimit(60);
 

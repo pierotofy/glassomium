@@ -41,7 +41,7 @@ GLA._onLoad = function(){
 
 	var evt = document.createEvent("Event");
 	evt.initEvent("GLALoad", true, true);
-	document.dispatchEvent(evt);
+	setTimeout(function(){document.dispatchEvent(evt)}, 1);
 };
 
 $jsafe(document).ready(function() {
@@ -95,7 +95,7 @@ GLA._toggleWindowMenuFeatures = function(close, zoomIn, zoomOut, maximize, resto
 	var evt = document.createEvent("Event");
 	evt.initEvent("GLAWindowMenuFeaturesChanged", true, true);
 	evt.buttons = {close:close, zoomIn:zoomIn, zoomOut:zoomOut, maximize:maximize, restore:restore};
-	document.dispatchEvent(evt);
+	setTimeout(function(){document.dispatchEvent(evt)}, 1);
 };
 
 /** Crash handling */
