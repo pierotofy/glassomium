@@ -224,6 +224,7 @@ protected:
 	sf::Vector2f lastMouseMoveLocation; // webview coords
 	sf::Vector2f lastDeltaMouseMove; // amount of space moved during the last mouse move
 
+
 	bool tuioEnabled; // Whether javascript tuio events will be fired on mousedown, mousemove and mouseup
 
 	sf::Vector2f transformCoordinatesForWebView(pt::Rectangle &windowRect, const sf::Vector2f &rotatedScreenCoords);

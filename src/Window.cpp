@@ -226,7 +226,7 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
 
 /** All vectors are points in range 0..1 (as received from the gesture manager) */
 void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
-	if (transformable){
+	if (transformable && !dragging){
 		blockTransformsFlag = false;
 		
 		float dx = firstTouchLocation.x - secondTouchLocation.y;
@@ -252,7 +252,7 @@ void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf:
 
 void Window::stopTransforming(){
 	// Have we reached full screen threshold?
-	if (transformable && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
+	if (transformable && !dragging && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
 
 		const float fullscreenThreshold = 0.9f;
 		WindowOrientation orientation = getOrientation();
@@ -275,7 +275,7 @@ void Window::stopTransforming(){
  */
 void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
 	// Start checks for validity here, the function might return without doing anything				
-	if (blockTransformsFlag) return;
+	if (blockTransformsFlag || dragging) return;
 
 	if ((!transformable) && (!(fullscreen && scrollOnPinch))) return;
 
@@ -406,6 +406,7 @@ std::vector<std::wstring> Window::getJavascriptBindings(){
 	result.push_back(L"_GLASetPinchableToFullscreen");	
 	result.push_back(L"_GLASetScrollOnPinch");	
 	result.push_back(L"_GLAShowScreensaver");
+	result.push_back(L"_GLAEnterDragMode");
 	return result;
 }
 

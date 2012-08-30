@@ -1,0 +1,210 @@
+<style type="text/css">
+/** Adapted from http://www.alessioatzeni.com/mac-osx-lion-css3/ */
+.window {
+    background: -webkit-linear-gradient(rgba(233, 233, 233, 1.0), rgba(178, 178, 178, 1.0) 41px, #EDEDED, #EDEDED 23px);
+	background: -moz-linear-gradient(rgba(233, 233, 233, 1.0), rgba(178, 178, 178, 1.0) 41px, #EDEDED, #EDEDED 23px);
+    border-radius: 5px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 0px 0px 0px rgba(0,0,0,0.56), 0 0 0 1px rgba(0, 0, 0, 0.3);
+    text-align: left;
+    position:absolute;
+	z-index:0;
+	visibility:hidden;
+	opacity:0;
+}
+.window.windows-vis {
+	visibility:visible;
+	opacity:1;
+}
+h1.titleInside {
+    position:relative;
+    z-index:2;
+	color:#3c3c3c;
+	font-size:18px;
+	line-height:41px;
+	text-decoration:none;
+	text-shadow: 0 1px 1px #e7e7e7;
+	text-align:center;
+	text-transform:capitalize;
+}
+nav.control-window {
+	position:absolute;
+	left:5px;
+	top:3px;
+	z-index:10;
+	height:19px;
+}
+nav.control-window a {
+    display: inline-block;
+    margin: 2px 0px 3px 1px;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    box-shadow: 0px 1px 0px rgba(255,255,255,.5);
+    text-indent: -9999px;
+    position: relative;
+}
+nav.control-window a:before {
+    content: '';
+    display: block;
+    position: absolute;
+    border-radius: 100%;
+    box-shadow:inset 0 1px 4px rgba(0, 0, 0, .8);
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+}
+nav.control-window a:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 2px;
+    left: 1px;
+    bottom: 1px;
+    right: 1px;
+    border-radius: 100%;
+    background: -webkit-linear-gradient(white, rgba(255, 255, 255, .9) 2%, white, rgba(255, 255, 255, .4) 16%, rgba(255, 255, 255, 0) 43%, rgba(255, 255, 255, .74), rgba(255, 255, 255, .7) 122%, rgba(255, 255, 255, .7));
+	background: -moz-linear-gradient(white, rgba(255, 255, 255, .9) 2%, white, rgba(255, 255, 255, .4) 16%, rgba(255, 255, 255, 0) 43%, rgba(255, 255, 255, .74), rgba(255, 255, 255, .7) 122%, rgba(255, 255, 255, .7));
+    box-shadow: inset 0px -3px -5px 3px rgba(255, 255, 255, 0.2), inset 0px 2px -5px 3px rgba(255, 255, 255, 0.2);
+}
+nav.control-window a{
+    margin-right: 8px;
+}
+nav.control-window a.close {
+    background: #FD4E4E;
+}
+nav.control-window:hover a.close {
+	background: #FD4E4E;
+}
+nav.control-window a.close:active {
+    background: #c72f2b;
+}
+nav.control-window a.minimize {
+    background: #F3BB55;
+}
+nav.control-window:hover a.minimize {
+    background: #F3BB55;
+}
+nav.control-window a.minimize:active {
+    background: #c7862c;
+}
+nav.control-window a.maximize {
+    background: #96D16F;
+}
+nav.control-window:hover a.maximize {
+    background: #96D16F;
+}
+nav.control-window a.maximize:active {
+    background: #4a8e33;
+}
+
+nav.control-window a.close.disabled, nav.control-window:hover a.close.disabled, nav.control-window a.close.disabled:active,nav.control-window a.minimize.disabled, nav.control-window:hover a.minimize.disabled, nav.control-window a.minimize.disabled:active,nav.control-window a.maximize.disabled, nav.control-window:hover a.maximize.disabled, nav.control-window a.maximize.disabled:active {
+    background: #b9b9b9;
+}
+ {
+    background: #b9b9b9;
+}
+
+nav.control-window .toggle{
+    width: 64px;
+    height: 32px;
+    border-radius: 8px;
+    margin-right: 3px;
+}
+
+nav.control-window a.toggle:active {
+    background: #b9b9b9;
+}
+
+nav.control-window a.toggle::after, nav.control-window a.toggle::before{
+    border-radius: 8px;
+}
+
+nav.control-window.toggle{
+    right: 0;
+    left: auto;
+    margin-right: 0px;
+}
+
+#GLAshare {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", sans-serif;
+	font-size:12px;
+}
+
+#GLAshare h1{
+	margin: 0; padding: 0; 
+}
+
+.window.share {
+	z-index: 2147483647;
+	position: fixed;
+	width:100%;
+	top: 0;
+	right: 0;
+	margin:0;
+}
+
+</style>
+<div id="GLAshare" class="window share ui-draggable windows-vis">
+	<nav class="control-window buttons">
+		<a href="#" class="close">close</a>
+	    <a href="#" class="minimize">minimize</a>
+	    <a href="#" class="maximize">maximize</a>
+    </nav>
+    <h1 class="titleInside">
+        &nbsp;
+        <span class='title'></span>
+    </h1>
+    <nav class="control-window toggle">
+        <a href="#" class="toggle" onclick="javascript:GLAToggleOsxMenu();">toggle</a>
+    </nav>
+</div>
+<script>
+document.addEventListener('GLAWindowMenuFeaturesChanged', onWindowMenuFeaturesChanged, false);
+function onWindowMenuFeaturesChanged(event) {
+    event.preventDefault();
+    if (!event.buttons.close) $jsafe("#GLAshare .control-window.buttons a.close").addClass("disabled");
+    else $jsafe("#GLAshare .control-window.buttons a.close").removeClass("disabled");
+
+    if (!event.buttons.maximize) $jsafe("#GLAshare .control-window.buttons a.maximize").addClass("disabled");
+    else $jsafe("#GLAshare .control-window.buttons a.maximize").removeClass("disabled");
+
+    if (!event.buttons.restore) $jsafe("#GLAshare .control-window.buttons a.minimize").addClass("disabled");
+    else $jsafe("#GLAshare .control-window.buttons a.minimize").removeClass("disabled");
+}
+
+$jsafe("#GLAshare .control-window.buttons a").click(function(e){
+    if (!$jsafe(this).hasClass("disabled")){
+        if ($jsafe(this).hasClass("close")){
+            GLA.CloseWindow();
+        }else if ($jsafe(this).hasClass("minimize")){
+            GLA.ExitFullscreen();
+        }else if ($jsafe(this).hasClass("maximize")){
+            GLA.EnterFullscreen();
+        }
+    }
+
+    e.preventDefault();
+});
+
+function GLAToggleOsxMenu(){
+  if ($jsafe('#GLAshare .control-window.buttons').css('display') != 'none'){
+      $jsafe('#GLAshare .control-window.buttons').fadeOut(600);
+      $jsafe('#GLAshare .titleInside .title').fadeOut(400);
+
+      $jsafe('#GLAshare').animate({
+        width: "72px",
+      }, 800, function() {
+      });
+  }else{
+      $jsafe('#GLAshare .control-window.buttons').delay(200).fadeIn(600);
+      $jsafe('#GLAshare .titleInside .title').delay(200).fadeIn(400);
+      $jsafe('#GLAshare').animate({
+        width: "100%",
+      }, 800, function() {
+      });  
+  }
+};
+
+$jsafe("#GLAshare .titleInside .title").html(document.title ? document.title : "");
+</script>

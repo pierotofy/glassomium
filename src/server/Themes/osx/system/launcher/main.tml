@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+
+<title>launcher</title>
+<link rel="stylesheet" href="/resources/system/launcher/dock/dock.css" />
+<script type="application/javascript" src="/resources/jquery-1.6.3.min.js"></script>
+<script type="application/javascript" src="/resources/jquery-ui-1.8.16.custom.min.js"></script>
+
+<style type="text/css" media="all">
+body {
+	background-color: transparent;
+	padding:0;
+	margin:0;
+	overflow: hidden;
+}
+
+</style>
+</head>
+<body>
+<div class="dock">
+	<ul>
+		{ITEM_LIST}
+	</ul>
+</div>
+<script>
+$(document).ready(function(){
+	var imageWidth = parseInt($(".dock img").css('width'));
+	var windowWidth = $(window).width();
+	var padding = 3.2;
+
+	var items = $(".dock img").length;
+
+	if (items * (imageWidth + padding) > windowWidth){
+		var newWidth = (windowWidth - items * padding) / items;
+		$(".dock img").css('width', newWidth + "px");
+		$(".dock li:hover img").css('width', newWidth + "px");
+	}
+
+	$("a img").click(function(e){
+		 bounce($(this), 10, 0, 0, 5, 350);
+	});
+});
+
+function bounce(element, amount, direction, depth, maxdepth, time){
+	if (depth > maxdepth) return;
+	var ease = (direction == 0 ? "easeOutQuad" : "easeInCubic")
+    element.animate({
+      'margin-bottom': (direction == 0 ? '+' : '-') +'='+amount,
+    }, time, "easeOutQuad", function() {
+    	bounce(element, amount, (direction + 1) % 2, depth + 1, maxdepth, time);
+    });
+}
+</script>
+
+</body>
+</html>
