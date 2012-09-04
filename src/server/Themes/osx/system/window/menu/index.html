@@ -1,6 +1,6 @@
 <style type="text/css">
 /** Adapted from http://www.alessioatzeni.com/mac-osx-lion-css3/ */
-.window {
+.GLAOSXwindow {
     background: -webkit-linear-gradient(rgba(233, 233, 233, 1.0), rgba(178, 178, 178, 1.0) 41px, #EDEDED, #EDEDED 23px);
 	background: -moz-linear-gradient(rgba(233, 233, 233, 1.0), rgba(178, 178, 178, 1.0) 41px, #EDEDED, #EDEDED 23px);
     border-radius: 5px;
@@ -11,11 +11,11 @@
 	visibility:hidden;
 	opacity:0;
 }
-.window.windows-vis {
+.GLAOSXwindow.windows-vis {
 	visibility:visible;
 	opacity:1;
 }
-h1.titleInside {
+h1.GLAOSXtitleInside {
     position:relative;
     z-index:2;
 	color:#3c3c3c;
@@ -26,14 +26,14 @@ h1.titleInside {
 	text-align:center;
 	text-transform:capitalize;
 }
-nav.control-window {
+nav.glaosx-control-window {
 	position:absolute;
 	left:5px;
 	top:3px;
 	z-index:10;
 	height:19px;
 }
-nav.control-window a {
+nav.glaosx-control-window a {
     display: inline-block;
     margin: 2px 0px 3px 1px;
     width: 32px;
@@ -43,7 +43,7 @@ nav.control-window a {
     text-indent: -9999px;
     position: relative;
 }
-nav.control-window a:before {
+nav.glaosx-control-window a:before {
     content: '';
     display: block;
     position: absolute;
@@ -54,7 +54,7 @@ nav.control-window a:before {
     bottom: 0px;
     right: 0px;
 }
-nav.control-window a:after {
+nav.glaosx-control-window a:after {
     content: '';
     display: block;
     position: absolute;
@@ -67,75 +67,103 @@ nav.control-window a:after {
 	background: -moz-linear-gradient(white, rgba(255, 255, 255, .9) 2%, white, rgba(255, 255, 255, .4) 16%, rgba(255, 255, 255, 0) 43%, rgba(255, 255, 255, .74), rgba(255, 255, 255, .7) 122%, rgba(255, 255, 255, .7));
     box-shadow: inset 0px -3px -5px 3px rgba(255, 255, 255, 0.2), inset 0px 2px -5px 3px rgba(255, 255, 255, 0.2);
 }
-nav.control-window a{
+nav.glaosx-control-window a{
     margin-right: 8px;
 }
-nav.control-window a.close {
+nav.glaosx-control-window a.GLAOSXclose {
     background: #FD4E4E;
 }
-nav.control-window:hover a.close {
+nav.glaosx-control-window:hover a.GLAOSXclose {
 	background: #FD4E4E;
 }
-nav.control-window a.close:active {
+nav.glaosx-control-window a.GLAOSXclose:active {
     background: #c72f2b;
 }
-nav.control-window a.minimize {
+nav.glaosx-control-window a.GLAOSXminimize {
     background: #F3BB55;
 }
-nav.control-window:hover a.minimize {
+nav.glaosx-control-window:hover a.GLAOSXminimize {
     background: #F3BB55;
 }
-nav.control-window a.minimize:active {
+nav.glaosx-control-window a.GLAOSXminimize:active {
     background: #c7862c;
 }
-nav.control-window a.maximize {
+nav.glaosx-control-window a.GLAOSXmaximize {
     background: #96D16F;
 }
-nav.control-window:hover a.maximize {
+nav.glaosx-control-window:hover a.GLAOSXmaximize {
     background: #96D16F;
 }
-nav.control-window a.maximize:active {
+nav.glaosx-control-window a.GLAOSXmaximize:active {
     background: #4a8e33;
 }
 
-nav.control-window a.close.disabled, nav.control-window:hover a.close.disabled, nav.control-window a.close.disabled:active,nav.control-window a.minimize.disabled, nav.control-window:hover a.minimize.disabled, nav.control-window a.minimize.disabled:active,nav.control-window a.maximize.disabled, nav.control-window:hover a.maximize.disabled, nav.control-window a.maximize.disabled:active {
-    background: #b9b9b9;
-}
- {
+nav.glaosx-control-window a.GLAOSXclose.GLAOSXdisabled, nav.glaosx-control-window:hover a.GLAOSXclose.GLAOSXdisabled, nav.glaosx-control-window a.GLAOSXclose.GLAOSXdisabled:active,nav.glaosx-control-window a.GLAOSXminimize.GLAOSXdisabled, nav.glaosx-control-window:hover a.GLAOSXminimize.GLAOSXdisabled, nav.glaosx-control-window a.GLAOSXminimize.GLAOSXdisabled:active,nav.glaosx-control-window a.GLAOSXmaximize.GLAOSXdisabled, nav.glaosx-control-window:hover a.GLAOSXmaximize.GLAOSXdisabled, nav.glaosx-control-window a.GLAOSXmaximize.GLAOSXdisabled:active {
     background: #b9b9b9;
 }
 
-nav.control-window .toggle{
+nav.glaosx-control-window .GLAOSXtoggle{
     width: 64px;
     height: 32px;
     border-radius: 8px;
     margin-right: 3px;
 }
 
-nav.control-window a.toggle:active {
+nav.glaosx-control-window a.GLAOSXtoggle:active {
     background: #b9b9b9;
 }
 
-nav.control-window a.toggle::after, nav.control-window a.toggle::before{
+nav.glaosx-control-window a.GLAOSXtoggle::after, nav.glaosx-control-window a.GLAOSXtoggle::before{
     border-radius: 8px;
 }
 
-nav.control-window.toggle{
+nav.glaosx-control-window.GLAOSXtoggle{
     right: 0;
     left: auto;
     margin-right: 0px;
 }
 
-#GLAshare {
+#GLAOSXMenu {
 	font-family: "Lucida Grande", "Lucida Sans Unicode", sans-serif;
 	font-size:12px;
 }
 
-#GLAshare h1{
+#GLAOSXMenu > h1{
 	margin: 0; padding: 0; 
+    -webkit-background-clip: border-box;
+    -webkit-background-origin: padding-box;
+    -webkit-background-size: auto;
+    -webkit-box-shadow: none;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: transparent;
+    background-image: none;
+    background-origin: padding-box;
+    background-size: auto;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    box-shadow: none;
+    color: #3C3C3C;
+    display: block;
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    height: auto;
+    line-height: 41px;
+    opacity: 1;
+    position: static;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: #E7E7E7 0px 1px 1px;
+    text-transform: capitalize;
+    visibility: visible;
+    width: auto;
+    z-index: auto;
 }
 
-.window.share {
+.GLAOSXwindow.OSXMenu {
 	z-index: 2147483647;
 	position: fixed;
 	width:100%;
@@ -145,41 +173,41 @@ nav.control-window.toggle{
 }
 
 </style>
-<div id="GLAshare" class="window share ui-draggable windows-vis">
-	<nav class="control-window buttons">
-		<a href="#" class="close">close</a>
-	    <a href="#" class="minimize">minimize</a>
-	    <a href="#" class="maximize">maximize</a>
+<div id="GLAOSXMenu" class="GLAOSXwindow OSXMenu windows-vis">
+	<nav class="glaosx-control-window GLAOSXbuttons">
+		<a href="#" class="GLAOSXclose">close</a>
+	    <a href="#" class="GLAOSXminimize">minimize</a>
+	    <a href="#" class="GLAOSXmaximize">maximize</a>
     </nav>
-    <h1 class="titleInside">
+    <h1 class="GLAOSXtitleInside">
         &nbsp;
-        <span class='title'></span>
+        <span class='GLAOSXtitle'></span>
     </h1>
-    <nav class="control-window toggle">
-        <a href="#" class="toggle" onclick="javascript:GLAToggleOsxMenu();">toggle</a>
+    <nav class="glaosx-control-window GLAOSXtoggle">
+        <a href="#" class="GLAOSXtoggle" onclick="javascript:GLAToggleOsxMenu();">toggle</a>
     </nav>
 </div>
 <script>
 document.addEventListener('GLAWindowMenuFeaturesChanged', onWindowMenuFeaturesChanged, false);
 function onWindowMenuFeaturesChanged(event) {
     event.preventDefault();
-    if (!event.buttons.close) $jsafe("#GLAshare .control-window.buttons a.close").addClass("disabled");
-    else $jsafe("#GLAshare .control-window.buttons a.close").removeClass("disabled");
+    if (!event.buttons.close) $jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a.GLAOSXclose").addClass("GLAOSXdisabled");
+    else $jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a.GLAOSXclose").removeClass("GLAOSXdisabled");
 
-    if (!event.buttons.maximize) $jsafe("#GLAshare .control-window.buttons a.maximize").addClass("disabled");
-    else $jsafe("#GLAshare .control-window.buttons a.maximize").removeClass("disabled");
+    if (!event.buttons.maximize) $jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a.GLAOSXmaximize").addClass("GLAOSXdisabled");
+    else $jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a.GLAOSXmaximize").removeClass("GLAOSXdisabled");
 
-    if (!event.buttons.restore) $jsafe("#GLAshare .control-window.buttons a.minimize").addClass("disabled");
-    else $jsafe("#GLAshare .control-window.buttons a.minimize").removeClass("disabled");
+    if (!event.buttons.restore) $jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a.GLAOSXminimize").addClass("GLAOSXdisabled");
+    else $jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a.GLAOSXminimize").removeClass("GLAOSXdisabled");
 }
 
-$jsafe("#GLAshare .control-window.buttons a").click(function(e){
-    if (!$jsafe(this).hasClass("disabled")){
-        if ($jsafe(this).hasClass("close")){
+$jsafe("#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons a").click(function(e){
+    if (!$jsafe(this).hasClass("GLAOSXdisabled")){
+        if ($jsafe(this).hasClass("GLAOSXclose")){
             GLA.CloseWindow();
-        }else if ($jsafe(this).hasClass("minimize")){
+        }else if ($jsafe(this).hasClass("GLAOSXminimize")){
             GLA.ExitFullscreen();
-        }else if ($jsafe(this).hasClass("maximize")){
+        }else if ($jsafe(this).hasClass("GLAOSXmaximize")){
             GLA.EnterFullscreen();
         }
     }
@@ -188,23 +216,23 @@ $jsafe("#GLAshare .control-window.buttons a").click(function(e){
 });
 
 function GLAToggleOsxMenu(){
-  if ($jsafe('#GLAshare .control-window.buttons').css('display') != 'none'){
-      $jsafe('#GLAshare .control-window.buttons').fadeOut(600);
-      $jsafe('#GLAshare .titleInside .title').fadeOut(400);
+  if ($jsafe('#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons').css('display') != 'none'){
+      $jsafe('#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons').fadeOut(600);
+      $jsafe('#GLAOSXMenu .GLAOSXtitleInside .GLAOSXtitle').fadeOut(400);
 
-      $jsafe('#GLAshare').animate({
+      $jsafe('#GLAOSXMenu').animate({
         width: "72px",
       }, 800, function() {
       });
   }else{
-      $jsafe('#GLAshare .control-window.buttons').delay(200).fadeIn(600);
-      $jsafe('#GLAshare .titleInside .title').delay(200).fadeIn(400);
-      $jsafe('#GLAshare').animate({
+      $jsafe('#GLAOSXMenu .glaosx-control-window.GLAOSXbuttons').delay(200).fadeIn(600);
+      $jsafe('#GLAOSXMenu .GLAOSXtitleInside .GLAOSXtitle').delay(400).fadeIn(400);
+      $jsafe('#GLAOSXMenu').animate({
         width: "100%",
       }, 800, function() {
       });  
   }
 };
 
-$jsafe("#GLAshare .titleInside .title").html(document.title ? document.title : "");
+$jsafe("#GLAOSXMenu .GLAOSXtitleInside .GLAOSXtitle").html(document.title ? document.title : "");
 </script>

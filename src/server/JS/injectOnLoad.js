@@ -85,6 +85,7 @@ GLA._fireTouchEvents = function(eventName, touches){
 		evt.touches = touches;
 		evt.changedTouches = changedTouches;
 		evt.touch = touches[0];
+
 		document.dispatchEvent(evt);
 	}
 };
