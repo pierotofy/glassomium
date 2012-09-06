@@ -1,45 +1,241 @@
-<!DOCTYPE html>
-<!-- http://www.spielzeugz.de/html5/liquid-particles-3D/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <title>Liquid Particles 3D | spielzeugz.de/lab </title>
-	<meta name="description" content="HTML5 demo, particles trapped in a sphere">
-	<meta name="keywords" content="html5,canvas,javascript,particles,interactive">
-	
-	<style>
-		*{ 
-			margin:  0;
-			padding: 0;
-		}
-		body{
-			background-color: #000000;
-			overflow:         hidden;
-			color:            #999999;
-		}
-	</style>	
-	
-  <style type="text/css"></style></head>
-  <body>  
-	<canvas id="mainCanvas" width="1440" height="839">Hello, you need a newer browser.<br>Please have a look<a href="http://browsehappy.com/">here</a>.</canvas>
-	<div id="output"></div>
-	
-	<script>
-(function(){function s(){f.globalCompositeOperation="source-over";f.fillStyle="rgba(8,8,12,.75)";f.fillRect(0,0,e,k);f.globalCompositeOperation="lighter";z=p-t;A=q-u;t=p;u=q;for(var a=e/1.15,h=e/8,m=e/2,o=Math.random,B=Math.abs,s=Math.sqrt,w=Math.cos,x=Math.sin,y=Math.atan2,D=C;D--;){var b=E[D],l=b.x,g=b.y,c=b.c,d=b.d,n=l-p,i=g-q,j=s(n*n+i*i),i=y(i,n),n=w(i),i=x(i);if(v&&j<m){var r=(1-j/m)*14;c+=n*r+0.5-o();d+=i*r+0.5-o()}j<a&&(r=(1-j/a)*e*0.0014,c-=n*r,d-=i*r);j<h&&(j=(1-j/h)*e*2.2E-4,c+=z*j,d+=
-A*j);c*=F;d*=F;B(c);B(d);l+=c;g+=d;l>e?l=0:l<0&&(l=e);g>k?g=0:g<0&&(g=k);b.c=c;b.d=d;b.x=l;b.y=g;c=l/e*Math.PI*2;d=g/k*Math.PI;b.a={f:c,e:d,x:-100*Math.sin(d)*Math.sin(c),y:-100*Math.cos(d),b:-100*Math.sin(d)*Math.cos(c)};b.a.b-=200;if(!(b.a.b<-300))c=300/(300+b.a.b),d=b.a.x*c+e/2,g=b.a.y*c+k/2,f.fillStyle=b.color,f.beginPath(),f.arc(d,g,c,0,G,!0),f.closePath(),f.fill()}}function o(){e=document.documentElement.clientWidth;k=document.documentElement.clientHeight;m.width=e;m.height=k}function w(a){a=
-a?a:window.event;p=t=a.pageX;q=u=a.pageY;document.onmousemove=x}function x(a){a=a?a:window.event;p=a.pageX;q=a.pageY}function y(){v=!0;return!1}function H(){return v=!1}function I(){this.color="rgb("+Math.floor(Math.random()*255)+","+Math.floor(Math.random()*255)+","+Math.floor(Math.random()*255)+")";this.size=this.d=this.c=this.x=this.y=0;this.a={x:0,y:0,b:100}}var m,f,e=1E3,k=560,C=550,E=[],F=0.96,G=Math.PI*2,p,q,z=0,A=0,t=0,u=0,v=!1;window.onload=function(){m=document.getElementById("mainCanvas");
-if(m.getContext){f=m.getContext("2d");window.moveTo(0,0);window.resizeTo(screen.width,screen.height);o();for(var a=C;a--;){var h=new I;h.x=e*0.5;h.y=k*0.5;h.c=Math.cos(a)*Math.random()*40;h.d=Math.sin(a)*Math.random()*20;h.size=2;E[a]=h}document.onmousedown=y;document.onmouseup=H;document.onmousemove=w;window.onresize=o;o();setInterval(s,33)}}})();
-    </script>    
-    
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script><script src="./files/ga.js" type="text/javascript"></script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-11054609-1");
-pageTracker._trackPageview();
-} catch(err) {}
-</script>	
-	
-  
-</body></html>
+<!-- This application was developed by http://mrdoob.com/115/Water 
+and subsequently modified by Piero Toffanin to fit the Glassomium project. -->
+
+<!doctype html> 
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>Water Screensaver</title>
+        <style type="text/css">
+            body { background-color: transparent; margin: 0px; overflow: hidden; }
+            #info { position: absolute; top: 0px; width: 100%; color: #00b0b0; padding: 5px; font-family:Monospace; font-size:13px; text-align:center; }
+            #instructions{
+                border: 1px solid gray;
+                background-color: #010101;
+                border-radius: 8px;
+                padding: 12px;
+                text-align: center;
+                color: yellow;
+                position: absolute;
+                top: 0;
+                left: 0;
+                font-family: Verdana;
+            }
+        </style>
+        <script src="/resources/jquery-1.6.3.min.js"></script>
+        <script>
+        document.addEventListener('GLALoad', onGLALoad, false);
+        function onGLALoad(event) {
+          GLA.SetTransparent(true);
+          var top = $(document).height() / 2 - $("#instructions").height() / 2;
+          var left = $(document).width() / 2 - $("#instructions").width() / 2;
+          $("#instructions").css({'top': top + 'px',
+                                  'left': left + 'px'});
+        }
+        </script>
+    </head>
+    <body>
+        <div id="instructions"><img src="/resources/system/screensaver/lock.png" width="48" height="70" style="margin-bottom: 16px;"/><br/>Touch two corners to unlock</div>
+        <div id="container"></div>
+        
+        <script type="text/javascript">
+      
+        $(document).ready(function(){
+            var QUALITY = 5,
+            WIDTH = Math.floor(window.innerWidth / QUALITY), HEIGHT = Math.floor(window.innerHeight / QUALITY), SIZE = WIDTH * HEIGHT,
+            
+            context, image, data,
+            buffer1, buffer2, tempbuffer,
+            pixelOffset1, pixelOffset2, 
+
+            isUserInteracting, pointers;
+
+            init();
+            setInterval(loop, 1000 / 60);
+
+            function init() {
+
+                var container, canvas;
+                pixelOffset1 = Math.round(Math.random() * 2);
+                pixelOffset2 = Math.round(Math.random() * 2);
+                
+                container = document.getElementById('container');
+
+                canvas = document.createElement("canvas");
+                canvas.width = WIDTH;
+                canvas.height = HEIGHT;
+                canvas.style.width = window.innerWidth + "px";
+                canvas.style.height = window.innerHeight + "px";
+                container.appendChild(canvas);
+
+                context = canvas.getContext("2d");
+                context.fillStyle = "rgba(0, 0, 0, 0.95)";
+                context.fillRect (0, 0, WIDTH, HEIGHT);
+                image = context.getImageData(0, 0, WIDTH, HEIGHT);
+                data = image.data;
+
+                buffer1 = [];
+                buffer2 = [];
+                
+                for (var i = 0; i < SIZE; i ++) {
+
+                    buffer1[i] = 0;
+                    buffer2[i] = 0;
+                }
+
+                document.addEventListener('touchstart', onDocumentTouchStart, false);
+                document.addEventListener('touchmove', onDocumentTouchMove, false);
+                document.addEventListener('touchend', onDocumentTouchEnd, false);       
+                
+                document.addEventListener('keyup', onDocumentKeyUp, false);
+            }
+
+            // Event Handlers
+
+           
+            function onDocumentTouchStart(event) {
+                $("#instructions").fadeOut(500);
+                isUserInteracting = true;
+                
+                event.preventDefault();
+
+                pointers = [];
+                
+                for (var i = 0; i < event.changedTouches.length; i++) {
+                
+                    pointers.push([event.changedTouches[i].pageX / QUALITY, event.changedTouches[i].pageY / QUALITY]);
+                    
+                }
+
+                // Check to exit screensaver
+                var corners = [];
+                for (var i = 0; i < event.touches.length; i++) {
+                    var out = {corner:""};
+                    if (isTouchingCorner(event.touches[i].pageX, event.touches[i].pageY, 100, out)){
+                        corners.push(out.corner);
+                    }                    
+                }
+                var time = 600;
+
+                if (corners.length >= 2){
+                    if (touchesCorners("topleft", "topright", corners)){
+                        GLA.ExitScreensaver("fadeout", time);
+                    }else if (touchesCorners("topleft", "bottomleft", corners)){
+                        GLA.ExitScreensaver("fadeout", time);
+                    }else if (touchesCorners("topright", "bottomright", corners)){
+                        GLA.ExitScreensaver("fadeout", time);
+                    }else if (touchesCorners("bottomleft", "bottomright", corners)){
+                        GLA.ExitScreensaver("fadeout", time);
+                    }
+                }
+                
+            }
+ 
+            function onDocumentTouchMove(event) {
+            
+                event.preventDefault();
+
+                pointers = [];
+                
+                for (var i = 0; i < event.touches.length; i++) {
+                
+                    pointers.push([event.touches[i].pageX / QUALITY, event.touches[i].pageY / QUALITY]);
+                    
+                }
+                
+            }
+            
+            function onDocumentTouchEnd(event) {
+            
+                event.preventDefault();
+                
+                if (event.touches.length == 0){
+                    isUserInteracting = false;
+                }
+            }
+
+            function touchesCorners(firstCorner, secondCorner, corners){
+                if (corners.length < 2) return false;
+
+                return ((corners[0] == firstCorner && corners[1] == secondCorner) || 
+                    (corners[1] == firstCorner && corners[0] == secondCorner));
+            }
+
+            function isTouchingCorner(x, y, cornerSize, out){
+                if (cornerSize <= 0) return false;
+
+                var width = $(window).width();
+                var height = $(window).height();
+
+                if (x < cornerSize && y < cornerSize){
+                    out.corner = "topleft";
+                    return true;
+                } // Top left
+                else if (x > (width - cornerSize) && y < cornerSize){
+                    out.corner = "topright";
+                    return true;
+                }// Top right
+                else if(x < cornerSize && y > (height - cornerSize)){
+                    out.corner = "bottomleft";
+                    return true;
+                }// bottom left
+                else if (x > (width - cornerSize) && y > (height - cornerSize)){
+                    out.corner = "bottomright";
+                    return true;
+                } // bottom right
+                else return false;
+            }
+
+            function onDocumentKeyUp(e) {
+
+                emit( Math.random() * WIDTH, Math.random() * HEIGHT);
+
+            }
+
+            //
+
+            function emit(x, y) {
+
+                buffer1[ Math.floor(x) + (Math.floor(y) * WIDTH)] = 255;
+
+            }
+
+            function loop() {
+
+                if (isUserInteracting) {
+                    
+                    for (var i = 0; i < pointers.length; i++) {
+                        
+                        emit(pointers[i][0], pointers[i][1]);
+                        
+                    }
+                }
+
+                var pixel;
+                var iMax = (WIDTH * HEIGHT) - WIDTH;
+                
+                for (var i = WIDTH; i < iMax; i ++) {
+
+                    pixel = ((buffer1[i - 1] + buffer1[i + 1] + buffer1[i - WIDTH] + buffer1[i + WIDTH]) >> 1) - buffer2[i];
+                    pixel -= pixel >> 20;
+
+                    buffer2[i] = pixel;
+                    
+                    pixel = pixel > 255 ? 255 : pixel < 0 ? 0 : pixel;
+
+                    data[ (i * 4) + pixelOffset1 ] = pixel;
+                    data[ ((i + 1) * 4) + pixelOffset2 ] = pixel;
+                }
+
+                tempbuffer = buffer1;
+                buffer1 = buffer2;
+                buffer2 = tempbuffer;
+
+                context.putImageData(image, 0, 0);
+                
+            }
+        });
+        </script>
+    </body>
+</html>
