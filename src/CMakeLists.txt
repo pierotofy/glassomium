@@ -161,7 +161,15 @@ if (WIN32)
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-win32/lib/berkelium.lib)
 endif()
 if (UNIX)
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-lGLU -Wl,-rpath=./")
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-lGLU")
+  
+  # For some odd reason, the linker will complain that it cannot find the 
+  # proper file if it doesn't exist. This means that a user should recompile
+  # twice in order to get this flag working
+  if (EXISTS "${PROJECT_BINARY_DIR}/dist/bin/${PROJECT_NAME}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath=./")
+  endif()
+
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-linux${BITNESS}/lib/liblibberkelium.so)
 endif()
 
