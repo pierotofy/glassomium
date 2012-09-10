@@ -37,7 +37,7 @@ function printCursor(cursor){
 	// Exists?
 	if ($(".cursor_" + cursor.identifier).length == 0){
 		$("body").append("<div class='cursor_" + cursor.identifier + "'></div>");
-		GLA.Log("ID: " + cursor.identifier);
+		//GLA.Log("ID: " + cursor.identifier);
 	}
 
 	// Fill
@@ -58,7 +58,67 @@ body{
 div{
 	margin-bottom: 1em;
 }
+
+div#red{
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 300px;
+	height: 200px;
+	background-color: red;
+}
+div#blue{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 300px;
+	height: 200px;
+	background-color: blue;
+}
+
 </style>
+<div id="red">
+
+</div>
+<div id="blue">
+
+</div>
+
+<script>
+var red = document.getElementById("red");
+red.addEventListener('touchstart', onTouchStartRed, false);
+function onTouchStartRed(event){
+	event.preventDefault();
+	GLA.Log("touchstart red");
+}
+red.addEventListener('touchmove', onTouchMoveRed, false);
+function onTouchMoveRed(event){
+	event.preventDefault();
+	GLA.Log("touchmove red");
+}
+red.addEventListener('touchend', onTouchEndRed, false);
+function onTouchEndRed(event){
+	event.preventDefault();
+	GLA.Log("touchend red");
+}
+
+var blue = document.getElementById("blue");
+blue.addEventListener('touchstart', onTouchStartBlue, false);
+function onTouchStartBlue(event){
+	event.preventDefault();
+	GLA.Log("touchstart blue");
+}
+blue.addEventListener('touchmove', onTouchMoveBlue, false);
+function onTouchMoveBlue(event){
+	event.preventDefault();
+	GLA.Log("touchmove blue");
+}
+blue.addEventListener('touchend', onTouchEndBlue, false);
+function onTouchEndBlue(event){
+	event.preventDefault();
+	GLA.Log("touchend blue");
+}
+</script>
 
 </body>
 </html>

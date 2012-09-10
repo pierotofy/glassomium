@@ -318,6 +318,12 @@ void WebView::onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString n
 	currentURL = string(newURL.data(), newURL.size());
 }
 
+void WebView::onConsoleMessage (Berkelium::Window *win, Berkelium::WideString message, Berkelium::WideString sourceId, int line_no){
+	if (g_debug){
+		wcout << L"JS Console: " << message.data() << ":" << line_no << endl;
+	}
+}
+
 void WebView::onTitleChanged (Berkelium::Window *win, Berkelium::WideString title){
 
 }

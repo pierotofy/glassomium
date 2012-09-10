@@ -28,6 +28,7 @@ function add_app(url, icon, js){
 var mouse_down = false;
 var mouse_start_location_x = 0;
 var scrolled = false;
+var loaded = false;
 
 $(document).mousemove(function(event) {
 	  if (mouse_down && !scrolled){
@@ -41,6 +42,8 @@ $(document).mousemove(function(event) {
  });
 
 $(document).mousedown(function(event) {
+	if (!loaded) event.preventDefault();
+
   	mouse_down = true;
   	scrolled = false;
   	mouse_start_location_x = event.pageX;
@@ -48,6 +51,8 @@ $(document).mousedown(function(event) {
  });
 
 $(document).mouseup(function(event) {
+	if (!loaded) event.preventDefault();
+	
   	mouse_down = false;
   	set_hide_menu_timer();
  });
@@ -56,7 +61,8 @@ var myScroll;
 var height = 0; // icons height
 $(document).ready(function() {
 	/* Add applications here */
-
+	loaded = true;
+	
 	{ITEM_LIST}
 	add_app("javascript:GLA.OpenNewWebBrowserWindow('http://www.google.com');", "/resources/system/launcher/browser-icon-512x512.png", true);
 

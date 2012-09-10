@@ -49,7 +49,10 @@ $jsafe(document).ready(function() {
  });
 
 /** TUIO Functions */
+GLA._startedTouches = {};
 GLA._fireTouchEvents = function(eventName, touches){
+	var targets = {};
+
 	// Add/modify fields to touches list
 	for (var i = 0; i < touches.length; i++){
 		var touch = touches[i];
@@ -60,35 +63,73 @@ GLA._fireTouchEvents = function(eventName, touches){
 		touch.clientX = touch.pageX;
 		touch.clientY = touch.pageY;
 		touch.target = document.elementFromPoint(touch.pageX, touch.pageY);
+
+		// Not all elements might have an ID, set one if undefined
+		if (touch.target.id == null){
+			touch.target.id =  PseudoGuid.GetNew();
+		}
+
+		if (!(touch.target.id in targets)){
+			targets[touch.target.id] = {touches:[touch], element:touch.target};
+		}else{
+			targets[touch.target.id].touches.push(touch);
+		}		
 	}
 
-	var changedTouches = [];
-	if (eventName == "touchmove"){
-		// All touches have changed during move
-		changedTouches = touches;
-	}else if (eventName == "touchstart"){
-		// The last changed touch is always the last one that was pressed
-		changedTouches = [touches[touches.length - 1]];
-	}else if (eventName == "touchend"){
-		for (var i in touches){
-			if (touches[i].raisedEvent){
-				changedTouches = [touches[i]];
-				touches.remove(i);
-				break;
+	for (var targetId in targets){
+		var targetTouches = targets[targetId].touches;
+
+		var changedTouches = [];
+		if (eventName == "touchmove"){
+			// All touches have changed during move (OLD)
+			//changedTouches = targetTouches;
+
+			// Only the touch that fired the event has moved
+			for (var i in targetTouches){
+				if (targetTouches[i].raisedEvent){
+					changedTouches = [targetTouches[i]];
+					break;
+				}
+			}
+		}else if (eventName == "touchstart"){
+			for (var i in targetTouches){
+				if (targetTouches[i].raisedEvent){
+					changedTouches = [targetTouches[i]];
+					break;
+				}
+			}
+		}else if (eventName == "touchend"){
+			for (var i in targetTouches){
+				if (targetTouches[i].raisedEvent){
+					changedTouches = [targetTouches[i]];
+					targetTouches.remove(i);
+					break;
+				}
 			}
 		}
-	}
 
-	if (changedTouches.length > 0){
-		var evt = document.createEvent("Event");
-		evt.initEvent(eventName, true, true);
-		evt.touches = touches;
-		evt.changedTouches = changedTouches;
-		evt.touch = touches[0];
+		if (changedTouches.length > 0){
+			var evt = document.createEvent("Event");
+			evt.initEvent(eventName, true, true);
+			evt.touches = targetTouches;
+			evt.changedTouches = changedTouches;
+			evt.touch = touches[0];
+			targets[targetId].element.dispatchEvent(evt);
+		}
 
-		document.dispatchEvent(evt);
 	}
 };
+//http://stackoverflow.com/questions/226689/unique-element-id-even-if-element-doesnt-have-one
+GLA.PseudoGuid = new (function() {
+    this.empty = "00000000-0000-0000-0000-000000000000";
+    this.GetNew = function() {
+        var fourChars = function() {
+                return (((1 + Math.random()) * 0x10000)|0).toString(16).substring(1).toUpperCase();
+        }
+        return (fourChars() + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + fourChars() + fourChars());
+    };
+})();
+
 
 /** System menu control functions */
 

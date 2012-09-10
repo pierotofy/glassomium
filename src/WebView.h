@@ -125,6 +125,7 @@ private:
 	virtual void onJavascriptCallback(Berkelium::Window *win, void* replyMsg, Berkelium::URLString url, 
 				Berkelium::WideString funcName, Berkelium::Script::Variant *args, size_t numArgs);
 	virtual void onAddressBarChanged(Berkelium::Window *win, Berkelium::URLString newURL);
+	virtual void onConsoleMessage (Berkelium::Window *win, Berkelium::WideString message, Berkelium::WideString sourceId, int line_no);
 
 	void handleCrash(const string &description);
       
