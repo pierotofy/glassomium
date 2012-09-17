@@ -92,6 +92,7 @@ set(HDRS
     UserWindow.h
     Launcher.h
     Blob.h
+    PhysicsManager.h
     stdafx.h
 )
  
@@ -125,6 +126,7 @@ set(SRCS
     UserWindow.cpp
     Launcher.cpp
     Blob.cpp
+    PhysicsManager.cpp
 )
 
 include_directories(./include)

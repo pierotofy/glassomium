@@ -38,11 +38,13 @@ map<std::string, float> ThemeConfiguration::getFloatDefaults(){
 	result["window.position.x"] = 0.5f;
 	result["window.position.y"] = 0.5f;
 	result["window.rotation"] = 0.0f;
+	result["physics.drag-friction"] = 0.0f;
 	return result;
 }
 
 map<std::string, bool> ThemeConfiguration::getBoolDefaults(){
 	map<std::string, bool> result;
+	result["physics.enabled"] = false;
 	return result;
 }
 

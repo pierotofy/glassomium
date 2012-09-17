@@ -24,6 +24,7 @@
 #include "Window.h"
 #include "PointerSprite.h"
 #include "GestureManager.h"
+#include "PhysicsManager.h"
 #include "AnimationManager.h"
 #include "AppConfiguration.h"
 #include "ThemeConfiguration.h"
@@ -106,6 +107,9 @@ private:
 
 	// Takes care of animating windows
 	AnimationManager *animationManager;
+
+	// Handles physics effects
+	PhysicsManager *physicsManager;
 
 	// Screensaver clock
 	sf::Clock screensaverClock;

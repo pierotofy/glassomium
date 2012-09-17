@@ -62,8 +62,11 @@ UIManager::UIManager(){
     // Instantiate gesture manager
 	gestureManager = new GestureManager();
 
-	// Instantiate animatino manager
+	// Instantiate animation manager
 	animationManager = new AnimationManager();
+
+	// Instantiate physics
+	physicsManager = new PhysicsManager();
 
 	screensaverShowing = false;
 
@@ -82,6 +85,7 @@ void UIManager::updateServerResources(){
 	//themeConfig->dump();
 
 	screensaverWait = max(0, themeConfig->getInt("screensaver.wait"));
+	physicsManager->setEnabled(themeConfig->getBool("physics.enabled"));
 }
 
 
@@ -899,4 +903,5 @@ UIManager::~UIManager(){
 
 	RELEASE_SAFELY(gestureManager);
 	RELEASE_SAFELY(animationManager);
+	RELEASE_SAFELY(physicsManager);
 }
