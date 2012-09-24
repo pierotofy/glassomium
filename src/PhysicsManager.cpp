@@ -39,12 +39,12 @@ void PhysicsManager::initialize(){
 
 /** Sets whether we are making use of the physics effects */
 void PhysicsManager::setEnabled(bool enabled){
-	this->enabled = enabled;
-
 	// Lazy loading
 	if (!initialized){
 		initialize();
 	}
+
+	this->enabled = enabled;
 }
 
 bool PhysicsManager::isEnabled(){

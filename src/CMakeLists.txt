@@ -176,11 +176,14 @@ if (UNIX)
 endif()
 
 include_directories(${SFML_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} TUIO osc ip ${SFML_LIBRARIES} sfgui)
+target_link_libraries(${PROJECT_NAME} TUIO osc ip ${SFML_LIBRARIES} sfgui Box2D)
 
 add_subdirectory(include/TUIO)
 add_subdirectory(include/osc)
 add_subdirectory(include/ip)
+
+set(BOX2D_BUILD_STATIC true)
+add_subdirectory(include/Box2D)
 
 set(SFGUI_STATIC TRUE)
 set(SFGUI_STATIC_LIBRARIES TRUE)
