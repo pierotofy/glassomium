@@ -108,9 +108,6 @@ private:
 	// Takes care of animating windows
 	AnimationManager *animationManager;
 
-	// Handles physics effects
-	PhysicsManager *physicsManager;
-
 	// Screensaver clock
 	sf::Clock screensaverClock;
 	bool screensaverShowing;

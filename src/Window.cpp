@@ -214,13 +214,15 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 }
 
 /** Terminates the drag gesture */
-void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
+void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vector2f &speedOnDragEnd){
      if (dragging && draggable){
 
 		// Uncolor
 		setBlendColor(sf::Color(255, 255, 255)); // No blend
 
         dragging = false;               
+
+		PhysicsManager::getSingleton()->applyForce(this, speedOnDragEnd);
      }         
 }
 
@@ -871,6 +873,9 @@ void Window::onMouseUp(int cursor_id, int screen_x, int screen_y){
 /** Handles a mouse down event */
 void Window::handleMouseDown(int cursor_id, const sf::Vector2f &webviewCoords){
 	mouseDown = true;
+
+	// Stop physics
+	PhysicsManager::getSingleton()->stopAllPhysics(this);
 
 	// If we are going to scroll, just record the position of the mouse down
 	// but don't fire the event yet. We will fire it only if a scroll is NOT detected

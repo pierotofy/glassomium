@@ -65,9 +65,6 @@ UIManager::UIManager(){
 	// Instantiate animation manager
 	animationManager = new AnimationManager();
 
-	// Instantiate physics
-	physicsManager = new PhysicsManager();
-
 	screensaverShowing = false;
 
 	appConfigs = 0;
@@ -85,7 +82,7 @@ void UIManager::updateServerResources(){
 	//themeConfig->dump();
 
 	screensaverWait = max(0, themeConfig->getInt("screensaver.wait"));
-	physicsManager->setEnabled(themeConfig->getBool("physics.enabled"));
+	PhysicsManager::getSingleton()->setEnabled(themeConfig->getBool("physics.enabled"));
 }
 
 
@@ -178,6 +175,7 @@ void UIManager::update(){
 
  	getGestureManager()->processQueue();
 	getAnimationManager()->processQueue();
+	PhysicsManager::getSingleton()->update();
 
 	// Check screensaver
 	if (screensaverWait > 0 && screensaverClock.getElapsedTime().asSeconds() > screensaverWait && !screensaverShowing){
@@ -633,6 +631,9 @@ void UIManager::closeWindow(Window *window){
 			// Remove from list
 			windows.erase(windows.begin() + i);
 
+			// Stop physics
+			PhysicsManager::getSingleton()->stopAllPhysics(window);
+
 			// Free
 			RELEASE_SAFELY(window);
 			break;
@@ -744,7 +745,7 @@ void UIManager::onDragGesture(const GestureEvent &gestureEvent){
 		}
 
 		if (drag->getPhase() == Gesture::ENDING){
-			window->stopDragging(gestureEvent.location);
+			window->stopDragging(gestureEvent.location, drag->getSpeedOnDragEnd());
 		}
 	}
 }
@@ -903,5 +904,4 @@ UIManager::~UIManager(){
 
 	RELEASE_SAFELY(gestureManager);
 	RELEASE_SAFELY(animationManager);
-	RELEASE_SAFELY(physicsManager);
 }

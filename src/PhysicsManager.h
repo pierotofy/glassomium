@@ -22,21 +22,45 @@
 
 #include "stdafx.h"
 #include "ThemeConfiguration.h"
+#include "Window.h"
 
 using namespace std;
+using namespace pt;
 
 class PhysicsManager {
 private:
+	static PhysicsManager *singleton;
+
 	bool enabled;
 	bool initialized;
 
+	b2World *world;
+	float timeStep;
+	float halfPhysicsWorldWidth;
+	float halfPhysicsWorldHeight;
+
+	std::map<int, b2Body*> bodies;
+
+	void updateBody(Window *window);
+	void destroyBody(Window *window);
+
+	inline sf::Vector2f screenToPhysics(const sf::Vector2f &screenCoords);
+	inline sf::Vector2f physicsToScreen(const sf::Vector2f &physicsCoords);
 public:
 	PhysicsManager();
     ~PhysicsManager();
 
-	void initialize();
+	static void initialize();
+	static void destroy();
+	static PhysicsManager *getSingleton();
+
+	void initializeWorld();
+	void update();
 	void setEnabled(bool);
 	bool isEnabled();
+
+	void applyForce(Window *window, const sf::Vector2f &speed);
+	void stopAllPhysics(Window *window);
 };
 
 #endif

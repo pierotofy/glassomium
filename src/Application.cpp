@@ -168,6 +168,8 @@ void Application::go(){
 
 	ServerManager::initialize("localhost", 5555);
 
+	PhysicsManager::initialize();
+
 	// Initialize window manager
 	UIManager::initialize();
 	
@@ -287,6 +289,7 @@ Application::~Application(){
 	RELEASE_SAFELY(tuioManager);
 	RELEASE_SAFELY(renderWindow);
 
+	PhysicsManager::destroy();
 	ServerManager::destroy();
     FileManager::destroy();
 }

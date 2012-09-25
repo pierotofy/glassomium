@@ -23,15 +23,51 @@
 
 using namespace std;
 
+#define METER_TO_PIXEL 50.0f
+#define PIXEL_TO_METER 0.02f
+
+PhysicsManager *PhysicsManager::singleton = 0;
+
+void PhysicsManager::initialize(){
+	PhysicsManager::singleton = new PhysicsManager();
+}
+
+void PhysicsManager::destroy(){
+	RELEASE_SAFELY(PhysicsManager::singleton);
+}
+
+PhysicsManager *PhysicsManager::getSingleton(){
+	return singleton;
+}
+
 PhysicsManager::PhysicsManager(){
 	enabled = false;
 	initialized = false;
+	timeStep = 1.0f / 30.0f; // Should this be dynamic for better physics? 
 }
 
 /** Initializes the physics world */
-void PhysicsManager::initialize(){
+void PhysicsManager::initializeWorld(){
 	if (!initialized){
+		b2Vec2 gravity(0.0f, 0.0f);
+		world = new b2World(gravity);
+		/*
+		b2BodyDef groundBodyDef;
+		groundBodyDef.position.Set(0.0f, 0.0f);
 
+		b2Body* groundBody = world->CreateBody(&groundBodyDef);
+		b2PolygonShape groundBox;
+		*/
+		float worldWidth = Application::windowWidth * PIXEL_TO_METER;
+		float worldHeight = Application::windowHeight * PIXEL_TO_METER;
+
+		// We'll use these values later
+		halfPhysicsWorldWidth = worldWidth / 2.0f;
+		halfPhysicsWorldHeight = worldHeight / 2.0f;
+		/*
+		groundBox.SetAsBox(halfPhysicsWorldWidth, halfPhysicsWorldHeight);
+		groundBody->CreateFixture(&groundBox, 0.0f);
+		*/
 
 		initialized = true;
 	}
@@ -41,17 +77,112 @@ void PhysicsManager::initialize(){
 void PhysicsManager::setEnabled(bool enabled){
 	// Lazy loading
 	if (!initialized){
-		initialize();
+		initializeWorld();
 	}
 
 	this->enabled = enabled;
+}
+
+/** To be called from the UI thread */
+void PhysicsManager::update(){
+	#define VELOCITYITERATIONS 8
+	#define POSITIONITERATIONS 3
+
+	if (enabled){
+		world->Step(timeStep, VELOCITYITERATIONS, POSITIONITERATIONS);
+
+		map<int, b2Body *>::iterator it;
+		for (it = bodies.begin(); it != bodies.end(); it++){
+			b2Body *body = it->second;
+			Window *w = (Window *)body->GetUserData();
+			
+			w->setPosition(physicsToScreen(sf::Vector2f(body->GetPosition().x, body->GetPosition().y)));
+			w->setRotation(body->GetAngle() * RADIANS_TO_DEGREES);			
+		}
+	}
 }
 
 bool PhysicsManager::isEnabled(){
 	return enabled;
 }
 
-PhysicsManager::~PhysicsManager(){
 
+/** Applies a force to the window, which will cause the window to move and bounce on the 
+ * boundaries of the screen */
+void PhysicsManager::applyForce(Window *window, const sf::Vector2f &speed){
+	if (enabled){
+		updateBody(window);
+		
+		b2Body *body = bodies[window->getID()];
+		body->ApplyLinearImpulse(b2Vec2(speed.x * 20.0f, speed.y * 20.0f), body->GetWorldCenter());
+	}
+}
+
+/** Destroys the body associated with this window (if there's one) */
+void PhysicsManager::destroyBody(Window *window){
+	if (bodies.count(window->getID()) != 0){
+		world->DestroyBody(bodies[window->getID()]);
+		bodies.erase(window->getID());
+	}
+}
+
+/** Creates a body for the the window (eliminating any previous body) */
+void PhysicsManager::updateBody(Window *window){
+	// Eliminate previous?
+	destroyBody(window);
+
+	// Create new body
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+
+	// Position, angle
+	sf::Vector2f position = screenToPhysics(window->getPosition());
+	bodyDef.position.Set(position.x, position.y);
+	bodyDef.angle = window->getRotation() * DEGREES_TO_RADIANS;
+	bodyDef.userData = window;
+
+	// Size
+	sf::Vector2f size = sf::Vector2f(window->getWidth() * PIXEL_TO_METER, window->getHeight() * PIXEL_TO_METER);
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(size.x / 2.0f, size.y / 2.0f);
+
+	// Fixture
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
+	fixtureDef.density = 1.0f;
+
+	b2Body* body = world->CreateBody(&bodyDef);
+	body->CreateFixture(&fixtureDef);
+	body->SetLinearDamping(0.6f); // TODO: change
+
+	// Keep track
+	bodies[window->getID()] = body;
+}
+
+/** Stops all physics animations on the window */
+void PhysicsManager::stopAllPhysics(Window *window){
+	destroyBody(window);
+}
+
+/** Converts screen coordinates to a physics world range */
+sf::Vector2f PhysicsManager::screenToPhysics(const sf::Vector2f &screenCoords){
+	return sf::Vector2f(
+		screenCoords.x * PIXEL_TO_METER - halfPhysicsWorldWidth,
+		screenCoords.y * PIXEL_TO_METER - halfPhysicsWorldHeight
+	);
+}
+
+/** Converts physics world coordinates to screen coordinates */
+sf::Vector2f PhysicsManager::physicsToScreen(const sf::Vector2f &physicsCoords){
+	return sf::Vector2f(
+		(physicsCoords.x + halfPhysicsWorldWidth) * METER_TO_PIXEL,
+		(physicsCoords.y + halfPhysicsWorldHeight) * METER_TO_PIXEL
+	);
+}
+
+PhysicsManager::~PhysicsManager(){
+	if (world){
+		RELEASE_SAFELY(world);
+	}
 }
 
