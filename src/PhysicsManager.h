@@ -44,6 +44,8 @@ private:
 	void updateBody(Window *window);
 	void destroyBody(Window *window);
 
+	void addBoundaryBox(float x, float y, float width, float height);
+
 	inline sf::Vector2f screenToPhysics(const sf::Vector2f &screenCoords);
 	inline sf::Vector2f physicsToScreen(const sf::Vector2f &physicsCoords);
 public:

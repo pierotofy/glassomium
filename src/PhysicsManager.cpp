@@ -51,26 +51,41 @@ void PhysicsManager::initializeWorld(){
 	if (!initialized){
 		b2Vec2 gravity(0.0f, 0.0f);
 		world = new b2World(gravity);
-		/*
-		b2BodyDef groundBodyDef;
-		groundBodyDef.position.Set(0.0f, 0.0f);
-
-		b2Body* groundBody = world->CreateBody(&groundBodyDef);
-		b2PolygonShape groundBox;
-		*/
+		
+				
 		float worldWidth = Application::windowWidth * PIXEL_TO_METER;
 		float worldHeight = Application::windowHeight * PIXEL_TO_METER;
 
 		// We'll use these values later
 		halfPhysicsWorldWidth = worldWidth / 2.0f;
 		halfPhysicsWorldHeight = worldHeight / 2.0f;
-		/*
-		groundBox.SetAsBox(halfPhysicsWorldWidth, halfPhysicsWorldHeight);
-		groundBody->CreateFixture(&groundBox, 0.0f);
-		*/
+
+		// Create boundaries across the screen so that windows do not fly out of the screen
+		
+		// Bottom
+		addBoundaryBox(0.0f, halfPhysicsWorldHeight, worldWidth, 0.0001f);
+		
+		// Top
+		addBoundaryBox(0.0f, -halfPhysicsWorldHeight, worldWidth, 0.0001f);
+		
+		// Left
+		addBoundaryBox(-halfPhysicsWorldWidth, 0.0f, 0.0001f, worldHeight);
+
+		// Right
+		addBoundaryBox(halfPhysicsWorldWidth, 0.0f, 0.0001f, worldHeight);
 
 		initialized = true;
 	}
+}
+
+/** Adds a boundary of the specified width and height with a center position of (x,y) (all physics coordinates) */
+void PhysicsManager::addBoundaryBox(float x, float y, float width, float height){
+	b2BodyDef groundBodyDef;
+	groundBodyDef.position.Set(x, y);
+	b2Body* groundBody = world->CreateBody(&groundBodyDef);
+	b2PolygonShape groundBox;
+	groundBox.SetAsBox(width / 2.0f, height / 2.0f);
+	groundBody->CreateFixture(&groundBox, 0.0f);
 }
 
 /** Sets whether we are making use of the physics effects */
@@ -113,7 +128,7 @@ void PhysicsManager::applyForce(Window *window, const sf::Vector2f &speed){
 	if (enabled){
 		updateBody(window);
 		
-		b2Body *body = bodies[window->getID()];
+		b2Body *body = bodies[window->getID()]; // TODO: 20 is NOT a good scaling factor (need to scale proportionally to world size)
 		body->ApplyLinearImpulse(b2Vec2(speed.x * 20.0f, speed.y * 20.0f), body->GetWorldCenter());
 	}
 }
@@ -147,9 +162,16 @@ void PhysicsManager::updateBody(Window *window){
 	dynamicBox.SetAsBox(size.x / 2.0f, size.y / 2.0f);
 
 	// Fixture
+
+	// Negative = don't collide, positive = collide
+	#define GROUP_WINDOW -1
+
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &dynamicBox;
 	fixtureDef.density = 1.0f;
+	fixtureDef.restitution = 0.3f; // TODO: change
+	fixtureDef.friction = 0.9f;
+	fixtureDef.filter.groupIndex = GROUP_WINDOW; // Do not allow windows to collide
 
 	b2Body* body = world->CreateBody(&bodyDef);
 	body->CreateFixture(&fixtureDef);
