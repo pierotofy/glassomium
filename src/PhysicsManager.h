@@ -39,6 +39,9 @@ private:
 	float halfPhysicsWorldWidth;
 	float halfPhysicsWorldHeight;
 
+	float friction;
+	float restitution;
+
 	std::map<int, b2Body*> bodies;
 
 	void updateBody(Window *window);
@@ -60,6 +63,9 @@ public:
 	void update();
 	void setEnabled(bool);
 	bool isEnabled();
+
+	void setFriction(float);
+	void setRestitution(float);
 
 	void applyForce(Window *window, const sf::Vector2f &speed);
 	void stopAllPhysics(Window *window);

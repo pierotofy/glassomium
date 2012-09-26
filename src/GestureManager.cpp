@@ -125,7 +125,7 @@ void GestureManager::recognizeGestures(TouchGroup *touchGroup, Gesture::Phase ph
 		meanLocation.y *= Application::windowHeight;
 
 		// Wrap a GestureEvent and send to UIManager
-		GestureEvent gestureEvent(gesture, meanLocation);
+		GestureEvent gestureEvent(gesture, meanLocation, touchGroup->getWindowID());
 			
 		if (gesture->getGestureType() == Gesture::TWOFINGER){
 			UIManager::getSingleton()->onTransformGesture(gestureEvent);

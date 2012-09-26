@@ -92,6 +92,7 @@ public:
 	Window* findFirstWindow(float screen_x, float screen_y);
 	Window* findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords);
 	Window* findFirstWindow(sf::Vector2f screenCoords[], int numCoords);
+	Window* findWindowById(int windowId);
 
 	void update(); // To be called from the main loop
 	void draw(sf::RenderWindow *renderWindow); // Takes care of drawing the UI components in the rendering window

@@ -44,6 +44,9 @@ PhysicsManager::PhysicsManager(){
 	enabled = false;
 	initialized = false;
 	timeStep = 1.0f / 30.0f; // Should this be dynamic for better physics? 
+
+	restitution = 0.0f;
+	friction = 0.3f; // Default values
 }
 
 /** Initializes the physics world */
@@ -117,6 +120,15 @@ void PhysicsManager::update(){
 	}
 }
 
+
+void PhysicsManager::setFriction(float friction){
+	this->friction = friction;
+}
+
+void PhysicsManager::setRestitution(float restitution){
+	this->restitution = restitution;
+}
+
 bool PhysicsManager::isEnabled(){
 	return enabled;
 }
@@ -169,13 +181,14 @@ void PhysicsManager::updateBody(Window *window){
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &dynamicBox;
 	fixtureDef.density = 1.0f;
-	fixtureDef.restitution = 0.3f; // TODO: change
-	fixtureDef.friction = 0.9f;
+	fixtureDef.restitution = restitution;
+	fixtureDef.friction = friction;
 	fixtureDef.filter.groupIndex = GROUP_WINDOW; // Do not allow windows to collide
 
 	b2Body* body = world->CreateBody(&bodyDef);
 	body->CreateFixture(&fixtureDef);
-	body->SetLinearDamping(0.6f); // TODO: change
+	body->SetLinearDamping(friction);
+	body->SetAngularDamping(friction);
 
 	// Keep track
 	bodies[window->getID()] = body;

@@ -167,6 +167,7 @@ public:
 
 	sf::Uint8 getAlpha();
 	void setAlpha(sf::Uint8 alpha);
+	void removeBlendColor();
 	
 	bool rotationSameAs(Window *otherWindow, Degrees threshold);
 

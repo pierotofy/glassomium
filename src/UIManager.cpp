@@ -82,7 +82,11 @@ void UIManager::updateServerResources(){
 	//themeConfig->dump();
 
 	screensaverWait = max(0, themeConfig->getInt("screensaver.wait"));
+
 	PhysicsManager::getSingleton()->setEnabled(themeConfig->getBool("physics.enabled"));
+	PhysicsManager::getSingleton()->setFriction(themeConfig->getFloat("physics.drag-friction"));
+	PhysicsManager::getSingleton()->setRestitution(themeConfig->getFloat("physics.drag-restitution"));
+
 }
 
 
@@ -396,6 +400,18 @@ Window* UIManager::findFirstWindow(float screen_x, float screen_y){
 	return NULL;
 }
 
+/** Iterates through the list of windows searching for a window with the given ID.
+ * @return the window with the given ID, or NULL if none is found. */
+Window* UIManager::findWindowById(int windowId){
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i]->getID() == windowId){
+			return windows[i];
+		}
+	}
+
+	return NULL;
+}
+
 /** Returns the window with the highest visible Z order that is also TUIO-enabled hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords){
@@ -687,6 +703,9 @@ void UIManager::exitScreensaverCallback(Window *screensaver){
 }
 
 void UIManager::onTouchGesture(const GestureEvent &gestureEvent){
+
+	// TODO: use gestureEvent.windowId instead of finding the window using the location of the touch!
+
 	TouchGesture *touch = static_cast<TouchGesture *>(gestureEvent.gesture);
 
 	TouchEvent touchEvent = touch->getTouchEvent();
@@ -725,7 +744,6 @@ void UIManager::onTouchMove(const TouchEvent &touchEvent){
 /** Handles a touch up event */
 void UIManager::onTouchUp(const TouchEvent &touchEvent){
 	Window *window = findFirstWindow((float)touchEvent.screen_x, (float)touchEvent.screen_y);
-
 	if (window != NULL){
 		window->onMouseUp(touchEvent.touch_id, touchEvent.screen_x, touchEvent.screen_y);
 	}
@@ -734,7 +752,8 @@ void UIManager::onTouchUp(const TouchEvent &touchEvent){
 void UIManager::onDragGesture(const GestureEvent &gestureEvent){
 	DragGesture *drag = static_cast<DragGesture *>(gestureEvent.gesture);
 	
-	Window *window = findFirstWindow(gestureEvent.location.x, gestureEvent.location.y);
+	//Window *window = findFirstWindow(gestureEvent.location.x, gestureEvent.location.y);
+	Window *window = findWindowById(gestureEvent.windowId);
 	if (window != NULL){
 		if (drag->getPhase() == Gesture::BEGINNING){
 			window->startDragging(gestureEvent.location);
@@ -765,8 +784,8 @@ void UIManager::onTransformGesture(const GestureEvent &gestureEvent){
 	touches[1].x *= Application::windowWidth;
 	touches[1].y *= Application::windowHeight;
 
-	Window *window = findFirstWindow(touches, 2);
-
+	//Window *window = findFirstWindow(touches, 2);
+	Window *window = findWindowById(gestureEvent.windowId);
 	if (window != NULL){
 		if (twoFingerGesture->getPhase() == Gesture::BEGINNING){
 			window->startTransforming(twoFingerGesture->getFirstTouchLocation(), 

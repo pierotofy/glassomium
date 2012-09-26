@@ -38,7 +38,8 @@ map<std::string, float> ThemeConfiguration::getFloatDefaults(){
 	result["window.position.x"] = 0.5f;
 	result["window.position.y"] = 0.5f;
 	result["window.rotation"] = 0.0f;
-	result["physics.drag-friction"] = 0.0f;
+	result["physics.drag-friction"] = 0.6f;
+	result["physics.drag-restitution"] = 0.3f;
 	return result;
 }
 

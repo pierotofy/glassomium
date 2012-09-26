@@ -218,7 +218,7 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vecto
      if (dragging && draggable){
 
 		// Uncolor
-		setBlendColor(sf::Color(255, 255, 255)); // No blend
+		removeBlendColor();
 
         dragging = false;               
 
@@ -535,6 +535,12 @@ void Window::setAlpha(sf::Uint8 alpha){
 	sf::Color color = sprite->getColor();
 	color.a = alpha;
 	sprite->setColor(color);
+}
+
+/** Removes any blend color that might have been applied to the window
+ (for example during drag) */
+void Window::removeBlendColor(){
+	setBlendColor(sf::Color(255, 255, 255)); // No blend
 }
 
 /** Compares the rotation of the current window and otherWindow within a defined threshold
