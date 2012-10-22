@@ -45,6 +45,8 @@ PhysicsManager::PhysicsManager(){
 	initialized = false;
 	timeStep = 1.0f / 30.0f; // Should this be dynamic for better physics? 
 
+	speedScalingFactor = (20.0f * Application::windowWidth * Application::windowHeight) / (800.0f * 600.0f);
+
 	restitution = 0.0f;
 	friction = 0.3f; // Default values
 }
@@ -140,8 +142,8 @@ void PhysicsManager::applyForce(Window *window, const sf::Vector2f &speed){
 	if (enabled){
 		updateBody(window);
 		
-		b2Body *body = bodies[window->getID()]; // TODO: 20 is NOT a good scaling factor (need to scale proportionally to world size)
-		body->ApplyLinearImpulse(b2Vec2(speed.x * 20.0f, speed.y * 20.0f), body->GetWorldCenter());
+		b2Body *body = bodies[window->getID()];
+		body->ApplyLinearImpulse(b2Vec2(speed.x * speedScalingFactor, speed.y * speedScalingFactor), body->GetWorldCenter());
 	}
 }
 

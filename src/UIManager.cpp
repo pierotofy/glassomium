@@ -631,6 +631,13 @@ void UIManager::onWindowAnimatedExitFullscreenRequested(Window *sender){
 		sf::Vector2f targetScale = sender->popScale();
 		sf::Vector2f targetPosition = sender->popPosition();
 
+		// Clock-wise or counter clock-wise faster?
+		if (fabs(sender->getRotation() - targetRotation) <= 180.0f){
+			targetRotation = targetRotation;
+		}else{
+			targetRotation = targetRotation - 360.0f;
+		}
+
 		Animation *a = new TransformAnimation(250, targetScale, targetPosition, targetRotation, TransformAnimation::Linear, sender);
 		a->start();
 	}

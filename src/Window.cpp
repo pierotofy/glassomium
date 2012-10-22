@@ -151,10 +151,11 @@ void Window::setFullscreen(bool flag){
 		draggableBeforeFullscreen = draggable;
 		setDraggable(false);
 		
+		// CURRENTLY DISABLED:
 		// Fullscreen windows should not be transparent (otherwise content from
 		// the bottom windows might show up, yet the user cannot interact with it)
 		transparentBeforeFullscreen = isTransparent();
-		setTransparent(false);
+		//setTransparent(false); Uncomment this to enable
 		
 		fullscreen = true;
 

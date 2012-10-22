@@ -42,6 +42,8 @@ private:
 	float friction;
 	float restitution;
 
+	float speedScalingFactor;
+
 	std::map<int, b2Body*> bodies;
 
 	void updateBody(Window *window);
