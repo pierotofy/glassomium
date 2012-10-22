@@ -314,8 +314,8 @@ function gestureChange(e){
     var image = layer.getChildren()[0];
     
     image.setRotationDeg(e.rotation + image.rotationOnGestureStart);
-    var scale = e.scale - 1.0;
-    image.setScale(image.scaleOnGestureStart + scale, image.scaleOnGestureStart + scale);
+    image.setScale(image.scaleOnGestureStart * e.scale, image.scaleOnGestureStart * e.scale);
+
     layer.draw();
 }
 function gestureStart(e){
@@ -502,6 +502,9 @@ function onTouchEnd(e){
 
   ul.dropdown-menu li a{
     text-align: center;
+    line-height: 26px;
+    padding: 9px 14px;
+    font-size: 15px;
   }
 
   .dropdown-menu.open{
@@ -525,9 +528,9 @@ function onTouchEnd(e){
   </head>
   <body>
   <div id="pileBtn" class="btn-group">
-    <a class="btn btn-inverse dropdown-open" href="#">Make a pile</a>
-    <a class="btn btn-inverse dropdown-toggle dropdown-open" href="#" style="min-height: 18px;"><span class="caret"></span></a>
-    <ul class="dropdown-menu auto-close" style="top: 100%; min-width: 113px; line-height: 32px; ">
+    <a class="btn btn-large btn-inverse dropdown-open" href="#">Make a pile</a>
+    <a class="btn btn-large btn-inverse dropdown-toggle dropdown-open" href="#" style="min-height: 18px;"><span class="caret"></span></a>
+    <ul class="dropdown-menu auto-close" style="top: 100%; min-width: 135px;">
       <li><a href="javascript:makePile(1);">One</a></li>
       <li><a href="javascript:makePile(2);">Two</a></li>
       <li><a href="javascript:makePile(3);">Three</a></li>
