@@ -92,6 +92,7 @@ set(HDRS
     UserWindow.h
     Launcher.h
     Blob.h
+    PhysicsManager.h
     stdafx.h
 )
  
@@ -125,6 +126,7 @@ set(SRCS
     UserWindow.cpp
     Launcher.cpp
     Blob.cpp
+    PhysicsManager.cpp
 )
 
 include_directories(./include)
@@ -165,16 +167,27 @@ if (WIN32)
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-win32/lib/berkelium.lib)
 endif()
 if (UNIX)
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-lGLU -Wl,-rpath=./")
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-lGLU")
+  
+  # For some odd reason, the linker will complain that it cannot find the 
+  # proper file if it doesn't exist. This means that a user should recompile
+  # twice in order to get this flag working
+  if (EXISTS "${PROJECT_BINARY_DIR}/dist/bin/${PROJECT_NAME}")
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath=./")
+  endif()
+
   target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/berkelium-linux${BITNESS}/lib/liblibberkelium.so)
 endif()
 
 include_directories(${SFML_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} TUIO osc ip ${SFML_LIBRARIES} sfgui)
+target_link_libraries(${PROJECT_NAME} TUIO osc ip ${SFML_LIBRARIES} sfgui Box2D)
 
 add_subdirectory(include/TUIO)
 add_subdirectory(include/osc)
 add_subdirectory(include/ip)
+
+set(BOX2D_BUILD_STATIC true)
+add_subdirectory(include/Box2D)
 
 set(SFGUI_STATIC TRUE)
 set(SFGUI_STATIC_LIBRARIES TRUE)

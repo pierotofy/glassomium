@@ -13,13 +13,9 @@
 		<script src="/resources/jquery-1.6.3.min.js"></script>
 		<script>
     	document.addEventListener('GLALoad', onGLALoad, false);
-    	document.addEventListener('GLAZoomCompleted', onGLAZoomCompleted, false);
 		function onGLALoad(event) {
 		  GLA.SetTuioEnabled(true);
 		  GLA.SetMenuButtons(["close"]);
-		}
-		function onGLAZoomCompleted(event) {
-
 		}
 		</script>
 	</head>
@@ -116,9 +112,9 @@
 
 				pointers = [];
 				
-				for (var i = 0; i < event.touches.length; i++) {
+				for (var i = 0; i < event.changedTouches.length; i++) {
 				
-					pointers.push([event.touches[i].pageX / QUALITY, event.touches[i].pageY / QUALITY]);
+					pointers.push([event.changedTouches[i].pageX / QUALITY, event.changedTouches[i].pageY / QUALITY]);
 					
 				}
 				
@@ -142,7 +138,9 @@
 			
 				event.preventDefault();
 				
-				isUserInteracting = false;
+				if (event.touches.length == 0){
+					isUserInteracting = false;
+				}
 				
 			}
 

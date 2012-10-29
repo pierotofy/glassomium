@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Glassomium"
-#define MyAppVersion "0.1"
+#define MyAppVersion "0.2"
 #define MyAppPublisher "Piero Toffanin"
 #define MyAppURL "http://www.glassomium.org"
 #define MyAppExeName "Launcher.bat"
-#define MyFolderName "C:\Users\piero\Desktop\sfml-superficie"
+#define MyFolderName "C:\Users\piero\Desktop\glassomium"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.

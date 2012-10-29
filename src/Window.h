@@ -104,6 +104,7 @@ public:
 
 	void scroll(int dx, int dy);
 	void setScrollOnMouseMove(bool flag);
+	void setScrollOnPinch(bool flag);
 
 	void executeJavascript(const string &code);
 
@@ -140,10 +141,10 @@ public:
 
 	void startDragging(const sf::Vector2f &);
 	void updateDragging(const sf::Vector2f &);
-	void stopDragging(const sf::Vector2f &);
+	void stopDragging(const sf::Vector2f &, const sf::Vector2f &);
 
-	void startTransforming(const sf::Vector2f &, float, const sf::Vector2f &, const sf::Vector2f &);
-	void updateTransform(const sf::Vector2f &, float transformDistanceFromCenter, const sf::Vector2f &, const sf::Vector2f &);
+	void startTransforming(const sf::Vector2f &, const sf::Vector2f &);
+	void updateTransform(const sf::Vector2f &, const sf::Vector2f &);
 	void stopTransforming();
 	void blockTransforms();
 
@@ -152,6 +153,7 @@ public:
 	void setScrollable(bool);
 
 	void setPinchableOutOfFullscreen(bool);
+	void setPinchableToFullscreen(bool);
 	void setFullscreen(bool);
 	bool isFullscreen();
 
@@ -165,6 +167,7 @@ public:
 
 	sf::Uint8 getAlpha();
 	void setAlpha(sf::Uint8 alpha);
+	void removeBlendColor();
 	
 	bool rotationSameAs(Window *otherWindow, Degrees threshold);
 
@@ -191,6 +194,7 @@ protected:
 
 	bool fullscreen; // Is the window running in full screen?
 	bool pinchableOutOfFullscreen; // Can this window be pinched out of full screen?
+	bool pinchableToFullscreen; // Can this window be pinched to full screen?
 
 	bool dragging; // Flag that tells whether this window is being dragged
 
@@ -212,12 +216,15 @@ protected:
 	// Current zoom level
 	float currentZoom;
 
+	bool scrollOnPinch; // Whether a pinch during full screen will cause a scroll event
+
 	bool scrollOnMouseMove; // This flag tells whether a mouse move will cause a scroll event instead of a mouse move
 	bool scrolledOnMouseMove; // Whether we have scrolled in the last mouse move
 	bool mouseDown; // Whether the mouse is down on this window
 	sf::Vector2f lastMouseDownLocation; // webview coords
 	sf::Vector2f lastMouseMoveLocation; // webview coords
 	sf::Vector2f lastDeltaMouseMove; // amount of space moved during the last mouse move
+
 
 	bool tuioEnabled; // Whether javascript tuio events will be fired on mousedown, mousemove and mouseup
 
@@ -240,17 +247,16 @@ private:
 #endif
 
 	bool blockTransformsFlag; // After we detect a scroll, we want to avoid receiving accidental transform gestures
-	float transformDistanceFromCenterOnTransformBegin;
+	float distanceBetweenTouchesOnTransformBegin;
+	sf::Vector2f transformVectorOnTransformBegin;
 	sf::Vector2f windowScaleOnTransformBegin;
 	sf::Vector2f previousWindowScale;
-	Radians previousWindowRotation;
+	int previousDy;
+	Radians windowRotationOnTransformBegin;
 	bool deltaScaleBigEnough;
 	bool deltaRotationBigEnough;
-	sf::Vector2f previousFirstTouchLocation;
-	sf::Vector2f previousSecondTouchLocation;
 	sf::Vector2f firstTouchLocationOnTransformBegin;
 	sf::Vector2f secondTouchLocationOnTransformBegin;
-	sf::Vector2f centerLocationOnTransformBegin;
 	bool pinchedOutOfFullscreen; // Has the window just returned to windowed mode?
 
 	// Sprite sizes before a fullscreen (to exit out of fullscreen)
@@ -259,6 +265,7 @@ private:
 
 	// And other properties
 	bool draggableBeforeFullscreen;
+	bool transparentBeforeFullscreen;
 
 	std::stack<Degrees> rotationStack;
 	std::stack<sf::Vector2f> positionStack;

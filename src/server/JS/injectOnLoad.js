@@ -6,7 +6,7 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
 var $jsafe = jQuery.noConflict();
 
 /**
-    @namespace Glassomium JS Public API 0.1
+    @namespace Glassomium JS Public API 0.2
 */
 var GLA = GLA || {};
 GLA.keyboardVisible = false;
@@ -41,7 +41,7 @@ GLA._onLoad = function(){
 
 	var evt = document.createEvent("Event");
 	evt.initEvent("GLALoad", true, true);
-	document.dispatchEvent(evt);
+	setTimeout(function(){document.dispatchEvent(evt)}, 1);
 };
 
 $jsafe(document).ready(function() {
@@ -49,10 +49,13 @@ $jsafe(document).ready(function() {
  });
 
 /** TUIO Functions */
-GLA._fireTouchEvents = function(eventName, changedTouches){
+GLA._startedTouches = {};
+GLA._fireTouchEvents = function(eventName, touches){
+	var targets = {};
+
 	// Add/modify fields to touches list
-	for (var i = 0; i < changedTouches.length; i++){
-		var touch = changedTouches[i];
+	for (var i = 0; i < touches.length; i++){
+		var touch = touches[i];
 		touch.pageX = touch.pageX + window.pageXOffset;
 		touch.pageY = touch.pageY + window.pageYOffset;
 		touch.screenX = touch.pageX;
@@ -60,22 +63,73 @@ GLA._fireTouchEvents = function(eventName, changedTouches){
 		touch.clientX = touch.pageX;
 		touch.clientY = touch.pageY;
 		touch.target = document.elementFromPoint(touch.pageX, touch.pageY);
+
+		// Not all elements might have an ID, set one if undefined
+		if (touch.target.id == null){
+			touch.target.id =  PseudoGuid.GetNew();
+		}
+
+		if (!(touch.target.id in targets)){
+			targets[touch.target.id] = {touches:[touch], element:touch.target};
+		}else{
+			targets[touch.target.id].touches.push(touch);
+		}		
 	}
 
-	var touches = [];
-	if (eventName != "touchend"){
-		touches = changedTouches;
-	}
+	for (var targetId in targets){
+		var targetTouches = targets[targetId].touches;
 
-	if (changedTouches.length > 0){
-		var evt = document.createEvent("Event");
-		evt.initEvent(eventName, true, true);
-		evt.touches = touches;
-		evt.changedTouches = changedTouches;
-		evt.touch = touches[0];
-		document.dispatchEvent(evt);
+		var changedTouches = [];
+		if (eventName == "touchmove"){
+			// All touches have changed during move (OLD)
+			//changedTouches = targetTouches;
+
+			// Only the touch that fired the event has moved
+			for (var i in targetTouches){
+				if (targetTouches[i].raisedEvent){
+					changedTouches = [targetTouches[i]];
+					break;
+				}
+			}
+		}else if (eventName == "touchstart"){
+			for (var i in targetTouches){
+				if (targetTouches[i].raisedEvent){
+					changedTouches = [targetTouches[i]];
+					break;
+				}
+			}
+		}else if (eventName == "touchend"){
+			for (var i in targetTouches){
+				if (targetTouches[i].raisedEvent){
+					changedTouches = [targetTouches[i]];
+					targetTouches.remove(i);
+					break;
+				}
+			}
+		}
+
+		if (changedTouches.length > 0){
+			var evt = document.createEvent("Event");
+			evt.initEvent(eventName, true, true);
+			evt.touches = targetTouches;
+			evt.changedTouches = changedTouches;
+			evt.touch = touches[0];
+			targets[targetId].element.dispatchEvent(evt);
+		}
+
 	}
 };
+//http://stackoverflow.com/questions/226689/unique-element-id-even-if-element-doesnt-have-one
+GLA.PseudoGuid = new (function() {
+    this.empty = "00000000-0000-0000-0000-000000000000";
+    this.GetNew = function() {
+        var fourChars = function() {
+                return (((1 + Math.random()) * 0x10000)|0).toString(16).substring(1).toUpperCase();
+        }
+        return (fourChars() + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + fourChars() + fourChars());
+    };
+})();
+
 
 /** System menu control functions */
 
@@ -83,7 +137,7 @@ GLA._toggleWindowMenuFeatures = function(close, zoomIn, zoomOut, maximize, resto
 	var evt = document.createEvent("Event");
 	evt.initEvent("GLAWindowMenuFeaturesChanged", true, true);
 	evt.buttons = {close:close, zoomIn:zoomIn, zoomOut:zoomOut, maximize:maximize, restore:restore};
-	document.dispatchEvent(evt);
+	setTimeout(function(){document.dispatchEvent(evt)}, 1);
 };
 
 /** Crash handling */
@@ -110,6 +164,14 @@ GLA._repaint = function(){
     window.setTimeout($jsafe.proxy(function() {
             $jsafe("body").css('padding-left', padding);
     }, this), 1);  
+};
+
+/** Array delete helper */
+// By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
 };
 
 /* Wrapper functions (public JS API) */
@@ -341,4 +403,21 @@ GLA.SetTransformable = function(flag){
  * @param flag boolean indicating whether the window is pinchable out of fullscreen or not */ 
 GLA.SetPinchableOutOfFullscreen = function(flag){
 	_GLASetPinchableOutOfFullscreen(flag ? "1" : "0");
+};
+
+/** Sets whether the current window can be pinched to fullscreen. When a user scales a window
+ * to occupy the majority of the screen, by default we switch the application to fullscreen. This 
+ * can be turned off by passing false to this function. 
+ * @param flag boolean indicating whether the window is pinchable to fullscreen or not */ 
+GLA.SetPinchableToFullscreen = function(flag){
+	_GLASetPinchableToFullscreen(flag ? "1" : "0");
+};
+
+/** Sets whether the current window should perform a scroll movement in the vertical direction
+ * (simulating a mouse wheel) during a pinch gesture when in fullscreen mode AND when not touching
+ * one of the corners. This is useful for web applications that use mouse wheel events
+ * to zoom in and out (maps, for example).
+ * @param flag boolean indicating whether the window should perform a scroll on pinch */ 
+GLA.SetScrollOnPinch = function(flag){
+	_GLASetScrollOnPinch(flag ? "1" : "0");
 };

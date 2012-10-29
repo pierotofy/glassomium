@@ -1,0 +1,6 @@
+<li id="{ITEM_URL}">
+	<a target="_blank" href="{ITEM_URL}">
+		<em><span></span></em>
+		<img src="{ITEM_ICON}" alt="" />
+	</a>
+</li>

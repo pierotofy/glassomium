@@ -1,0 +1,551 @@
+<!DOCTYPE HTML>
+<html style="overflow: hidden;">
+  <head>
+    <title>Photo Canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HTML5 Multi Touch Photo Viewer">
+    <meta name="author" content="Piero Toffanin">
+    <!-- Styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+    <link href="css/modern.css" rel="stylesheet">
+    <!-- Google Web Font-->
+    <link href='http://fonts.googleapis.com/css?family=Dosis:300,400,600' rel='stylesheet' type='text/css'>
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+
+    </style>
+    <script src="js/kinetic-v3.10.5.min.js"></script>
+    <script src="js/jquery-1.7.2.js"></script>
+    <script src="js/jquery.validate.js"></script>
+    <script src="js/jquery-rotate.2.2.js"></script>
+    <script src="js/bootstrap-tooltip.js"></script>
+    <script src="js/bootstrap-popover.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/magicgesture.js"></script>
+    <script>
+    document.addEventListener('GLALoad', onGLALoad, false);
+    function onGLALoad(event) {
+      GLA.SetTuioEnabled(true);
+      GLA.SetMenuButtons(["close"]);
+      GLA.SetPinchableOutOfFullscreen(false);
+    }
+
+    var stage;
+    var serverImageList = [];
+
+    function pool(){
+      $.ajax({
+        type: "GET",
+        data: {"action":"getImageList"},
+        dataType: 'json',
+        url: "servlet",
+        error: function(xhr, statusText) { },
+        success: function(imageList){
+          if (imageList.length == 0){
+            stage.clear();
+          }else if (serverImageList.length != imageList.length){
+            stage.clear();
+            for (var i = 0; i < imageList.length; i++){
+              addImage("photo?id=" + imageList[i]);
+            }
+
+          }
+          
+          serverImageList = imageList;
+        }
+      });  
+    }
+
+    var findLayerAt = function(pageX, pageY){
+          var intersections = stage.getIntersections({x:pageX, y:pageY});
+          if (intersections.length > 0){
+            return intersections[intersections.length - 1].getParent();
+          }else{ 
+            return null;
+          }
+    };
+
+    window.onload = function() {
+      initPhotoCanvas();
+
+      $(".dropdown-open").click(function(event){
+        event.stopPropagation();
+        $(this).nextAll(".dropdown-menu.auto-close").each(function(index){
+          if (!($(this).hasClass("open"))){
+            $(this).addClass("open");
+          }
+        });
+      });
+
+      $(document).click(function(){
+          $(".dropdown-menu.open").removeClass("open");
+      });
+    };
+
+    function initPhotoCanvas(){
+      stage = new Kinetic.Stage({
+        container: "canvas",
+        width: $(document).width() - 4,
+        height: $(document).height() - 4,
+      });
+
+      pool();
+      setInterval("pool();", 3000);
+
+      MagicGesture.init(
+        findLayerAt,
+        function(id){
+          var elements = stage.get('#' + id);
+          return elements[0];
+        },
+        function(element){
+          return element.getId();
+        }
+      );
+    }
+
+    var Filters = {};
+    Filters.preprocess = function(image){
+      // If there's no backup, backup
+      if (!image.originalData){
+        var buffer = image.imageData.data;
+        image.originalData = [];
+        for (var i = 0; i < buffer.length; i++){
+          image.originalData[i] = buffer[i];
+        }
+      }
+    }
+
+    Filters.Normal = function(){
+      Filters.preprocess(this);
+
+      var screenBuffer = this.imageData.data;
+      var memBuffer = this.originalData;
+
+      for(var i = 0; i<screenBuffer.length; i++){
+        screenBuffer[i] = memBuffer[i];
+      }
+    };
+
+    Filters.Grayscale = function (){
+      Filters.preprocess(this);
+
+      var screenBuffer = this.imageData.data;
+      var memBuffer = this.originalData;
+
+      for(var i = 0; i<screenBuffer.length; i+=4){
+        var color = .34*memBuffer[i] + .5*memBuffer[i+1] + .16*memBuffer[i+2];
+        screenBuffer[i] = color;
+        screenBuffer[i+1] = color;
+        screenBuffer[i+2] = color;
+      }
+    };
+
+    Filters.Sepia = function(){
+      Filters.preprocess(this);
+
+      var screenBuffer = this.imageData.data;
+      var memBuffer = this.originalData;
+
+      for(var i = 0; i<screenBuffer.length; i+=4){
+        var or = memBuffer[i];
+        var og = memBuffer[i+1];
+        var ob = memBuffer[i+2];
+
+        screenBuffer[i] = or * 0.393 + og * 0.769 + ob * 0.189;
+        screenBuffer[i+1] = or * 0.349 + og * 0.686 + ob * 0.168;
+        screenBuffer[i+2] = or * 0.272 + og * 0.534 + ob * 0.131;
+      }
+    };
+
+    function applyFilter(menu, name){
+
+      var layer = stage.get("#" + menu.attr('id'))[0];
+      if (layer){
+        var image = layer.getChildren()[0];
+        if (image.applyingFilter) return;
+        var filter;
+        if (name == 'Grayscale') filter = Filters.Grayscale;
+        else if (name == 'Sepia') filter = Filters.Sepia;
+        else if (name == 'Normal') filter = Filters.Normal;
+
+        if (!filter){
+          console.log("Invalid filter");
+          return;
+        }
+        image.applyingFilter = true;
+
+        image.applyFilter({
+          filter: filter,
+          callback: function() {
+            layer.draw();
+            image.applyingFilter = false;
+          }
+        });
+
+        closeFilterMenu(menu);
+      }
+    }
+
+
+    function closeFilterMenuForImage(image){
+      if (image.filtermenu){
+        image.filtermenu.remove();
+        delete image.lastTap;
+        delete image.filtermenu;
+      }
+    }
+
+    function closeFilterMenu(menu){
+      if (menu){
+        var layer = stage.get("#" + menu.attr('id'))[0];
+        if (layer){
+          var image = layer.getChildren()[0];
+          closeFilterMenuForImage(image);
+        }
+      }
+    }
+
+    function addImage(url){
+      var layer = new Kinetic.Layer({id:PseudoGuid.GetNew(), alpha:0});
+
+      var imageObj = new Image();
+      imageObj.onload = function() {
+
+        var width = this.width;
+        var height = this.height;
+        var ratio = width / height;
+        var maxDimension = 4;
+        if (width > $(window).width() / maxDimension){
+          width = $(window).width() / maxDimension;
+          height = width / ratio;
+        }else if (height > $(window).height() / maxDimension){
+          height = $(window).height() / maxDimension;
+          width = height * ratio;
+        }
+
+
+        var rotation = Math.random() * 360;
+
+        var kImage = new Kinetic.Image({
+          x: Math.random()*(stage.getWidth() - 100),
+          y: Math.random()*(stage.getHeight() - 100),
+          image: imageObj,
+          strokeWidth: 9,
+          stroke: 'ededed',
+          width: width,
+          height: height,
+          alpha: 1,
+          offset: [width / 2, height / 2],
+          rotationDeg: rotation,
+          name: "picture",
+        });
+
+        layer.add(kImage);
+        stage.add(layer);
+
+        layer.transitionTo({alpha:1, duration:0.5});
+      };
+      imageObj.src = url;
+    }
+
+var piles = {};
+var width = $(window).width();
+var height = $(window).height();
+piles[1] = [{x:width/2, y:height/2}];
+piles[2] = [{x:width/4, y:height/2}, {x:width/4 * 3, y:height/2}];
+piles[3] = [{x:width/4, y:height/4}, {x:width/4 * 3, y:height/4}, {x:width/2, y:height/4 * 3}];
+piles[4] = [{x:width/4, y:height/4}, {x:width/4 * 3, y:height/4}, {x:width/4, y:height/4 * 3}, {x:width/4 * 3, y:height/4 * 3}];
+
+function makePile(number){
+    if (number < 1) number = 1;
+    if (number > 4) number = 4;
+
+    var pictures = stage.get(".picture");
+    var pile = piles[number];
+
+    if (pictures.length > 0){
+      for (var i in pictures){
+        var image = pictures[i];
+
+        var pilePosition = pile[i % number];
+        var rotation = Math.random() * 0.3;
+
+        if (image.getWidth() > image.getHeight()) rotation += Math.PI / 2;
+
+        image.transitionTo({
+            x: pilePosition.x,
+            y: pilePosition.y,
+            scale: {x:1,y:1},
+            rotation: rotation,
+            duration: 1,
+        });
+      }
+    } 
+}
+
+
+//http://stackoverflow.com/questions/226689/unique-element-id-even-if-element-doesnt-have-one
+var PseudoGuid = new (function() {
+    this.empty = "00000000-0000-0000-0000-000000000000";
+    this.GetNew = function() {
+        var fourChars = function() {
+                return (((1 + Math.random()) * 0x10000)|0).toString(16).substring(1).toUpperCase();
+        }
+        return (fourChars() + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + "-" + fourChars() + fourChars() + fourChars());
+    };
+})();
+
+document.addEventListener("gesturestart", gestureStart, false);
+document.addEventListener("gesturechange", gestureChange, false);
+document.addEventListener("gestureend", gestureEnd, false);
+function gestureChange(e){
+    e.preventDefault();
+    var layer = e.magicTarget;
+    var image = layer.getChildren()[0];
+    
+    image.setRotationDeg(e.rotation + image.rotationOnGestureStart);
+    image.setScale(image.scaleOnGestureStart * e.scale, image.scaleOnGestureStart * e.scale);
+
+    layer.draw();
+}
+function gestureStart(e){
+    e.preventDefault();
+    var layer = e.magicTarget;
+    var image = layer.getChildren()[0];
+
+    image.rotationOnGestureStart = image.getRotationDeg();
+    image.scaleOnGestureStart = image.getScale().x;
+
+    closeFilterMenuForImage(image);
+}
+function gestureEnd(e){
+    e.preventDefault();
+
+    var layer = e.magicTarget;
+    var image = layer.getChildren()[0];
+    image.gestureEndedOn = new Date().getTime();
+}
+
+document.addEventListener('touchstart', onTouchStart, false);
+document.addEventListener('touchmove', onTouchMove, false);
+document.addEventListener('touchend', onTouchEnd, false);
+
+var touchLayer = {};
+
+function onTouchStart(e){
+  if (e.magic){
+    var layer = e.magicTarget;
+    var touch = e.touch;
+    if (layer){
+      var image = layer.getChildren()[0];
+      layer.remove();
+      stage.add(layer);
+
+      // Disable this is we catch a menu event
+      image.closeMenuAction = setTimeout(function(){closeFilterMenuForImage(image)}, 200);
+
+      image.dragging = true;
+      image.touchPositionOnStartDragging = [touch.pageX, touch.pageY];
+      image.positionOnStartDragging = [image.getPosition().x, image.getPosition().y];
+
+      e.preventDefault();
+    }
+  }
+}
+
+function onTouchMove(e){
+  if (e.magic){
+    var layer = e.magicTarget;
+    var touch = e.touch;
+    if (layer){
+      var image = layer.getChildren()[0];
+      var touch = e.touches[0];
+      if (image.dragging){
+          var dx = touch.pageX - image.touchPositionOnStartDragging[0];
+          var dy = touch.pageY - image.touchPositionOnStartDragging[1];
+
+         image.setPosition(image.positionOnStartDragging[0] + dx, image.positionOnStartDragging[1] + dy);
+         layer.draw();
+      }
+      e.preventDefault();
+    }
+  }
+}
+
+function onTouchEnd(e){
+  if (e.magic){
+    var layer = e.magicTarget;
+    if (layer){
+      var image = layer.getChildren()[0];
+      image.dragging = false;
+
+      // Filter menu
+      if (e.touches.length == 1){
+        if (image.lastTap == undefined){
+           image.lastTap = new Date().getTime();
+           image.positionOnLastTap = image.getPosition();
+           image.tapCount = 1;
+        }else{
+          var now = new Date().getTime();
+          var abort = false;
+
+          if (image.gestureEndedOn){
+            if (now - image.gestureEndedOn < 200){
+              abort = true;
+            }else{
+              delete image.gestureEndedOn;
+            }
+          }
+
+          var timeDiff = now - image.lastTap;
+          if (!abort && timeDiff < 1500){
+             // Didn't move much?
+             var threshold = 25;
+             if (Math.abs(image.positionOnLastTap.x - image.getPosition().x) < threshold &&
+                 Math.abs(image.positionOnLastTap.y - image.getPosition().y) < threshold){
+                    image.tapCount++
+             }
+
+             if (image.tapCount >= 2){
+              // If menu not present, create menu and associate it 
+              if (!image.filtermenu){
+                  var filtermenu = $(".filter-menu").clone(true);
+                  filtermenu.css({'display':'block', 
+                                  'top':e.touch.pageY,
+                                  'left':e.touch.pageX});
+
+                  filtermenu.attr('id', image.getParent().getId());
+                  filtermenu.rotate(image.getRotationDeg()); 
+
+                  filtermenu.appendTo("body");
+                  filtermenu.find("a").each(function() {
+                    if (image.closeMenuAction) clearTimeout(image.closeMenuAction);
+
+                    $(this).click(function(event){
+                      var button = $(this).html();
+                      if (button == "Cancel"){
+                        closeFilterMenu(filtermenu);
+                      }else{
+                        applyFilter(filtermenu, button);
+                      }
+                      event.preventDefault();
+                    });
+                  });
+
+                  image.filtermenu = filtermenu;
+              }
+
+
+              image.tapCount = 0;
+             }
+          }    
+
+          image.positionOnLastTap = image.getPosition();
+          image.lastTap = new Date().getTime();
+        }      
+      } // end filter menu
+      
+      e.preventDefault();
+    }
+  }
+}
+
+
+
+
+  </script>
+
+<style type="text/css">
+  body{
+    -webkit-user-select: none; // webkit (safari, chrome) browsers
+    -moz-user-select: none; // mozilla browsers
+    -khtml-user-select: none; // webkit (konqueror) browsers
+  }
+
+  #canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -100;
+  }
+
+  #pileBtn{
+    position: absolute; 
+    top: 20px; 
+    left: 20px;    
+    z-index: 100;
+  }
+
+  .filter-menu{
+    position: absolute;
+    z-index: 100;
+    display: none; 
+    min-width: 113px; 
+    line-height: 32px;
+
+    transform-origin:50% 50%;
+    -ms-transform-origin:50% 50%; /* IE 9 */
+    -webkit-transform-origin:50% 50%; /* Safari and Chrome */
+    -moz-transform-origin:50% 50%; /* Firefox */
+    -o-transform-origin:50% 50%; /* Opera */
+  }
+
+  ul.dropdown-menu li a{
+    text-align: center;
+    line-height: 26px;
+    padding: 9px 14px;
+    font-size: 15px;
+  }
+
+  .dropdown-menu.open{
+    display: block;
+  }
+
+  .popover-inner{
+    background-color: #fefefe;
+  }
+
+  .popover.left .arrow{
+    border-left: 5px solid #fefefe;
+    border-top: 5px solid transparent!important;
+  }
+
+  .popover.right .arrow{
+    border-right: 5px solid #fefefe;
+    border-top: 5px solid transparent!important;
+  }
+</style>
+  </head>
+  <body>
+  <div id="pileBtn" class="btn-group">
+    <a class="btn btn-large btn-inverse dropdown-open" href="#">Make a pile</a>
+    <a class="btn btn-large btn-inverse dropdown-toggle dropdown-open" href="#" style="min-height: 18px;"><span class="caret"></span></a>
+    <ul class="dropdown-menu auto-close" style="top: 100%; min-width: 135px;">
+      <li><a href="javascript:makePile(1);">One</a></li>
+      <li><a href="javascript:makePile(2);">Two</a></li>
+      <li><a href="javascript:makePile(3);">Three</a></li>
+      <li><a href="javascript:makePile(4);">Four</a></li>
+    </ul>
+  </div>
+
+  <ul class="filter-menu dropdown-menu ">
+    <li><a href="#">Grayscale</a></li>
+    <li><a href="#">Sepia</a></li>
+    <li><a href="#">Normal</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Cancel</a></li>
+  </ul>
+
+  <div id="canvas"></div>
+  </body>
+</html>

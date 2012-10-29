@@ -62,7 +62,7 @@ UIManager::UIManager(){
     // Instantiate gesture manager
 	gestureManager = new GestureManager();
 
-	// Instantiate animatino manager
+	// Instantiate animation manager
 	animationManager = new AnimationManager();
 
 	screensaverShowing = false;
@@ -82,6 +82,11 @@ void UIManager::updateServerResources(){
 	//themeConfig->dump();
 
 	screensaverWait = max(0, themeConfig->getInt("screensaver.wait"));
+
+	PhysicsManager::getSingleton()->setEnabled(themeConfig->getBool("physics.enabled"));
+	PhysicsManager::getSingleton()->setFriction(themeConfig->getFloat("physics.drag-friction"));
+	PhysicsManager::getSingleton()->setRestitution(themeConfig->getFloat("physics.drag-restitution"));
+
 }
 
 
@@ -174,6 +179,7 @@ void UIManager::update(){
 
  	getGestureManager()->processQueue();
 	getAnimationManager()->processQueue();
+	PhysicsManager::getSingleton()->update();
 
 	// Check screensaver
 	if (screensaverWait > 0 && screensaverClock.getElapsedTime().asSeconds() > screensaverWait && !screensaverShowing){
@@ -394,6 +400,18 @@ Window* UIManager::findFirstWindow(float screen_x, float screen_y){
 	return NULL;
 }
 
+/** Iterates through the list of windows searching for a window with the given ID.
+ * @return the window with the given ID, or NULL if none is found. */
+Window* UIManager::findWindowById(int windowId){
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i]->getID() == windowId){
+			return windows[i];
+		}
+	}
+
+	return NULL;
+}
+
 /** Returns the window with the highest visible Z order that is also TUIO-enabled hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords){
@@ -411,17 +429,18 @@ Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf
 /** Returns the window with the highest Z order that is being hit by all the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstWindow(sf::Vector2f screenCoords[], int numCoords){
-	
 	for (unsigned int i = 0; i < windows.size(); i++){
-		bool allInside = true;
-		for (int j = 0; j < numCoords; j++){
-			if (!windows[i]->coordsInsideWindow(screenCoords[j].x, screenCoords[j].y)){
-				allInside = false;
-				break;
+		if (windows[i]->isVisible()){
+			bool allInside = true;
+			for (int j = 0; j < numCoords; j++){
+				if (!windows[i]->coordsInsideWindow(screenCoords[j].x, screenCoords[j].y)){
+					allInside = false;
+					break;
+				}
 			}
-		}
 
-		if (allInside) return windows[i];
+			if (allInside) return windows[i];
+		}
 	}
 	
 	return NULL;
@@ -569,6 +588,9 @@ void UIManager::animateScaleAndSetFullscreen(Window *window){
 		case Right:
 			targetRotation = 270.0f;
 			break;
+		case Bottom: // Never executed, but compiler complains if it's not here
+			targetRotation = 0.0f;
+			break;
 		}
 	}
 
@@ -609,6 +631,13 @@ void UIManager::onWindowAnimatedExitFullscreenRequested(Window *sender){
 		sf::Vector2f targetScale = sender->popScale();
 		sf::Vector2f targetPosition = sender->popPosition();
 
+		// Clock-wise or counter clock-wise faster?
+		if (fabs(sender->getRotation() - targetRotation) <= 180.0f){
+			targetRotation = targetRotation;
+		}else{
+			targetRotation = targetRotation - 360.0f;
+		}
+
 		Animation *a = new TransformAnimation(250, targetScale, targetPosition, targetRotation, TransformAnimation::Linear, sender);
 		a->start();
 	}
@@ -624,6 +653,9 @@ void UIManager::closeWindow(Window *window){
 
 			// Remove from list
 			windows.erase(windows.begin() + i);
+
+			// Stop physics
+			PhysicsManager::getSingleton()->stopAllPhysics(window);
 
 			// Free
 			RELEASE_SAFELY(window);
@@ -678,6 +710,9 @@ void UIManager::exitScreensaverCallback(Window *screensaver){
 }
 
 void UIManager::onTouchGesture(const GestureEvent &gestureEvent){
+
+	// TODO: use gestureEvent.windowId instead of finding the window using the location of the touch!
+
 	TouchGesture *touch = static_cast<TouchGesture *>(gestureEvent.gesture);
 
 	TouchEvent touchEvent = touch->getTouchEvent();
@@ -716,27 +751,16 @@ void UIManager::onTouchMove(const TouchEvent &touchEvent){
 /** Handles a touch up event */
 void UIManager::onTouchUp(const TouchEvent &touchEvent){
 	Window *window = findFirstWindow((float)touchEvent.screen_x, (float)touchEvent.screen_y);
-
 	if (window != NULL){
 		window->onMouseUp(touchEvent.touch_id, touchEvent.screen_x, touchEvent.screen_y);
-	}
-}
-
-void UIManager::onScrollGesture(const GestureEvent &gestureEvent){
-	TwoFingerGesture *scroll = static_cast<TwoFingerGesture *>(gestureEvent.gesture);
-
-	sf::Vector2f scrollDirection = scroll->getScrollDirection();
-
-	Window *window = findFirstWindow(gestureEvent.location.x, gestureEvent.location.y);
-	if (window != NULL){
-		window->updateScrolling(scrollDirection);
 	}
 }
 
 void UIManager::onDragGesture(const GestureEvent &gestureEvent){
 	DragGesture *drag = static_cast<DragGesture *>(gestureEvent.gesture);
 	
-	Window *window = findFirstWindow(gestureEvent.location.x, gestureEvent.location.y);
+	//Window *window = findFirstWindow(gestureEvent.location.x, gestureEvent.location.y);
+	Window *window = findWindowById(gestureEvent.windowId);
 	if (window != NULL){
 		if (drag->getPhase() == Gesture::BEGINNING){
 			window->startDragging(gestureEvent.location);
@@ -747,7 +771,7 @@ void UIManager::onDragGesture(const GestureEvent &gestureEvent){
 		}
 
 		if (drag->getPhase() == Gesture::ENDING){
-			window->stopDragging(gestureEvent.location);
+			window->stopDragging(gestureEvent.location, drag->getSpeedOnDragEnd());
 		}
 	}
 }
@@ -767,22 +791,18 @@ void UIManager::onTransformGesture(const GestureEvent &gestureEvent){
 	touches[1].x *= Application::windowWidth;
 	touches[1].y *= Application::windowHeight;
 
-	Window *window = findFirstWindow(touches, 2);
+	//Window *window = findFirstWindow(touches, 2);
+	Window *window = findWindowById(gestureEvent.windowId);
 	if (window != NULL){
 		if (twoFingerGesture->getPhase() == Gesture::BEGINNING){
-			window->startTransforming(twoFingerGesture->getCenterLocation(),
-										twoFingerGesture->getTransformDistanceFromCenter(),
-										twoFingerGesture->getFirstTouchLocation(), 
+			window->startTransforming(twoFingerGesture->getFirstTouchLocation(), 
 										twoFingerGesture->getSecondTouchLocation());
 		}
 
 		if (twoFingerGesture->getPhase() == Gesture::UPDATING){
-			if (twoFingerGesture->containsAction(TwoFingerGesture::TRANSFORM)){
-				window->updateTransform(	twoFingerGesture->getCenterLocation(),
-											twoFingerGesture->getTransformDistanceFromCenter(),
-											twoFingerGesture->getFirstTouchLocation(), 
-											twoFingerGesture->getSecondTouchLocation());
-			}
+			window->updateTransform(twoFingerGesture->getFirstTouchLocation(), 
+										twoFingerGesture->getSecondTouchLocation());
+
 		}
 
 		if (twoFingerGesture->getPhase() == Gesture::ENDING){

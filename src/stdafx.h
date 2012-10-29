@@ -49,6 +49,8 @@
 #include <SFML/System/Time.hpp>
 #include <SFML/Network/Http.hpp>
 
+#include <Box2D/Box2D.h>
+
 #include "Utils.h"
 
 #endif

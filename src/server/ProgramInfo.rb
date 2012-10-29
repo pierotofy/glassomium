@@ -18,4 +18,4 @@
 =end
 
 PROGRAM_NAME = "UI Server"
-PROGRAM_VERSION = "0.1"
+PROGRAM_VERSION = "0.2"

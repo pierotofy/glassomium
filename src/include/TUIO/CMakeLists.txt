@@ -21,3 +21,7 @@ add_library (TUIO
 if (WIN32)
   target_link_libraries(TUIO wsock32 Ws2_32 Winmm)
 endif()
+
+if (UNIX)
+  target_link_libraries(TUIO pthread)
+endif()

@@ -56,6 +56,12 @@ function onGLAZoomCompleted(event) {
 	if (GLA.menuVisible) GLA.ShowWindowMenu();
 }
 
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+	GLA.menuLoaded = true;
+}
+
+GLA.menuLoaded = false;
 GLA.menuSpeed = 350;
 GLA.menuMoveThreshold = 25;
 GLA.menuVisible = false;
@@ -63,15 +69,17 @@ GLA.PADDING = 4;
 GLA.overflowSettings = $jsafe("body").css("overflow");
 
 GLA.ShowWindowMenu = function(){
-  var menu = $jsafe("#GLAWindowMenu");
-  $jsafe("body").css("overflow", "hidden");
-  menu.show();
-  menu.animate({
-      marginRight: 0,
-      top: $jsafe(window).scrollTop() / GLA.GetZoom()
-  }, GLA.menuSpeed, function(){
-  	 GLA.menuVisible  = true;
-  });
+  if (GLA.menuLoaded){
+	  var menu = $jsafe("#GLAWindowMenu");
+	  $jsafe("body").css("overflow", "hidden");
+	  menu.show();
+	  menu.animate({
+	      marginRight: 0,
+	      top: $jsafe(window).scrollTop() / GLA.GetZoom()
+	  }, GLA.menuSpeed, function(){
+	  	 GLA.menuVisible  = true;
+	  });
+  }
 };
 
 GLA.HideWindowMenu = function(immediate){
@@ -88,7 +96,7 @@ GLA.HideWindowMenu = function(immediate){
 GLA.AdjustMenu = function(adjustVertical){
 	if (adjustVertical == undefined) adjustVertical = true;
 
-	var PERCENTAGE = 0.05; /* The menu will take 5% of the width of the window */
+	var PERCENTAGE = 0.07; /* The menu will take 7% of the width of the window */
 	var zoom = GLA.GetZoom();
 
 	var winWidth = $jsafe(window).width();
@@ -111,6 +119,10 @@ GLA.AdjustMenu = function(adjustVertical){
 };
 
 $jsafe(window).scroll(function(){
+	GLA.AdjustMenu();
+});
+
+$jsafe(document).ready(function(){
 	GLA.AdjustMenu();
 });
 

@@ -38,12 +38,14 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 
 	// Create sprite to hold the webviews texture
 	sprite = new sf::Sprite(*webView->getTexture());
-	sprite->setOrigin(webView->getTextureWidth() / 2.0f, webView->getTextureHeight() / 2.0f);
+	sprite->setOrigin((float)webView->getTextureWidth() / 2.0f, (float)webView->getTextureHeight() / 2.0f);
 
 	// By default a mouse move is a mouse move
 	scrollOnMouseMove = false;
 	mouseDown = false;
 	scrolledOnMouseMove = false;
+
+	scrollOnPinch = false;
 
 	// Don't fire tuio events unless specified otherwise
 	tuioEnabled = false;
@@ -61,6 +63,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	draggableBeforeFullscreen = false;
 	pinchedOutOfFullscreen = false;
 	pinchableOutOfFullscreen = true;
+	pinchableToFullscreen = true;
 }
 
 /** Sets a color that will blend the content of the window */
@@ -103,6 +106,12 @@ void Window::setPinchableOutOfFullscreen(bool flag){
 	pinchableOutOfFullscreen = flag;
 }
 
+/** When set to true, a window can be pinched to cover the majority of the screen
+ * and automatically be put in fullscreen mode. */
+void Window::setPinchableToFullscreen(bool flag){
+	pinchableToFullscreen = flag;
+}
+
 void Window::setFullscreen(bool flag){
 	// Going into fullscreen?
 	if (!fullscreen && flag){
@@ -142,6 +151,12 @@ void Window::setFullscreen(bool flag){
 		draggableBeforeFullscreen = draggable;
 		setDraggable(false);
 		
+		// CURRENTLY DISABLED:
+		// Fullscreen windows should not be transparent (otherwise content from
+		// the bottom windows might show up, yet the user cannot interact with it)
+		transparentBeforeFullscreen = isTransparent();
+		//setTransparent(false); Uncomment this to enable
+		
 		fullscreen = true;
 
 		repaint();
@@ -152,6 +167,7 @@ void Window::setFullscreen(bool flag){
 
 			// Restore properties
 			setDraggable(draggableBeforeFullscreen);
+			setTransparent(transparentBeforeFullscreen);
 
 			fullscreen = false;
 		}else{
@@ -199,46 +215,52 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 }
 
 /** Terminates the drag gesture */
-void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
+void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vector2f &speedOnDragEnd){
      if (dragging && draggable){
 
 		// Uncolor
-		setBlendColor(sf::Color(255, 255, 255)); // No blend
+		removeBlendColor();
 
         dragging = false;               
+
+		PhysicsManager::getSingleton()->applyForce(this, speedOnDragEnd);
      }         
 }
 
-/** All vector3 are points in range 0..1 (as received from the gesture manager) */
-void Window::startTransforming(const sf::Vector2f &centerLocation, float transformDistanceFromCenter, const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
-	if (transformable){
+/** All vectors are points in range 0..1 (as received from the gesture manager) */
+void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
+	if (transformable && !dragging){
 		blockTransformsFlag = false;
-		centerLocationOnTransformBegin = centerLocation;
 		
-		transformDistanceFromCenterOnTransformBegin = transformDistanceFromCenter;
+		float dx = firstTouchLocation.x - secondTouchLocation.y;
+		float dy = firstTouchLocation.y - secondTouchLocation.y;
+		distanceBetweenTouchesOnTransformBegin = sqrt(dx * dx + dy * dy);
+		transformVectorOnTransformBegin = sf::Vector2f(dx, dy);
 		
 		windowScaleOnTransformBegin = this->getScale();
-		previousWindowScale = this->getScale();
-		previousWindowRotation = this->getRotation() * DEGREES_TO_RADIANS;
+		windowRotationOnTransformBegin = this->getRotation() * DEGREES_TO_RADIANS;
 
 		deltaScaleBigEnough = false;
 		deltaRotationBigEnough = false;
 
 		pinchedOutOfFullscreen = false;
 
-		previousFirstTouchLocation = firstTouchLocationOnTransformBegin = firstTouchLocation;
-		previousSecondTouchLocation = secondTouchLocationOnTransformBegin = secondTouchLocation;
+		previousDy = 0;
+
+		firstTouchLocationOnTransformBegin = firstTouchLocation;
+		secondTouchLocationOnTransformBegin = secondTouchLocation;
 	}
 }
 
 
 void Window::stopTransforming(){
 	// Have we reached full screen threshold?
-	if (transformable && !fullscreen && !pinchedOutOfFullscreen){
+	if (transformable && !dragging && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
+
 		const float fullscreenThreshold = 0.9f;
 		WindowOrientation orientation = getOrientation();
-		float sizeX = this->getScale().x * webView->getTextureWidth();
-		float sizeY = this->getScale().y * webView->getTextureHeight();
+		float sizeX = this->getScale().x * (float)webView->getTextureWidth();
+		float sizeY = this->getScale().y * (float)webView->getTextureHeight();
 		if (((orientation == Top || orientation == Bottom) && 
 			(sizeX >= Application::windowWidth * fullscreenThreshold || sizeY >= Application::windowHeight * fullscreenThreshold))
 			||
@@ -254,93 +276,108 @@ void Window::stopTransforming(){
 
 /** Handles the transformations on this window. This includes scaling and rotating.
  */
-void Window::updateTransform(const sf::Vector2f &centerLocation, float transformDistanceFromCenter, const sf::Vector2f &firstTouchLocation, 
-							const sf::Vector2f &secondTouchLocation){
-	if (blockTransformsFlag || !transformable) return;
-	if (fullscreen && !pinchableOutOfFullscreen) return;
+void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
+	// Start checks for validity here, the function might return without doing anything				
+	if (blockTransformsFlag || dragging) return;
 
-	// In fullscreen, only pinching one of the corners of the window will allow resizing
+	if ((!transformable) && (!(fullscreen && scrollOnPinch))) return;
+
+	bool performScroll = false;
 	if (fullscreen){
-		#define CORNER_SIZE 0.10f
+		// Not pinchable and we are not scrolling on pinch either, nothing to do here!
+		if (!(pinchableOutOfFullscreen || scrollOnPinch)) return;
 
-		if (!(Application::isPointOnScreenCorner(firstTouchLocationOnTransformBegin, CORNER_SIZE) ||
-			  Application::isPointOnScreenCorner(secondTouchLocationOnTransformBegin, CORNER_SIZE))) return;
+		// In fullscreen, only pinching one of the corners of the window will allow resizing
+		#define CORNER_SIZE 0.10f
+		bool pinchedCorner = Application::isPointOnScreenCorner(firstTouchLocationOnTransformBegin, CORNER_SIZE) ||
+			  Application::isPointOnScreenCorner(secondTouchLocationOnTransformBegin, CORNER_SIZE);
+
+		if (!pinchedCorner){
+			if (scrollOnPinch){
+				performScroll = true;
+
+				// Continue execution after this
+			}
+			else return; // Didn't pinch a corner and we are not performing a scroll either. nothing to do here!
+		}else{
+			// Pinched a corner, continue execution after this
+		}
+
 	}
 
-	#define SCALE_SENSITIVITY 2
-	#define DELTA_SCALE_THRESHOLD 0.010f
+	// End checks, start actual transforms
+	#define DELTA_SCALE_THRESHOLD 0.1f
+	#define DELTA_MITIGATION_FACTOR 0.5f // Otherwise it scales too quickly
 
-	float deltaScale = (transformDistanceFromCenter - transformDistanceFromCenterOnTransformBegin) * SCALE_SENSITIVITY;
+	float dx = firstTouchLocation.x - secondTouchLocation.x;
+	float dy = firstTouchLocation.y - secondTouchLocation.y;
+	float newDistanceBetweenTouches = sqrt(dx * dx + dy * dy);
+	float deltaScale = ((newDistanceBetweenTouches / distanceBetweenTouchesOnTransformBegin) - 1.0f) * DELTA_MITIGATION_FACTOR;
 
 	if (fabs(deltaScale) > DELTA_SCALE_THRESHOLD && !deltaScaleBigEnough){
 		deltaScaleBigEnough = true;
 		
 		// Setting this value avoids sudden scaling at the beginning
-		previousWindowScale = getScale();
+		distanceBetweenTouchesOnTransformBegin = newDistanceBetweenTouches;
+		deltaScale = 0.0f;
 	}
 
 	// Don't start scaling if delta is not big enough (the user could be doing another gesture)
 	// Also don't scale if the scale is too big (it could have been a sudden bad input from TUIO)
 	if (deltaScaleBigEnough){
-
-		// If we are in fullscreen, before resizing we need to get back to windowed mode
-		if (fullscreen){
-			UIManager::getSingleton()->onWindowExitFullscreenRequested(this);
-			pinchedOutOfFullscreen = true;
-		}
+		if (!performScroll){
+			// If we are in fullscreen, before resizing we need to get back to windowed mode
+			if (fullscreen){
+				UIManager::getSingleton()->onWindowExitFullscreenRequested(this);
+				pinchedOutOfFullscreen = true;
+			}
 		
-		this->setScale(sf::Vector2f(previousWindowScale.x + deltaScale, 
-							previousWindowScale.y + deltaScale));
+			this->setScale(sf::Vector2f(windowScaleOnTransformBegin.x + deltaScale, 
+								windowScaleOnTransformBegin.y + deltaScale));
+		}else{
+			// Perform scroll instead
+			int dy;
+			const float PINCHSCALESENSITIVITY = 20.0f;
+			if (deltaScale > 0.0f){
+				dy = (int)floor(deltaScale * PINCHSCALESENSITIVITY);
+			}else{
+				dy = (int)ceil(deltaScale * PINCHSCALESENSITIVITY);
+			}
+			
+			// Scroll is always in the vertical direction
+			this->scroll(0, dy - previousDy);
+			previousDy = dy;
+		}
 	}
 
 	// Handle rotation
-	#define DELTA_ROTATION_DEGREES_THRESHOLD 2.5f
-	#define ROTATION_SENSIBILITY 1
+	#define DELTA_ROTATION_DEGREES_THRESHOLD 5.0f
 
 	// Cannot rotate in fullscreen mode
 	if (fullscreen) return;
 
-	sf::Vector2f previousVec1 = previousFirstTouchLocation - centerLocation;
-	sf::Vector2f currentVec1 = firstTouchLocation - centerLocation;
-
-	sf::Vector2f previousVec2 = previousSecondTouchLocation - centerLocation;
-	sf::Vector2f currentVec2 = secondTouchLocation - centerLocation;
-
-	// These thetas do not give us the sign (+ or -), only an absolute value
-
-	Radians firstTheta = angleBetween(previousVec1, currentVec1);
-	Radians secondTheta = angleBetween(previousVec2, currentVec2);
+	sf::Vector2f transformVector(dx, dy);
 	
-	// Use the maximum angle to do the rotation between the two touches
-	Radians deltaTheta;
-	float cross; // calculating the cross product allows us to decide the sign of the angle
-	if (firstTheta > secondTheta){
-		deltaTheta = firstTheta;
-		cross = crossProduct(previousVec1, currentVec1);
-	}else{
-		deltaTheta = secondTheta;
-		cross = crossProduct(previousVec2, currentVec2);	
-	}
-
-	if (deltaTheta * RADIANS_TO_DEGREES > DELTA_ROTATION_DEGREES_THRESHOLD && !deltaRotationBigEnough){
+	// This theta does not give us the sign (+ or -), only an absolute value
+	Radians theta = angleBetween(transformVectorOnTransformBegin, transformVector);
+	
+	if (theta * RADIANS_TO_DEGREES > DELTA_ROTATION_DEGREES_THRESHOLD && !deltaRotationBigEnough){
 		deltaRotationBigEnough = true;
 
 		// Setting this value avoids sudden rotating at the beginning
-		previousWindowRotation = getRotation() * DEGREES_TO_RADIANS;
+		theta = 0.0f;
+		transformVectorOnTransformBegin = transformVector;
 	}
 
 	if (deltaRotationBigEnough){
-		// Flip the sign if needed
+		// Calculating the cross product allows us to decide the sign of the angle
+		float cross = crossProduct(transformVectorOnTransformBegin, transformVector); 
 		if (cross < 0.0f){
-			deltaTheta = -deltaTheta;
+			theta = -theta;
 		}
 
-		Radians rotation = deltaTheta * ROTATION_SENSIBILITY + previousWindowRotation;
+		Radians rotation = theta + windowRotationOnTransformBegin;
 		this->setRotation(rotation * RADIANS_TO_DEGREES);
-
-		previousFirstTouchLocation = firstTouchLocation;
-		previousSecondTouchLocation = secondTouchLocation;
-		previousWindowRotation = rotation;
 	}
 }
 
@@ -369,7 +406,10 @@ std::vector<std::wstring> Window::getJavascriptBindings(){
 	result.push_back(L"_GLASetTransformable");
 	result.push_back(L"_GLASetDraggable");
 	result.push_back(L"_GLASetPinchableOutOfFullscreen");	
+	result.push_back(L"_GLASetPinchableToFullscreen");	
+	result.push_back(L"_GLASetScrollOnPinch");	
 	result.push_back(L"_GLAShowScreensaver");
+	result.push_back(L"_GLAEnterDragMode");
 	return result;
 }
 
@@ -404,6 +444,16 @@ void Window::onJavascriptCallback(std::wstring functionName, std::vector<std::st
 		if (params.size() == 1){
 			int flag = abs(str_to_int(params[0].c_str()));
 			setPinchableOutOfFullscreen(flag == 1);
+		}
+	}else if (functionName == L"_GLASetPinchableToFullscreen"){
+		if (params.size() == 1){
+			int flag = abs(str_to_int(params[0].c_str()));
+			setPinchableToFullscreen(flag == 1);
+		}
+	}else if (functionName == L"_GLASetScrollOnPinch"){
+		if (params.size() == 1){
+			int flag = abs(str_to_int(params[0].c_str()));
+			setScrollOnPinch(flag == 1);
 		}
 	}else if (functionName == L"_GLASetTransformable"){
         if (params.size() == 1){
@@ -486,6 +536,12 @@ void Window::setAlpha(sf::Uint8 alpha){
 	sf::Color color = sprite->getColor();
 	color.a = alpha;
 	sprite->setColor(color);
+}
+
+/** Removes any blend color that might have been applied to the window
+ (for example during drag) */
+void Window::removeBlendColor(){
+	setBlendColor(sf::Color(255, 255, 255)); // No blend
 }
 
 /** Compares the rotation of the current window and otherWindow within a defined threshold
@@ -632,12 +688,12 @@ sf::Vector2f Window::getScale() const{
 
 /** @return the width of the window in screen coordinates */
 float Window::getWidth() const{
-	return webView->getTextureWidth() * getScale().x;
+	return (float)webView->getTextureWidth() * getScale().x;
 }
 
 /** @return the height of the window in screen coordinates */
 float Window::getHeight() const{
-	return webView->getTextureHeight() * getScale().y;
+	return (float)webView->getTextureHeight() * getScale().y;
 }
 
 /** @return the normalized width (0..1) of the window as passed to the constructor */
@@ -668,7 +724,7 @@ void Window::resizeSprite(float width, float height){
 	webView->resize((int)width, (int)height);
 
 	sprite->setTexture(*webView->getTexture(), true);
-	sprite->setOrigin(webView->getTextureWidth() / 2.0f, webView->getTextureHeight() / 2.0f);
+	sprite->setOrigin((float)webView->getTextureWidth() / 2.0f, (float)webView->getTextureHeight() / 2.0f);
 }
 
 /** Turns transparency on or off. When transparent, every browser page
@@ -712,8 +768,8 @@ sf::Vector2f Window::transformCoordinatesForWebView(pt::Rectangle &windowRect, c
 	webviewCoords.x *= transformX;
 	webviewCoords.y *= transformY;
 
-	float screenToTextureWidthRatio = webView->getTextureWidth() / ((windowRect.getWidth()) * transformX);
-	float screenToTextureHeightRatio = webView->getTextureHeight() / ((windowRect.getHeight()) * transformY);
+	float screenToTextureWidthRatio = (float)webView->getTextureWidth() / ((windowRect.getWidth()) * transformX);
+	float screenToTextureHeightRatio = (float)webView->getTextureHeight() / ((windowRect.getHeight()) * transformY);
 	
 	// Scale to the proper texture range
 	webviewCoords.x *= screenToTextureWidthRatio;
@@ -825,6 +881,9 @@ void Window::onMouseUp(int cursor_id, int screen_x, int screen_y){
 void Window::handleMouseDown(int cursor_id, const sf::Vector2f &webviewCoords){
 	mouseDown = true;
 
+	// Stop physics
+	PhysicsManager::getSingleton()->stopAllPhysics(this);
+
 	// If we are going to scroll, just record the position of the mouse down
 	// but don't fire the event yet. We will fire it only if a scroll is NOT detected
 	if (scrollOnMouseMove){
@@ -935,6 +994,12 @@ void Window::setScrollOnMouseMove(bool flag){
 	scrollOnMouseMove = flag;
 }
 
+/** When set to true, when the window is in fullscreen AND the pinch does not touch
+ * one of the corners of the window, it will cause a scroll event */
+void Window::setScrollOnPinch(bool flag){
+	scrollOnPinch = flag;
+}
+
 /** Executes the javascript code in the current browser window */
 void Window::executeJavascript(const string &code){
 	webView->executeJavascript(code);
@@ -969,12 +1034,14 @@ void Window::fireJsTuioEvent(const string &name, TouchGroup *group, int blob_id,
 				int id;
 				float radiusX = 0.0f, radiusY = 0.0f;
 				Degrees angle = 0.0f;
+				bool raisedEvent = false; // false = this touch did not raise this event, true = this touch raised this event
 
 				// We have already computed the coordinates for this touch
 				if (touch->id == blob_id){
 					id = blob_id;
 					x = webviewCoords.x;
 					y = webviewCoords.y;
+					raisedEvent = true;
 				}else{
 					// Need to compute the webview coordinates for this touch
 					sf::Vector2f coords(touch->screenX, touch->screenY);
@@ -993,18 +1060,16 @@ void Window::fireJsTuioEvent(const string &name, TouchGroup *group, int blob_id,
 					angle = touch->angle + getRotation();
 				}
 
-				oss << "{identifier:" << id << ",pageX:" << x << ",pageY:" << y << ",radiusX:" << radiusX << ",radiusY:" << radiusY << ",rotationAngle:" << angle << "},";
-
-				webView->executeJavascript(oss.str());
+				oss << "{identifier:" << id << ",pageX:" << x << ",pageY:" << y << ",radiusX:" << radiusX << ",radiusY:" << radiusY << ",rotationAngle:" << angle << ",raisedEvent:" << (raisedEvent ? "true" : "false") << "},";
 			}
 			
 			// End touches JS list
 			oss << "]);";
 			webView->executeJavascript(oss.str());
 		}else{
-			// Nop, just evaluate the coordinates that fired the event
+			// Nop, just evaluate the coordinates that fired the event (simulated with mouse)
 			stringstream oss;
-			oss << "GLA._fireTouchEvents('" << name << "' , [{identifier:" << blob_id << ",pageX:" << webviewCoords.x << ",pageY:" << webviewCoords.y << ",radiusX:0,radiusY:0,rotationAngle:0}]);";
+			oss << "GLA._fireTouchEvents('" << name << "' , [{identifier:" << blob_id << ",pageX:" << webviewCoords.x << ",pageY:" << webviewCoords.y << ",radiusX:0,radiusY:0,rotationAngle:0,raisedEvent:true}]);";
 			webView->executeJavascript(oss.str());
 		}
 	}
@@ -1066,7 +1131,7 @@ sf::Vector2f Window::popPosition(){
 	if (positionStack.empty()) return getPosition();
 	else{
 		sf::Vector2f result = positionStack.top();
-		scaleStack.pop();
+		positionStack.pop();
 		return result;
 	}
 }

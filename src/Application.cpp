@@ -144,7 +144,7 @@ void Application::go(){
 
 	// Create the main rendering window
 	renderWindow = new sf::RenderWindow(videoMode, 
-										APP_NAME, 
+										APP_NAME" "APP_VERSION, 
 										(fullscreen ? sf::Style::Fullscreen : sf::Style::Default));
 	renderWindow->setFramerateLimit(60);
 
@@ -173,6 +173,8 @@ void Application::go(){
 
 	tuioManager = new TuioManager(3333);
 	
+	PhysicsManager::initialize();
+
 	// Initialize window manager
 	UIManager::initialize();
 	
@@ -191,6 +193,8 @@ void Application::go(){
 	*/
 	// Create the layout
 	UIManager::getSingleton()->setupSystemLayout();
+
+	tuioManager = new TuioManager(3333);
 
 	// Start loop
 	//sf::Clock cefClock;	
@@ -296,6 +300,7 @@ Application::~Application(){
 	RELEASE_SAFELY(tuioManager);
 	RELEASE_SAFELY(renderWindow);
 
+	PhysicsManager::destroy();
 	ServerManager::destroy();
     FileManager::destroy();
 }

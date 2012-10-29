@@ -125,16 +125,10 @@ void GestureManager::recognizeGestures(TouchGroup *touchGroup, Gesture::Phase ph
 		meanLocation.y *= Application::windowHeight;
 
 		// Wrap a GestureEvent and send to UIManager
-		GestureEvent gestureEvent(gesture, meanLocation);
+		GestureEvent gestureEvent(gesture, meanLocation, touchGroup->getWindowID());
 			
 		if (gesture->getGestureType() == Gesture::TWOFINGER){
-			if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::SCROLL)){
-				UIManager::getSingleton()->onScrollGesture(gestureEvent);
-			}
-
-			if (((TwoFingerGesture *)gesture)->containsAction(TwoFingerGesture::TRANSFORM)){
-				UIManager::getSingleton()->onTransformGesture(gestureEvent);
-			}
+			UIManager::getSingleton()->onTransformGesture(gestureEvent);
 
 			#ifdef COUT_GESTURES
 				cout << "TwoFinger " << phase << endl;
@@ -234,17 +228,14 @@ void GestureManager::processQueue(){
 	while (touchUpQueue.pop(touchEvent)){
 		int touchGroupId = findTouchGroup(touchEvent.blob);
 
-		if (touchGroupId != -1){
-			touchEvent.group = touchGroups[touchGroupId];
-		}
-
-		UIManager::getSingleton()->onTrackTouchUp(touchEvent);
-		
 		// After we add a touch, we (most times) should be able to remove it
 		if (touchGroupId != -1){
+			touchEvent.group = touchGroups[touchGroupId];
 
 			// Try to identify possible gestures
 			recognizeGestures(touchGroups[touchGroupId], Gesture::ENDING, touchEvent);
+
+			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 
 			// Remove from touch group
 			touchGroups[touchGroupId]->remove(touchEvent.blob);
@@ -257,9 +248,10 @@ void GestureManager::processQueue(){
 			}
 		}else{
 			// Caught an orphan touch up event (we might have missed a touch down event or received multiple touch up)
-			// Remember, these messages are sent throgh UDP!			
-
-			// Do nothing
+			// Remember, these messages are sent throgh UDP!
+			
+			// Still need to track it
+			UIManager::getSingleton()->onTrackTouchUp(touchEvent);
 		}
 
 		// Cleanup

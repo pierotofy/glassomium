@@ -25,6 +25,8 @@ ColorChangeAnimation::ColorChangeAnimation(float msecs, const sf::Color &targetC
 }
 
 void ColorChangeAnimation::animate(){
+	// Make sure the window has no color blending (otherwise it causes infinite flickering)
+	window->removeBlendColor();
 
 	sf::Sprite *windowSprite = window->getSprite();
 

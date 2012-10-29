@@ -27,9 +27,10 @@ class Gesture;
 struct GestureEvent {
 	Gesture *gesture;
 	sf::Vector2f location; // Expressed in screen coordinates
+	int windowId;
 
-	GestureEvent(Gesture *gesture, sf::Vector2f location)
-		: gesture(gesture), location(location){
+	GestureEvent(Gesture *gesture, sf::Vector2f location, int windowId)
+		: gesture(gesture), location(location), windowId(windowId){
 	}
 	~GestureEvent(){}
 

@@ -114,9 +114,9 @@ and subsequently modified by Piero Toffanin to fit the Glassomium project. -->
 
                 pointers = [];
                 
-                for (var i = 0; i < event.touches.length; i++) {
+                for (var i = 0; i < event.changedTouches.length; i++) {
                 
-                    pointers.push([event.touches[i].pageX / QUALITY, event.touches[i].pageY / QUALITY]);
+                    pointers.push([event.changedTouches[i].pageX / QUALITY, event.changedTouches[i].pageY / QUALITY]);
                     
                 }
 
@@ -162,8 +162,8 @@ and subsequently modified by Piero Toffanin to fit the Glassomium project. -->
             
                 event.preventDefault();
                 
-                if (event.touches.length <= 1){
-                     isUserInteracting = false;          
+                if (event.touches.length == 0){
+                    isUserInteracting = false;
                 }
             }
 

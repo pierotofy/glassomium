@@ -20,24 +20,21 @@ var app_count = 0;
 function add_app(url, icon, js){
    js = typeof js !== 'undefined' ? js : false;
 
-   if (!js){
-   	$('#applist li').append('<a target="_blank" class="appbutton" href="' + url + '"><img src="' + icon + '" /></a>');
-   }else{
-   	// Do not use the target attribute if the url is a javascript code
-   	$('#applist li').append('<a class="appbutton" href="' + url + '"><img src="' + icon + '" /></a>');
-   }
+   $('#applist li').append('<a class="appbutton" href="' + url + '"><img src="' + icon + '" /></a>');
 
    app_count++;
 }
 
 var mouse_down = false;
-var mouse_start_location_y = 0;
+var mouse_start_location_x = 0;
 var scrolled = false;
+var loaded = false;
 
 $(document).mousemove(function(event) {
 	  if (mouse_down && !scrolled){
-	  	var THRESHOLD = 0.2; // to be considered a scroll
-	  	if (Math.abs(event.pageY - mouse_start_location_y) > THRESHOLD){
+	  	var THRESHOLD = 10; // to be considered a scroll
+	  	  	
+	  	if (Math.abs(event.pageX - mouse_start_location_x) > THRESHOLD){
 	  		scrolled = true;
 	  	}
 	  }
@@ -45,13 +42,17 @@ $(document).mousemove(function(event) {
  });
 
 $(document).mousedown(function(event) {
+	if (!loaded) event.preventDefault();
+
   	mouse_down = true;
   	scrolled = false;
-  	mouse_start_location_y = event.pageY;
+  	mouse_start_location_x = event.pageX;
   	set_hide_menu_timer();
  });
 
 $(document).mouseup(function(event) {
+	if (!loaded) event.preventDefault();
+	
   	mouse_down = false;
   	set_hide_menu_timer();
  });
@@ -60,36 +61,10 @@ var myScroll;
 var height = 0; // icons height
 $(document).ready(function() {
 	/* Add applications here */
-
+	loaded = true;
+	
 	{ITEM_LIST}
 	add_app("javascript:GLA.OpenNewWebBrowserWindow('http://www.google.com');", "/resources/system/launcher/browser-icon-512x512.png", true);
-	/*
-	add_app("#", "/Test/icon1.png");
-	add_app("#", "/Test/icon2.png");
-	add_app("#", "/Test/icon3.png");
-	add_app("#", "/Test/icon4.png");
-	add_app("#", "/Test/icon5.png");
-	add_app("#", "/Test/icon1.png");
-	add_app("#", "/Test/icon2.png");
-	add_app("#", "/Test/icon3.png");
-	add_app("#", "/Test/icon4.png");
-	add_app("#", "/Test/icon5.png");
-	add_app("#", "/Test/icon1.png");
-	add_app("#", "/Test/icon2.png");
-	add_app("#", "/Test/icon3.png");
-	add_app("#", "/Test/icon4.png");
-	add_app("#", "/Test/icon5.png");
-	add_app("#", "/Test/icon1.png");
-	add_app("#", "/Test/icon2.png");
-	add_app("#", "/Test/icon3.png");
-	add_app("#", "/Test/icon4.png");
-	add_app("#", "/Test/icon5.png");
-	add_app("#", "/Test/icon1.png");
-	add_app("#", "/Test/icon2.png");
-	add_app("#", "/Test/icon3.png");
-	add_app("#", "/Test/icon4.png");
-	add_app("#", "/Test/icon5.png");
-*/
 
 	/* Resize code here */
 
@@ -129,10 +104,20 @@ $(document).ready(function() {
 	$('#arrow img').css('padding-top', (height/2 - arrow_img_height/2) + "px");
 
 	/* Click handlers code here */
-	$('.appbutton').click(function() {
-	  if (scrolled || mouse_down) return false; // Avoid accidental clicks if the user scrolled
+	$('.appbutton').click(function(e) {
+	  if (scrolled || mouse_down){
+	  	  e.preventDefault();
+	  	  return false;
+	  } // Avoid accidental clicks if the user scrolled
 
 	  $(this).children().pulse({opacity : 0.3}, 700, 3);
+	  var url = $(this).attr('href');
+	  if (url.match(/^javascript:.*$/i)){
+	  	eval(url);
+	  }else{
+	  	GLA.OpenNewWindow(url);
+	  }
+  	  e.preventDefault();
 	});
 
 	$('#arrow img').click(function() {
