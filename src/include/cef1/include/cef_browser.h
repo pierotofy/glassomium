@@ -208,13 +208,15 @@ class CefBrowser : public virtual CefBase {
   virtual void StopFinding(bool clearSelection) =0;
 
   ///
-  // Get the zoom level.
+  // Get the current zoom level. The default zoom level is 0.0. This method can
+  // only be called on the UI thread.
   ///
   /*--cef()--*/
   virtual double GetZoomLevel() =0;
 
   ///
-  // Change the zoom level to the specified value.
+  // Change the zoom level to the specified value. Specify 0.0 to reset the
+  // zoom level. The change will be applied asynchronously on the UI thread.
   ///
   /*--cef()--*/
   virtual void SetZoomLevel(double zoomLevel) =0;
@@ -294,8 +296,8 @@ class CefBrowser : public virtual CefBase {
   // Send a key event to the browser.
   ///
   /*--cef()--*/
-  virtual void SendKeyEvent(KeyType type, int key, int modifiers, bool sysChar,
-                            bool imeChar) =0;
+  virtual void SendKeyEvent(KeyType type, const CefKeyInfo& keyInfo,
+                            int modifiers) =0;
 
   ///
   // Send a mouse click event to the browser. The |x| and |y| coordinates are
@@ -314,10 +316,11 @@ class CefBrowser : public virtual CefBase {
 
   ///
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
-  // relative to the upper-left corner of the view.
+  // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
+  // values represent the movement delta in the X and Y directions respectively.
   ///
   /*--cef()--*/
-  virtual void SendMouseWheelEvent(int x, int y, int delta) =0;
+  virtual void SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) =0;
 
   ///
   // Send a focus event to the browser.

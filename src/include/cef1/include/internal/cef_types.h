@@ -61,6 +61,20 @@ typedef long long           int64;  // NOLINT(runtime/int)
 typedef unsigned long long  uint64;  // NOLINT(runtime/int)
 #endif
 
+// TODO: Remove these type guards.  These are to avoid conflicts with
+// obsolete/protypes.h in the Gecko SDK.
+#ifndef _INT32
+#define _INT32
+typedef int                 int32;
+#endif
+
+// TODO: Remove these type guards.  These are to avoid conflicts with
+// obsolete/protypes.h in the Gecko SDK.
+#ifndef _UINT32
+#define _UINT32
+typedef unsigned int       uint32;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -174,18 +188,18 @@ typedef struct _cef_settings_t {
 #endif
 
   ///
-  // The fully qualified path for the cef.pak file. If this value is empty
-  // the cef.pak file must be located in the module directory. This value is
-  // ignored on Mac OS X where pack files are always loaded from the app bundle
-  // resource directory.
+  // The fully qualified path for the resources directory. If this value is
+  // empty the chrome.pak and/or devtools_resources.pak files must be located in
+  // the module directory on Windows/Linux or the app bundle Resources directory
+  // on Mac OS X.
   ///
-  cef_string_t pack_file_path;
+  cef_string_t resources_dir_path;
 
   ///
   // The fully qualified path for the locales directory. If this value is empty
   // the locales directory must be located in the module directory. This value
   // is ignored on Mac OS X where pack files are always loaded from the app
-  // bundle resource directory.
+  // bundle Resources directory.
   ///
   cef_string_t locales_dir_path;
 
@@ -223,6 +237,18 @@ typedef struct _cef_browser_settings_t {
   // Disable history back/forward navigation.
   ///
   bool history_disabled;
+
+  ///
+  // The number of frames per second (fps) for animation and windowless
+  // rendering. When window rendering is enabled and the JavaScript
+  // requestAnimationFrame method is used the browser client area will be
+  // invalidated at the rate specified. When window rendering is disabled the
+  // CefRenderHandler::OnPaint() method will be called at the rate specified.
+  // This value must be between 0 and 90. Specify a value of zero for the
+  // default frame rate of 30 fps. Changing this value may affect display
+  // performance and/or CPU usage.
+  ///
+  int animation_frame_rate;
 
   // The below values map to WebPreferences settings.
 
@@ -396,12 +422,6 @@ typedef struct _cef_browser_settings_t {
   // support it correctly.
   ///
   bool accelerated_compositing_enabled;
-
-  ///
-  // Set to true (1) to enable threaded compositing. This is currently only
-  // supported by the command buffer graphics implementation.
-  ///
-  bool threaded_compositing_enabled;
 
   ///
   // Set to true (1) to disable accelerated layers. This affects features like
@@ -862,10 +882,11 @@ enum cef_handler_keyevent_type_t {
 // Key event modifiers.
 ///
 enum cef_handler_keyevent_modifiers_t {
-  KEY_SHIFT = 1 << 0,
-  KEY_CTRL  = 1 << 1,
-  KEY_ALT   = 1 << 2,
-  KEY_META  = 1 << 3
+  KEY_SHIFT  = 1 << 0,
+  KEY_CTRL   = 1 << 1,
+  KEY_ALT    = 1 << 2,
+  KEY_META   = 1 << 3,
+  KEY_KEYPAD = 1 << 4,  // Only used on Mac OS-X
 };
 
 ///
@@ -1076,9 +1097,9 @@ enum cef_dom_node_type_t {
 // Proxy types.
 ///
 enum cef_proxy_type_t {
-  PROXY_TYPE_DIRECT = 0,
-  PROXY_TYPE_NAMED,
-  PROXY_TYPE_PAC_STRING,
+  CEF_PROXY_TYPE_DIRECT = 0,
+  CEF_PROXY_TYPE_NAMED,
+  CEF_PROXY_TYPE_PAC_STRING,
 };
 
 ///

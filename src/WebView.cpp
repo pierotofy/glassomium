@@ -191,14 +191,16 @@ void WebView::injectKeyDown(int modifiers, int vkCode, int scancode){
     //bkWindow->keyEvent(true, modifiers, vkCode, scancode);
 	//injectTextEvent(string(1, vkCode));
 
-	cefWindow->SendKeyEvent(KT_KEYDOWN, vkCode, modifiers, false, false);
+	// TODO: fix
+	//cefWindow->SendKeyEvent(KT_KEYDOWN, vkCode, modifiers, false, false);
 }
 
 /** @param scancode the original scancode that generated the event
  *  @param mods    a modifier code created by a logical or of KeyModifiers 
  *  @param vkCode     the virtual key code received from the OS */
 void WebView::injectKeyUp(int modifiers, int vkCode, int scancode){
-	cefWindow->SendKeyEvent(KT_KEYUP, vkCode, modifiers, false, false);
+	// TODO: FIx
+	//cefWindow->SendKeyEvent(KT_KEYUP, vkCode, modifiers, false, false);
     //bkWindow->keyEvent(false, modifiers, vkCode, scancode);
 }
 

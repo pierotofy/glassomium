@@ -180,12 +180,14 @@ typedef struct _cef_browser_t {
       int clearSelection);
 
   ///
-  // Get the zoom level.
+  // Get the current zoom level. The default zoom level is 0.0. This function
+  // can only be called on the UI thread.
   ///
   double (CEF_CALLBACK *get_zoom_level)(struct _cef_browser_t* self);
 
   ///
-  // Change the zoom level to the specified value.
+  // Change the zoom level to the specified value. Specify 0.0 to reset the zoom
+  // level. The change will be applied asynchronously on the UI thread.
   ///
   void (CEF_CALLBACK *set_zoom_level)(struct _cef_browser_t* self,
       double zoomLevel);
@@ -259,8 +261,8 @@ typedef struct _cef_browser_t {
   // Send a key event to the browser.
   ///
   void (CEF_CALLBACK *send_key_event)(struct _cef_browser_t* self,
-      enum cef_key_type_t type, int key, int modifiers, int sysChar,
-      int imeChar);
+      enum cef_key_type_t type, const struct _cef_key_info_t* keyInfo,
+      int modifiers);
 
   ///
   // Send a mouse click event to the browser. The |x| and |y| coordinates are
@@ -279,10 +281,11 @@ typedef struct _cef_browser_t {
 
   ///
   // Send a mouse wheel event to the browser. The |x| and |y| coordinates are
-  // relative to the upper-left corner of the view.
+  // relative to the upper-left corner of the view. The |deltaX| and |deltaY|
+  // values represent the movement delta in the X and Y directions respectively.
   ///
   void (CEF_CALLBACK *send_mouse_wheel_event)(struct _cef_browser_t* self,
-      int x, int y, int delta);
+      int x, int y, int deltaX, int deltaY);
 
   ///
   // Send a focus event to the browser.
