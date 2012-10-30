@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>Feed The Panda</title>
+<style type="text/css">
+body{
+	margin:0;
+	padding:0;
+	background: transparent;
+}
+</style>
+<script src="jquery-1.6.3.min.js"></script>
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetMenuButtons(["close", "maximize", "restore"]);
+}
+
+$(document).ready(function(){
+   $("body").append('<div style="text-align: left"><object type="application/x-shockwave-flash" data="FeedThePanda.swf" width="' + $(window).width() + '" height="' + $(window).height() + '" id="flash"><param name="wmode" value="transparent" /> <param name="movie" value="FeedThePanda.swf" /><param name="quality" value="high" /></object></div>');
+});
+
+$(window).resize(function(){
+	$("#flash").prop("width", $(window).width());
+	$("#flash").prop("height", $(window).height());	
+});
+
+</script>
+</head>
+
+<body>
+
+</body>
+</html>

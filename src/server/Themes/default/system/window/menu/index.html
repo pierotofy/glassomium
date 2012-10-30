@@ -13,6 +13,10 @@
 #GLAWindowMenu a img{
 	border: 0;
 }
+#GLAWindowMenu .GLABottom{
+	position: absolute;
+	bottom: 0;
+}
 .GLAMenuButton{
 	width: 48px;
 	height: 48px;
@@ -26,10 +30,30 @@
 	<img onclick="javascript:GLA.ZoomOut(500);" class="GLAMenuButton" id="GLAZoomOutButton" src="http://localhost:5555/resources/system/window/menu/zoom-out-icon.png"/>
 	<img onclick="javascript:GLA.EnterFullscreen();" class="GLAMenuButton" id="GLAMaximizeButton" src="http://localhost:5555/resources/system/window/menu/maximize-icon.png"/>
 	<img onclick="javascript:GLA.ExitFullscreen();" class="GLAMenuButton" id="GLARestoreButton" src="http://localhost:5555/resources/system/window/menu/restore-icon.png"/>
+
+	<div class="GLABottom">
+		<img onclick="javascript:GLALockWindow();" class="GLAMenuButton" id="GLALockButton" src="http://localhost:5555/resources/system/window/menu/locker-open-icon.png"/>
+		<img onclick="javascript:GLAUnlockWindow();" style="display: none;" class="GLAMenuButton" id="GLAUnlockButton" src="http://localhost:5555/resources/system/window/menu/locker-closed-icon.png"/>
+		
+	</div>
 </div>
 <script language="javascript">
 /* DO NOT USE INLINE COMMENTS! They will cause issues when injecting this code in the 
    windows. Multiline comments are OK. */
+
+function GLALockWindow(){
+	GLA.SetTransformable(false);
+	GLA.SetDraggable(false);
+	$jsafe("#GLALockButton").hide();
+	$jsafe("#GLAUnlockButton").show();
+}
+
+function GLAUnlockWindow(){
+	GLA.SetTransformable(true);
+	GLA.SetDraggable(true);
+	$jsafe("#GLALockButton").show();
+	$jsafe("#GLAUnlockButton").hide();
+}
 
 document.addEventListener('GLAWindowMenuFeaturesChanged', onWindowMenuFeaturesChanged, false);
 function onWindowMenuFeaturesChanged(event) {
