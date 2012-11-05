@@ -489,6 +489,13 @@ void UIManager::onNewWindowRequested(const string &url, Window *parent, WindowTy
 		float width = (*appConfigs)[url]->getFloat("window.width");
 		float height = (*appConfigs)[url]->getFloat("window.height");
 
+		// Is there an aspect ratio to override the height?
+		float aspectRatio = (*appConfigs)[url]->getFloat("window.aspectratio");
+		if (aspectRatio != 0.0f){
+			float heightPixels = (width * Application::windowWidth) / aspectRatio;
+			height = heightPixels / Application::windowHeight;
+		}
+
 		newWindow = UIManager::getSingleton()->createWindow(width, height, type);
 
 		// User windows might need to change some application configs

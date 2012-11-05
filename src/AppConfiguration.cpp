@@ -32,6 +32,7 @@ map<std::string, float> AppConfiguration::getFloatDefaults(){
 	map<std::string, float> result;
 	result["window.width"] = 0.4f;
 	result["window.height"] = 0.3f;
+	result["window.aspectratio"] = 0.0f;
 	return result;
 }
 
