@@ -101,9 +101,6 @@ private:
 
 	bool transparent;
 
-	// The color used to blend the texture with during shading
-	//Ogre::Vector4 blendColor;
-
 	// Unique for each existing web view
 	unsigned int webViewId;
 

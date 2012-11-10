@@ -153,25 +153,33 @@ void Application::go(){
 	icon.loadFromFile("icon.png");
 	renderWindow->setIcon(32, 32, icon.getPixelsPtr());
 
+	// Hide cursor?
+	if (!mouseEnabled){
+		renderWindow->setMouseCursorVisible(false);
+	}
+
 	// Set aspect ratio
 	/*
 	float newH = (Application::windowWidth*Application::aspectRatio.y)/Application::aspectRatio.x;
 	float displace = (newH - Application::windowHeight)/(-2.0f);
 	renderWindow->setView(sf::View(sf::FloatRect(0.0f, displace, Application::windowWidth, newH)));
 	*/
+
 	if (!Berkelium::init(Berkelium::FileString::empty(), 0, NULL)){
 		std::cout << "Failed to initialize berkelium!" << std::endl;
         return;
 	}
 
-	FileManager::initialize();
-
 	ServerManager::initialize("localhost", 5555);
+
+	FileManager::initialize();
 
 	PhysicsManager::initialize();
 
 	// Initialize window manager
 	UIManager::initialize();
+
+	tuioManager = new TuioManager(3333);
 	
 	// Fetch resources, setup layout
 	try{
@@ -184,8 +192,6 @@ void Application::go(){
 
 	// Create the layout
 	UIManager::getSingleton()->setupSystemLayout();
-
-	tuioManager = new TuioManager(3333);
 
 	// Start loop
 	while (renderWindow->isOpen())

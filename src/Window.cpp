@@ -50,6 +50,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	// Don't fire tuio events unless specified otherwise
 	tuioEnabled = false;
 
+	animationHappening = false;
 	crashed = false; 
 
 	currentZoom = 1.0f; // Normal
@@ -88,7 +89,7 @@ void Window::setScrollable(bool scrollable){
 
 /** Converts a scroll direction to the proper values and scrolls the window */
 void Window::updateScrolling(const sf::Vector2f &scrollDirection){
-	if (scrollable && !scrollOnMouseMove){
+	if (scrollable && !scrollOnMouseMove && !animationHappening){
 		#define SCROLL_SENSITIVITY 4 // Higher values will make the scroll more sensitive
 
 		scroll((int)(scrollDirection.x * cos(getRotation()) + scrollDirection.y * sin(getRotation())) * SCROLL_SENSITIVITY, 
@@ -189,7 +190,7 @@ void Window::onStartLoading(){
 
 /** Changes the color of the window and begins the drag */
 void Window::startDragging(const sf::Vector2f &dragTouchPosition){
-     if (!dragging && draggable){
+     if (!dragging && draggable && !animationHappening){
 
 #ifdef SMOOTH_DRAG
 		 beginningDragTouchPosition = dragTouchPosition;
@@ -204,7 +205,7 @@ void Window::startDragging(const sf::Vector2f &dragTouchPosition){
 
 /** Moves the window if the window is being dragged */
 void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
-	if (dragging && draggable){
+	if (dragging && draggable && !animationHappening){
 #ifdef SMOOTH_DRAG
 		sf::Vector2f newPosition = windowCenterOnDragBegin + (dragTouchPosition - beginningDragTouchPosition);
 		setPosition(newPosition);
@@ -216,7 +217,7 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 
 /** Terminates the drag gesture */
 void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vector2f &speedOnDragEnd){
-     if (dragging && draggable){
+     if (dragging && draggable && !animationHappening){
 
 		// Uncolor
 		removeBlendColor();
@@ -229,7 +230,7 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vecto
 
 /** All vectors are points in range 0..1 (as received from the gesture manager) */
 void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
-	if (transformable && !dragging){
+	if (transformable && !dragging && !animationHappening){
 		blockTransformsFlag = false;
 		
 		float dx = firstTouchLocation.x - secondTouchLocation.y;
@@ -255,9 +256,9 @@ void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf:
 
 void Window::stopTransforming(){
 	// Have we reached full screen threshold?
-	if (transformable && !dragging && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
+	if (transformable && !dragging && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen && !animationHappening){
 
-		const float fullscreenThreshold = 0.9f;
+		const float fullscreenThreshold = 0.98f;
 		WindowOrientation orientation = getOrientation();
 		float sizeX = this->getScale().x * (float)webView->getTextureWidth();
 		float sizeY = this->getScale().y * (float)webView->getTextureHeight();
@@ -277,6 +278,8 @@ void Window::stopTransforming(){
 /** Handles the transformations on this window. This includes scaling and rotating.
  */
 void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
+	if (animationHappening) return;
+
 	// Start checks for validity here, the function might return without doing anything				
 	if (blockTransformsFlag || dragging) return;
 
@@ -542,6 +545,16 @@ void Window::setAlpha(sf::Uint8 alpha){
  (for example during drag) */
 void Window::removeBlendColor(){
 	setBlendColor(sf::Color(255, 255, 255)); // No blend
+}
+
+/** Called when an animation acting on this window has started */
+void Window::onAnimationStarted(){
+	animationHappening = true;
+}
+
+/** Called when an animation acting on this window has terminated */
+void Window::onAnimationEnded(){
+	animationHappening = false;
 }
 
 /** Compares the rotation of the current window and otherWindow within a defined threshold
@@ -1106,7 +1119,7 @@ void Window::injectJavascriptResources(){
 }
 
 void Window::update(){
-
+	// Nothing to update, so far
 }
 
 /** Pop/push functions allow for keeping track of changes in the position/rotation/scale of 

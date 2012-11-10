@@ -26,6 +26,7 @@ Animation::Animation(Window *window, void(*animationEndedCallback)(Window *) = 0
 
 /** All animation must run asynchronously */
 void Animation::start(){
+	window->onAnimationStarted();
 	thread->launch();
 }
 
@@ -39,6 +40,7 @@ void Animation::postAnimate(){
 	if (animationEndedCallback != 0){
 		animationEndedCallback(window);
 	}
+	window->onAnimationEnded();
 }
 
 Animation::~Animation(){

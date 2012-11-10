@@ -168,6 +168,9 @@ public:
 	sf::Uint8 getAlpha();
 	void setAlpha(sf::Uint8 alpha);
 	void removeBlendColor();
+
+	void onAnimationStarted();
+	void onAnimationEnded();
 	
 	bool rotationSameAs(Window *otherWindow, Degrees threshold);
 
@@ -201,6 +204,10 @@ protected:
 	bool draggable; // Is this window draggable?
 	bool transformable; // Can this window be resized/rotated?
 	bool scrollable; // Can we do scrolling?
+
+	//  We use this flag to stop user interaction from happening while
+	// an animation is affecting the look of this window
+	bool animationHappening;
 
 	bool crashed; // Has the window crashed?
 	std::map<std::string, std::string> crashReport;

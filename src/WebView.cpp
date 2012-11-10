@@ -85,6 +85,10 @@ void WebView::resize(int width, int height){
 	textureWidth = width;
 	textureHeight = height;
 
+	// Allocate new scroll buffer
+	RELEASE_SAFELY(scroll_buffer);
+	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
+
 	bkWindow->resize(width, height);
 	
 	// Switch old texture with new one
@@ -290,8 +294,6 @@ void WebView::onPaint(Berkelium::Window *wini,
 				wid*kBytesPerPixel
 				);
 		}
-
-		// TODO: in debug mode on Visual Studio while maximizing a window an assertion will fail on texture update! FIX IT!
 
 		// Finally, we perform the main update, just copying the rect that is
 		// marked as dirty but not from scrolled data.
