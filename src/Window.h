@@ -209,6 +209,10 @@ protected:
 	// an animation is affecting the look of this window
 	bool animationHappening;
 
+	// Used to filter out gestures too close in time to each other
+	sf::Clock gestureFilterClock;
+	bool gestureFilterClockExpired();
+
 	bool crashed; // Has the window crashed?
 	std::map<std::string, std::string> crashReport;
 

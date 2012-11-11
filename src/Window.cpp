@@ -190,7 +190,7 @@ void Window::onStartLoading(){
 
 /** Changes the color of the window and begins the drag */
 void Window::startDragging(const sf::Vector2f &dragTouchPosition){
-     if (!dragging && draggable && !animationHappening){
+     if (!dragging && draggable && !animationHappening && gestureFilterClockExpired()){
 
 #ifdef SMOOTH_DRAG
 		 beginningDragTouchPosition = dragTouchPosition;
@@ -225,12 +225,15 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vecto
         dragging = false;               
 
 		PhysicsManager::getSingleton()->applyForce(this, speedOnDragEnd);
+
+		// Prevent other gestures from happening too quickly after this gesture
+		gestureFilterClock.restart();
      }         
 }
 
 /** All vectors are points in range 0..1 (as received from the gesture manager) */
 void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
-	if (transformable && !dragging && !animationHappening){
+	if (transformable && !dragging && !animationHappening && gestureFilterClockExpired()){
 		blockTransformsFlag = false;
 		
 		float dx = firstTouchLocation.x - secondTouchLocation.y;
@@ -272,6 +275,9 @@ void Window::stopTransforming(){
 
 			UIManager::getSingleton()->onWindowEnterFullscreenRequested(this);
 		}
+	
+		// Prevent other gestures from happening too quickly after this gesture
+		gestureFilterClock.restart();
 	}
 }
 
@@ -291,7 +297,7 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 		if (!(pinchableOutOfFullscreen || scrollOnPinch)) return;
 
 		// In fullscreen, only pinching one of the corners of the window will allow resizing
-		#define CORNER_SIZE 0.10f
+		#define CORNER_SIZE 0.20f
 		bool pinchedCorner = Application::isPointOnScreenCorner(firstTouchLocationOnTransformBegin, CORNER_SIZE) ||
 			  Application::isPointOnScreenCorner(secondTouchLocationOnTransformBegin, CORNER_SIZE);
 
@@ -337,6 +343,15 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 		
 			this->setScale(sf::Vector2f(windowScaleOnTransformBegin.x + deltaScale, 
 								windowScaleOnTransformBegin.y + deltaScale));
+
+			// If we have resized a window past the close value, close the window
+			const float scaleCloseValue = 0.12f;
+
+			if (this->getScale().x < scaleCloseValue || this->getScale().y < scaleCloseValue){
+				UIManager::getSingleton()->onCloseWindowRequested(this);
+				return;
+			}
+
 		}else{
 			// Perform scroll instead
 			int dy;
@@ -892,6 +907,8 @@ void Window::onMouseUp(int cursor_id, int screen_x, int screen_y){
 
 /** Handles a mouse down event */
 void Window::handleMouseDown(int cursor_id, const sf::Vector2f &webviewCoords){
+	if (!gestureFilterClockExpired()) return;
+
 	mouseDown = true;
 
 	// Stop physics
@@ -1177,6 +1194,13 @@ void Window::onCrash(const string &description){
 /** Calls an API that forces the window content to be redrawn */
 void Window::repaint(){
 	executeJavascript("GLA._repaint();");
+}
+
+/** If the clock expired, a gesture can be performed safely.
+ * otherwise the gesture should be discarded */
+bool Window::gestureFilterClockExpired(){
+	return true;
+	return gestureFilterClock.getElapsedTime().asMilliseconds() > 100;
 }
 
 Window::~Window(){
