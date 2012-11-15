@@ -50,10 +50,8 @@ WebView::WebView(float windowRatio, pt::Window *parent)
 	webViewId = WebView::webViewCount;
 	WebView::webViewCount++; 
 
-	const int kNumPixels = textureWidth*(textureHeight+1)*4;
-
 	// Allocate scroll buffer
-	scroll_buffer = new char[kNumPixels];
+	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
 
 	// Setup berkelium
 	Berkelium::Context *bk_context = Berkelium::Context::create();
@@ -85,12 +83,6 @@ void WebView::resize(int width, int height){
 	textureWidth = width;
 	textureHeight = height;
 
-	// Allocate new scroll buffer
-	RELEASE_SAFELY(scroll_buffer);
-	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
-
-	bkWindow->resize(width, height);
-	
 	// Switch old texture with new one
 	sf::Texture *oldTexture = texture;
 
@@ -99,6 +91,13 @@ void WebView::resize(int width, int height){
 	texture->setSmooth(true);
 
 	RELEASE_SAFELY(oldTexture);
+
+	char *previous_buffer = scroll_buffer;
+	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
+	RELEASE_SAFELY(previous_buffer);
+
+	needs_full_refresh = true;
+	bkWindow->resize(textureWidth, textureHeight);
 }
 
 /** Set the transparent property */
