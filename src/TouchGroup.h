@@ -43,13 +43,19 @@ public:
 
 	void setLastGesture(int gesture); // Gesture::Type 
 	int getLastGesture();
+
+	sf::Vector2f getConstCenter();
+	void resetConstCenter();
+	void updateConstCenter();
 private:
+	sf::Vector2f constCenter;
 	static int instances_count;
 	int windowId;
 	int lastGesture; // The last (valid) gesture associated with this touchgroup
 
 	int id;
 	std::vector<Blob *> touchList;
+	std::map<int, sf::Vector2f *> touchDeltas;
 
 };
 

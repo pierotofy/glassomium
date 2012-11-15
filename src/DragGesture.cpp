@@ -29,20 +29,24 @@ DragGesture::DragGesture(Gesture::Phase phase)
 DragGesture* DragGesture::recognize(TouchGroup &touchGroup, Gesture::Phase phase){
 
 	if (phase == Gesture::BEGINNING){
-		// If there are three touches down, we have a drag
-		if (touchGroup.getSize() == 3){
-			return new DragGesture(Gesture::BEGINNING);
+		// Don't double drag begin
+		if (touchGroup.getLastGesture() != Gesture::DRAG){
+			// If there are three touches down, we have a drag
+			if (touchGroup.getSize() == 3){
+				touchGroup.resetConstCenter();
+				return new DragGesture(Gesture::BEGINNING);
+			}else return 0;
 		}else return 0;
-
 	}else if (phase == Gesture::UPDATING){
 		if (touchGroup.getLastGesture() != Gesture::DRAG) return 0;
-
+		touchGroup.updateConstCenter();
 		return new DragGesture(Gesture::UPDATING);
 	}else if (phase == Gesture::ENDING){
 		// If we had a valid drag gesture and now we don't have the right number of touches, the drag ended
 
 		if (touchGroup.getLastGesture() == Gesture::DRAG){
 			if (touchGroup.getSize() == 1){
+				touchGroup.updateConstCenter();
 				DragGesture *result = new DragGesture(Gesture::ENDING); // We had a drag, but now the number of touches has changed
 				result->setSpeedOnDragEnd(sf::Vector2f(touchGroup.getTouch(0)->speedX, touchGroup.getTouch(0)->speedY));
 				return result;				

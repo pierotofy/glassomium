@@ -117,15 +117,21 @@ void GestureManager::recognizeGestures(TouchGroup *touchGroup, Gesture::Phase ph
 		// Update reference
 		touchGroup->setLastGesture(gesture->getGestureType());
 
-		// Retrieve location of the gesture based on average position of the touches in the tough group
-		sf::Vector2f meanLocation = touchGroup->getMeanTouchLocation();
-
+		sf::Vector2f location;
+		if (gesture->getGestureType() == Gesture::DRAG){
+			// Use const center location
+			location = touchGroup->getConstCenter();
+		}else{
+			// Retrieve location of the gesture based on average position of the touches in the tough group
+			location = touchGroup->getMeanTouchLocation();
+		}
+		
 		// Convert to screen coordinates
-		meanLocation.x *= Application::windowWidth;
-		meanLocation.y *= Application::windowHeight;
+		location.x *= Application::windowWidth;
+		location.y *= Application::windowHeight;
 
 		// Wrap a GestureEvent and send to UIManager
-		GestureEvent gestureEvent(gesture, meanLocation, touchGroup->getWindowID());
+		GestureEvent gestureEvent(gesture, location, touchGroup->getWindowID());
 			
 		if (gesture->getGestureType() == Gesture::TWOFINGER){
 			UIManager::getSingleton()->onTransformGesture(gestureEvent);
