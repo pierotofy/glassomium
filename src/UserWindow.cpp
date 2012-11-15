@@ -25,23 +25,7 @@ namespace pt{
 
 UserWindow::UserWindow(float normalizedWidth, float normalizedHeight)
   : Window(normalizedWidth, normalizedHeight){
-	  injectMenu = true;
-}
 
-/** Sets whether a window menu is going to be injected in this window */
-void UserWindow::setInjectMenu(bool flag){
-	injectMenu = flag;
-}
-
-void UserWindow::injectJavascriptResources(){
-	if (injectMenu && !crashed){
-		webView->executeJavascriptFromFile("js/windowMenu.js");
-		if (g_debug){
-			cout << "Injected menu!" << endl;
-		}
-	}
-		
-	Window::injectJavascriptResources();
 }
 
 UserWindow::~UserWindow(){

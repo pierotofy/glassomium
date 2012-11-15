@@ -501,7 +501,6 @@ void UIManager::onNewWindowRequested(const string &url, Window *parent, WindowTy
 		// User windows might need to change some application configs
 		if (type == User){
 			newWindow->setTransparent((*appConfigs)[url]->getBool("window.transparent"));
-			((UserWindow *)newWindow)->setInjectMenu((*appConfigs)[url]->getBool("window.menu.show"));
 		}
 	}
 

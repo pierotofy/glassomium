@@ -40,6 +40,7 @@ map<std::string, float> ThemeConfiguration::getFloatDefaults(){
 	result["window.rotation"] = 0.0f;
 	result["physics.drag-friction"] = 0.6f;
 	result["physics.drag-restitution"] = 0.3f;
+	result["windows.close-threshold"] = 0.12f;
 	return result;
 }
 

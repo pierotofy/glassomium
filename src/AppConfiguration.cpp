@@ -40,7 +40,6 @@ map<std::string, bool> AppConfiguration::getBoolDefaults(){
 	map<std::string, bool> result;
 	result["window.transparent"] = true;
 	result["window.fullscreen"] = false;
-	result["window.menu.show"] = true;
 
 	return result;
 }

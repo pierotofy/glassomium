@@ -61,24 +61,6 @@ void ServerManager::retrieveJsResources(){
 		throw runtime_error("UI server unreachable");
 	}
 
-	/** Contact the UI Server and retrieve the window menu code
-      * This code is injected into each window that has a menu */
-
-	response = httpClient.sendRequest(sf::Http::Request("/system/window/menu?response_on_one_line=1&escape_double_quotes=1"));
-	if (response.getStatus() == response.Ok){
-		string menuContent = response.getBody();
-		
-		// Add pragmatically jquery code
-		menuContent = "$jsafe('body').append(\"" + menuContent + "\");";
-		cout << "Successfully retrieved window menu content" << endl;
-		
-		// Cache menu content to disk
-		FileManager::getSingleton()->writeAll(menuContent, "js/windowMenu.js");
-	}else{
-		cerr << "Could not contact UI Server to retrieve menu content. Did you forget to start it?" << endl;
-		throw runtime_error("UI server unreachable");
-	}
-
 	// Retrieve the browser bar
 
 	response = httpClient.sendRequest(sf::Http::Request("/system/browserbar?response_on_one_line=1&escape_double_quotes=1"));

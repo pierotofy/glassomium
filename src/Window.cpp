@@ -345,7 +345,7 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 								windowScaleOnTransformBegin.y + deltaScale));
 
 			// If we have resized a window past the close value, close the window
-			const float scaleCloseValue = 0.12f;
+			float scaleCloseValue = UIManager::getSingleton()->getThemeConfig()->getFloat("windows.close-threshold");
 
 			if (this->getScale().x < scaleCloseValue || this->getScale().y < scaleCloseValue){
 				UIManager::getSingleton()->onCloseWindowRequested(this);
@@ -1199,7 +1199,6 @@ void Window::repaint(){
 /** If the clock expired, a gesture can be performed safely.
  * otherwise the gesture should be discarded */
 bool Window::gestureFilterClockExpired(){
-	return true;
 	return gestureFilterClock.getElapsedTime().asMilliseconds() > 100;
 }
 

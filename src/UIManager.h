@@ -100,6 +100,7 @@ public:
 	GestureManager *getGestureManager(){ return gestureManager; }
 	AnimationManager *getAnimationManager() { return animationManager; }
 	sf::Color getDragColor() const{ return dragColor; } 
+	ThemeConfiguration *getThemeConfig(){ return themeConfig; }
 private:
 	static UIManager *singleton;
 
