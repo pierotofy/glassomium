@@ -1,20 +1,20 @@
 var GloHockey = function () {
 	var me = {
 		zoom : function(zoom){
-			zoomFactor = zoom;
-			adjustMouseX = (375 * zoom) / 4;
-			adjustMouseY = (175 * zoom) / 4;
+			zoomFactor = zoom;		
+			me.Config.offsetX = $("canvas").offset().left;
+			me.Config.offsetY = $("canvas").offset().top;	
 		},
 
 		Config:{
-			fps:40,
+			fps:30,
 			window:{x:$(window).width(), y:$(window).height()},
 			map:{x:750, y:350},
 			dimensions:{x:600, y:300},
 			gravity:{x:0, y:0},
 			polys:24,
 			shapes:12,
-			blur:0.5,
+			blur:0,
 			control:'joint', // 'force', 'joint', 'ai'
 			tween:JSTweener,
 			create:CreateWorld(),
@@ -63,7 +63,7 @@ var GloHockey = function () {
 		}
 	
 		me.Config.padding = {left: (me.Config.map.x - me.Config.dimensions.x) * 0.5, top:(me.Config.map.y - me.Config.dimensions.y) * 0.5};
-		
+
 		$('canvas').attr({width:me.Config.map.x, height:me.Config.map.y})
 		me.Canvas = $('canvas')[0];
         me.Context = me.Canvas.getContext('2d');
@@ -73,6 +73,9 @@ var GloHockey = function () {
 		me.Map.initiate();
 		me.Events();
 		me.Update();
+
+		me.Config.offsetX = $("canvas").offset().left;
+		me.Config.offsetY = $("canvas").offset().top;
 	};
 	me.Map = {};
 	me.Map.initiate = function () {
@@ -99,19 +102,19 @@ var GloHockey = function () {
 		me.Map.Entities = [];
 		me.Map.Particles = [];
 		
-		me.Map.Entities[0] = me.Players[0] = me.Config.create.createCircle(me.World, ml + 100, mt + 150, 30, 0, false, false, me.Styles.green);
+		me.Map.Entities[0] = me.Players[0] = me.Config.create.createCircle(me.World, ml + 100, mt + 150, 20, 0, false, false, me.Styles.green);
 		me.Players[0].m_mass *= 10;
 		me.Players[0].m_points = 0;
 		me.Players[0].m_control = 'joint';
 		me.Players[0].m_joint = me.Config.create.createMouseJoint(me.World, me.Players[0], me.Players[0].m_position.x, me.Players[0].m_position.y);
 		
-		me.Map.Entities[1] = me.Players[1] = me.Config.create.createCircle(me.World, ml + 500, mt + 150, 30, 0, false, false, me.Styles.red);
+		me.Map.Entities[1] = me.Players[1] = me.Config.create.createCircle(me.World, ml + 500, mt + 150, 20, 0, false, false, me.Styles.red);
 		me.Players[1].m_mass *= 10;
 		me.Players[1].m_points = 0;
 		me.Players[1].m_control = 'joint';
 		me.Players[1].m_joint = me.Config.create.createMouseJoint(me.World, me.Players[1], me.Players[1].m_position.x, me.Players[1].m_position.y);
 		
-		me.Map.Entities[2] = me.Puck = me.Config.create.createCircle(me.World, ml + 300, mt + 150, 20, 0, false, false, me.Styles.blue);
+		me.Map.Entities[2] = me.Puck = me.Config.create.createCircle(me.World, ml + 300, mt + 150, 10, 0, false, false, me.Styles.blue);
 		//me.Puck.m_mass = 0;
 			
 	};
@@ -122,6 +125,8 @@ var GloHockey = function () {
 		$(window).resize(function (event) {
 			me.Config.window.x = $(window).width();
 			me.Config.window.y = $(window).height();
+			me.Config.offsetX = $("canvas").offset().left;
+			me.Config.offsetY = $("canvas").offset().top;			
 		});
 		$(document).noContext();
 		
@@ -139,6 +144,13 @@ var GloHockey = function () {
 
 				mouse.down = true;
 				mouse.touchId = touch.identifier;
+
+			    mouse.x = touch.pageX / zoomFactor;
+				mouse.y = touch.pageY / zoomFactor;
+				
+				mouse.x -= me.Config.offsetX;
+				mouse.y -= me.Config.offsetY;
+
 			}
 		});
 		$(document).bind('touchend',function (event) {
@@ -176,19 +188,11 @@ var GloHockey = function () {
 			    	mouse = me.Mouse2;
 			    }
 
-			    mouse.x = touch.pageX;
-				mouse.y = touch.pageY;
+			    mouse.x = touch.pageX / zoomFactor;
+				mouse.y = touch.pageY / zoomFactor;
 				
-				mouse.x -= me.Config.window.x * 0.5 - me.Config.map.x * 0.5;
-				mouse.y -= me.Config.window.y * 0.5 - (me.Config.map.y) * 0.5;
-
-				// Adjustments
-				mouse.x /= zoomFactor;
-				mouse.y /= zoomFactor;		
-
-				mouse.x += adjustMouseX;	
-				mouse.y += adjustMouseY;	
-						
+				mouse.x -= me.Config.offsetX;
+				mouse.y -= me.Config.offsetY;
 			}
 		});
 		
@@ -244,8 +248,8 @@ var GloHockey = function () {
 		me.Puck.ApplyForce(new b2Vec2(vec.x * -50, vec.y * -50), me.Puck.m_position);
 		
 		//Slowing it down, too
-		me.Puck.m_linearVelocity.x = me.Puck.m_linearVelocity.x -  (me.Puck.m_linearVelocity.x - 0) * 0.0033;
-		me.Puck.m_linearVelocity.y = me.Puck.m_linearVelocity.y -  (me.Puck.m_linearVelocity.y - 0) * 0.0033;
+		me.Puck.m_linearVelocity.x = me.Puck.m_linearVelocity.x -  (me.Puck.m_linearVelocity.x - 0) * 0.003;
+		me.Puck.m_linearVelocity.y = me.Puck.m_linearVelocity.y -  (me.Puck.m_linearVelocity.y - 0) * 0.003;
 	}
 	me.Camera = function () {
 		

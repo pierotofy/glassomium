@@ -20,33 +20,47 @@
 var Game;
 $(document).ready(function(){
 	Game = GloHockey();
-	Game.zoom(2);
+	adjustGameSize();
+});
 
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetTuioEnabled(true);
+}
+
+function adjustGameSize(){
 	var width = 750;
 	var height = 350;
 	var ar = width/height;
 
-	var actualWidth = window.innerWidth;
+	var actualWidth = window.innerWidth - 4;
 	var actualHeight = actualWidth / ar;
-	if (actualHeight > window.innerHeight){
-		actualHeight = window.innerHeight;
+	var zoom = actualWidth / width;
+
+	if (actualHeight > window.innerHeight - 4){
+		actualHeight = window.innerHeight - 4;
 		actualWidth = actualHeight * ar;
+		zoom = actualHeight / height;
 	}
 
-	// TODO: find zoom
+	$("canvas").css('zoom', zoom);
 
-	$("#GloHockey").attr('margin-top', -height/2 + 'px');
-	$("#GloHockey").attr('margin-left', -height/2 + 'px');
-	
+	Game.zoom(zoom);
+}
+
+$(window).resize(function (event) {
+	adjustGameSize();	
 });
 
 
 </script>
 <style type="text/css"></style></head>
 <body>
-<div id="GloHockey" class="container" style="margin:-350px 0 0 -750px;">
-<canvas width="750" height="350" style="zoom: 2;"></canvas>
+
+<div id="content">
+<canvas width="750" height="350"></canvas>
 </div>
+
 
 
 </body></html>

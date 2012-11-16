@@ -65,7 +65,7 @@ GLA._fireTouchEvents = function(eventName, touches){
 		touch.target = document.elementFromPoint(touch.pageX, touch.pageY);
 
 		// Not all elements might have an ID, set one if undefined
-		if (touch.target.id == null){
+		if (typeof touch.target.id == undefined){
 			touch.target.id =  PseudoGuid.GetNew();
 		}
 
