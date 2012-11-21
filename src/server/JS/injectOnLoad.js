@@ -131,15 +131,6 @@ GLA.PseudoGuid = new (function() {
 })();
 
 
-/** System menu control functions */
-
-GLA._toggleWindowMenuFeatures = function(close, zoomIn, zoomOut, maximize, restore){
-	var evt = document.createEvent("Event");
-	evt.initEvent("GLAWindowMenuFeaturesChanged", true, true);
-	evt.buttons = {close:close, zoomIn:zoomIn, zoomOut:zoomOut, maximize:maximize, restore:restore};
-	setTimeout(function(){document.dispatchEvent(evt)}, 1);
-};
-
 /** Crash handling */
 GLA._crashInformation = {};
 GLA._addCrashInformation = function(key, value){
@@ -329,22 +320,6 @@ GLA.GoBack = function(){
  * if no next page is available, nothing happens */
 GLA.GoForward = function(){
 	_GLAGoForward();
-};
-
-/** Requests the following features to be enabled in the system menu 
- * Note that the system menu implementar is not required to follow these constraints,
- * it's simply a guideline. If you want to have more control over the default buttons,
- * set window.menu.show to no in your application.cfg and make your own buttons. By default all buttons
- * available are enabled.
- * @param list of button strings that need to be enabled
- 	valid values: "close", "maximize", "restore", "zoom-in", "zoom-out" */
-GLA.SetMenuButtons = function(list){
-	GLA._toggleWindowMenuFeatures($jsafe.inArray("close", list) != -1,
-								  $jsafe.inArray("zoom-in", list) != -1,
-								  $jsafe.inArray("zoom-out", list) != -1,
-								  $jsafe.inArray("maximize", list) != -1,
-								  $jsafe.inArray("restore", list) != -1);
-
 };
 
 /** Sets whether the current window is receiving TUIO messages in the form of touchstart, 
