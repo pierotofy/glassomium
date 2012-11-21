@@ -56,13 +56,13 @@ public:
 
 	void closeWindow(Window *window);
 	void fadeAndCloseWindow(Window *window);
-	static void fadeAndCloseWindowCallback(Window *w);
+	static void fadeAndCloseWindowCallback(AnimatedObject *w);
 	//void onKeyDown(const OIS::KeyEvent &e);
 	//void onKeyUp(const OIS::KeyEvent &e);	
 
 	void setFullscreen(Window *window);
 	void animateScaleAndSetFullscreen(Window *window);
-	static void animateScaleAndSetFullscreenCallback(Window *w);
+	static void animateScaleAndSetFullscreenCallback(AnimatedObject *w);
 
 
 	void onTouchGesture(const GestureEvent &);
@@ -84,7 +84,7 @@ public:
 	void onWindowAnimatedExitFullscreenRequested(Window *sender);
 
 	void onExitScreensaverRequested(Window *screensaver, ScreensaverAnimation animation, int animationMsTime);
-	static void exitScreensaverCallback(Window *screensaver);
+	static void exitScreensaverCallback(AnimatedObject *screensaver);
 
 	void showScreensaver();
 
@@ -93,6 +93,9 @@ public:
 	Window* findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords);
 	Window* findFirstWindow(sf::Vector2f screenCoords[], int numCoords);
 	Window* findWindowById(int windowId);
+
+	void wakeUpAllWindowsExcept(Window *w);
+	void putToSleepAllWindowsExcept(Window *w);
 
 	void update(); // To be called from the main loop
 	void draw(sf::RenderWindow *renderWindow); // Takes care of drawing the UI components in the rendering window
@@ -117,10 +120,6 @@ private:
 	// Keeps a count of all the keyboard windows
 	int keyboardsCount;
 
-	// Keep track of whether a window is in fullscreen
-	Window *currentFullscreenWindow;
-	bool hasFullscreenWindow(){ return currentFullscreenWindow != NULL; }
-
 	// Pointer sprite (useful for debugging tuio messages)
 	std::map<int, PointerSprite *> visiblePointers;
 	void addPointer(int screen_x, int screen_y, int pointer_id, PointerSprite::Color color);
@@ -144,6 +143,10 @@ private:
 
 	// Keeps track of all the windows
 	std::vector<Window *> windows;
+
+	// Windows to be disposed
+	std::vector<Window *> garbageBin;
+	sf::Clock garbageClock;
 
 	// Keeps the configuration information about the applications that will be launched
 	std::map<std::string, AppConfiguration *> *appConfigs;

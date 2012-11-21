@@ -65,6 +65,8 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	pinchedOutOfFullscreen = false;
 	pinchableOutOfFullscreen = true;
 	pinchableToFullscreen = true;
+
+	sleeping = false;
 }
 
 /** Sets a color that will blend the content of the window */
@@ -832,7 +834,11 @@ bool Window::coordsInsideWindow(float screen_x, float screen_y, sf::Vector2f &we
 /** Evaluates whether the global screen coordinates fit inside the current window. 
  * When returning true, it also calculates and fills in the windowRect and webviewCoords params */
 bool Window::coordsInsideWindow(float screen_x, float screen_y, pt::Rectangle &windowRect, sf::Vector2f &webviewCoords){
-	
+	if (isFullscreen()){
+		webviewCoords = screenToWebViewCoordsInFullscreen(screen_x, screen_y);
+		return true;
+	}
+
 	pt::Rectangle tempWindowRect = getClientRectangle();
 	sf::Vector2f rotatedScreenCoords = getRotatedScreenCoords(tempWindowRect, screen_x, screen_y);
 
@@ -850,9 +856,32 @@ bool Window::coordsInsideWindow(float screen_x, float screen_y, pt::Rectangle &w
 
 /** Public method (hides some of the other params) */
 bool Window::coordsInsideWindow(float screen_x, float screen_y){
+	if (isFullscreen()) return true;
+
 	pt::Rectangle windowRect;
 	sf::Vector2f webviewCoords;
 	return coordsInsideWindow(screen_x, screen_y, windowRect, webviewCoords);
+}
+
+/** Converts the given screen coordinates into webview coordinates for a window
+ * that is in fullscreen mode. By being in fullscreen we can take advantage of
+ * the fact that the orientation is fixed to 4 options (0, 90, 180, 270 degrees)
+ * and that the size matches the screen. This makes the computation much quicker. */
+sf::Vector2f Window::screenToWebViewCoordsInFullscreen(float screen_x, float screen_y){
+	int rotation = (int)getRotation();
+	switch(rotation){
+		case 0:
+			return sf::Vector2f(screen_x, screen_y);
+		case 90:
+			return sf::Vector2f(screen_y, Application::windowWidth - screen_x);
+		case 180:
+			return sf::Vector2f(Application::windowWidth - screen_x, Application::windowHeight - screen_y);
+		case 270:
+			return sf::Vector2f(Application::windowHeight - screen_y, screen_x);
+	}
+
+	cout << "This should not have happened! screenToWebViewCoordsInFullscreen() unhandled switch." << endl;
+	return sf::Vector2f(screen_x, screen_y);
 }
 
 /** Converts the given screen coordinates into webview coordinates */
@@ -1200,6 +1229,31 @@ void Window::repaint(){
  * otherwise the gesture should be discarded */
 bool Window::gestureFilterClockExpired(){
 	return gestureFilterClock.getElapsedTime().asMilliseconds() > 100;
+}
+
+/** Set this window to sleep. When sleeping a window does not refresh
+ * it's content (saves computation time). A window should be put asleep 
+ * only when the user will not notice that it's not being refreshed. */
+void Window::setToSleep(){
+	if (!sleeping){
+		sleeping = true;
+	}
+}
+
+/** Wake this window up from sleep. Refresh the content */
+void Window::wakeUp(){
+	if (sleeping){
+		sleeping = false;
+		webView->forceFullRefresh();
+		this->repaint();
+	}
+}
+
+/** Performs all the actions needed to get
+ * this window ready for disposal */
+void Window::prepareForDisposal(){
+	setToSleep();
+	webView->prepareForDisposal();
 }
 
 Window::~Window(){

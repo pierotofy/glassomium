@@ -23,9 +23,9 @@
 #elif defined( _MSC_VER )
 
 #if defined( SHARED_PTR_PROFILE )
-#define SHARED_PTR_INLINE_ATTR inline
+#define SHARED_PTR_INLINE_ATTR __declspec(noinline) inline
 #else
-#define SHARED_PTR_INLINE_ATTR inline
+#define SHARED_PTR_INLINE_ATTR __forceinline
 #endif
 
 #else

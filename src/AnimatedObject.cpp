@@ -17,28 +17,12 @@
    limitations under the License.
 */
    
-#ifndef ANIMATION_H
-#define ANIMATION_H
-
-#include "stdafx.h"
-#include "UIManager.h"
 #include "AnimatedObject.h"
 
-using namespace pt;
+AnimatedObject::AnimatedObject(){
 
-class Animation{
-public:
-	Animation(AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *));
-	virtual ~Animation();
-	
-	void start();
-	virtual void animate() = 0;
-	void notifyAnimationEnded();
-	void postAnimate();
-protected:
-	void(*animationEndedCallback)(AnimatedObject *);
-	AnimatedObject *object;
-	sf::Thread *thread;
-};
+}
 
-#endif
+AnimatedObject::~AnimatedObject(){
+
+}

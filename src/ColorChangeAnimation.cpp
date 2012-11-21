@@ -19,20 +19,17 @@
    
 #include "ColorChangeAnimation.h"
 
-ColorChangeAnimation::ColorChangeAnimation(float msecs, const sf::Color &targetColor, Window *window, void(*animationEndedCallback)(Window *) = 0)
-	: Animation(window, animationEndedCallback), targetColor(targetColor), msecs(msecs){
+ColorChangeAnimation::ColorChangeAnimation(float msecs, const sf::Color &targetColor, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
+	: Animation(object, animationEndedCallback), targetColor(targetColor), msecs(msecs){
 
 }
 
 void ColorChangeAnimation::animate(){
-	// Make sure the window has no color blending (otherwise it causes infinite flickering)
-	window->removeBlendColor();
-
-	sf::Sprite *windowSprite = window->getSprite();
+	sf::Sprite *sprite = object->getSprite();
 
 	// get current color values in float (cannot use ints or addition will get truncated to nearest int)
 	float ca, cr, cg, cb;
-	sf::Color currentColor = windowSprite->getColor();
+	sf::Color currentColor = sprite->getColor();
 	ca = currentColor.a;
 	cr = currentColor.r;
 	cg = currentColor.g;
@@ -52,13 +49,19 @@ void ColorChangeAnimation::animate(){
 	dg /= msecs;
 	db /= msecs;
 
-	while(windowSprite->getColor() != targetColor){
+	int c = 0;
+	while(sprite->getColor() != targetColor){
 		ca += da;
 		cr += dr;
 		cg += dg;
 		cb += db;
-		windowSprite->setColor(sf::Color((sf::Uint8)cr,(sf::Uint8)cg,(sf::Uint8)cb,(sf::Uint8)ca));
+		sprite->setColor(sf::Color((sf::Uint8)cr,(sf::Uint8)cg,(sf::Uint8)cb,(sf::Uint8)ca));
 		sf::sleep(sf::milliseconds(1));
+
+		// Safeguard
+		if (c++ > (int)msecs){
+			sprite->setColor(targetColor);
+		}
 	}
 
 	notifyAnimationEnded();

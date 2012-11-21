@@ -68,8 +68,6 @@ UIManager::UIManager(){
 	screensaverShowing = false;
 
 	appConfigs = 0;
-
-	currentFullscreenWindow = NULL;
 }
 
 /** Requests from the UI server data that the UI manager will utilize to 
@@ -187,6 +185,17 @@ void UIManager::update(){
 	if (screensaverWait > 0 && screensaverClock.getElapsedTime().asSeconds() > screensaverWait && !screensaverShowing){
 		showScreensaver();
 	}
+
+	// Check garbage bin
+	if (!garbageBin.empty() && garbageClock.getElapsedTime().asSeconds() > 10){
+		for (unsigned int i = 0; i < garbageBin.size(); i++){
+			if (g_debug){
+				cout << "Disposed window " << garbageBin[i]->getID() << endl;
+			}
+			RELEASE_SAFELY(garbageBin[i]);
+		}
+		garbageBin.clear();
+	}
 }
 
 /** Creates a screensaver window and displays it to the user, provided that a screensaver
@@ -202,6 +211,7 @@ void UIManager::showScreensaver(){
 		fadeIn->start();
 
 		screensaverShowing = true;
+		putToSleepAllWindowsExcept(screensaverWindow);
 	}
 }
 
@@ -391,9 +401,6 @@ void UIManager::dumpWindows(){
 /** Returns the window with the highest visible Z order that is being hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstWindow(float screen_x, float screen_y){
-	// A fullscreen window always hits all the coordinates
-	if (hasFullscreenWindow()) return currentFullscreenWindow;
-
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible()){
 			if (windows[i]->coordsInsideWindow(screen_x, screen_y)){
@@ -420,14 +427,7 @@ Window* UIManager::findWindowById(int windowId){
 /** Returns the window with the highest visible Z order that is also TUIO-enabled hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords){
-	// A fullscreen window is the only window that can be hit
-	if (hasFullscreenWindow()){
-		if (currentFullscreenWindow->isTuioEnabled()){
-			currentFullscreenWindow->coordsInsideWindow(screen_x, screen_y, webviewCoords);
-			return currentFullscreenWindow;
-		}else return NULL;
-	} 
-
+	// Will need to scan our windows, find one (if any) and convert to webview coordinates
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible() && windows[i]->isTuioEnabled()){
 			if (windows[i]->coordsInsideWindow(screen_x, screen_y, webviewCoords)){
@@ -442,9 +442,6 @@ Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf
 /** Returns the window with the highest Z order that is being hit by all the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstWindow(sf::Vector2f screenCoords[], int numCoords){
-	// A fullscreen window always hits all the coordinates
-	if (hasFullscreenWindow()) return currentFullscreenWindow;
-
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible()){
 			bool allInside = true;
@@ -580,9 +577,9 @@ void UIManager::setFullscreen(Window *window){
 	window->setZOrder(FULLSCREEN_Z_ORDER);
 	sortWindowsByZOrder();
 
+	// Put all other windows asleep
+	putToSleepAllWindowsExcept(window);
 
-	assert(currentFullscreenWindow == NULL);
-	currentFullscreenWindow = window;
 	//dumpWindows();
 }
 
@@ -632,8 +629,8 @@ void UIManager::animateScaleAndSetFullscreen(Window *window){
 	a->start();
 }
 
-void UIManager::animateScaleAndSetFullscreenCallback(Window *w){
-	UIManager::getSingleton()->setFullscreen(w);
+void UIManager::animateScaleAndSetFullscreenCallback(AnimatedObject *w){
+	UIManager::getSingleton()->setFullscreen((Window *)w);
 }
 
 
@@ -645,8 +642,7 @@ void UIManager::onWindowExitFullscreenRequested(Window *sender){
 		sender->setZOrder(-1);
 		sortWindowsByZOrder();
 
-		assert(sender == currentFullscreenWindow);
-		currentFullscreenWindow = NULL;
+		wakeUpAllWindowsExcept(sender);
 	}
 }
 
@@ -673,9 +669,6 @@ void UIManager::onWindowAnimatedExitFullscreenRequested(Window *sender){
 
 /** Closes a window, frees up any resource that it might be using */
 void UIManager::closeWindow(Window *window){
-	// Check the fullscreen window reference
-	if (currentFullscreenWindow == window) currentFullscreenWindow = NULL;
-
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i] == window){
 			
@@ -688,12 +681,20 @@ void UIManager::closeWindow(Window *window){
 			// Stop physics
 			PhysicsManager::getSingleton()->stopAllPhysics(window);
 
-			// Free
-			RELEASE_SAFELY(window);
+			// If the window was in fullscreen, we need to remove the
+			// reference to the fullscreen window and do other stuff
+			if (window->isFullscreen()){
+				wakeUpAllWindowsExcept(window); // Others might be asleep
+			}
+
+			// Dispose later. This lets asynchronous events to be dispatched
+			// without making a mess with disposed memory areas
+			window->prepareForDisposal();
+			garbageBin.push_back(window);
+			garbageClock.restart();
 			break;
 		}
 	}
-
 }
 
 /** Fades and closes a window */
@@ -702,8 +703,8 @@ void UIManager::fadeAndCloseWindow(Window *window){
 	a->start();
 }
 
-void UIManager::fadeAndCloseWindowCallback(Window *w){
-	UIManager::getSingleton()->closeWindow(w);
+void UIManager::fadeAndCloseWindowCallback(AnimatedObject *w){
+	UIManager::getSingleton()->closeWindow((Window *)w);
 }
 
 /** Performs an animation on an existing screensaver window and closes it at the end */
@@ -734,10 +735,13 @@ void UIManager::onExitScreensaverRequested(Window *screensaver, ScreensaverAnima
 	screensaverShowing = false;
 }
 
-void UIManager::exitScreensaverCallback(Window *screensaver){
-	UIManager::getSingleton()->closeWindow(screensaver);
-
-	cout << "Closed screensaver!" << endl;
+void UIManager::exitScreensaverCallback(AnimatedObject *screensaver){
+	UIManager::getSingleton()->wakeUpAllWindowsExcept((Window *)screensaver); // Others might be asleep
+	UIManager::getSingleton()->closeWindow((Window *)screensaver);
+	
+	if (g_debug){
+		cout << "Closed screensaver!" << endl;
+	}
 }
 
 void UIManager::onTouchGesture(const GestureEvent &gestureEvent){
@@ -941,6 +945,20 @@ void UIManager::pushUpZOrdering(Window *w){
 	for (unsigned int i = 0; i < windows.size(); i++){
 		int currentZ = windows[i]->getZOrder();
 		if (currentZ <= 0 && !windows[i]->isZStatic()) windows[i]->setZOrder(currentZ + 1);
+	}
+}
+
+/** Wakes up all windows */
+void UIManager::wakeUpAllWindowsExcept(Window *w){
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i] != w) windows[i]->wakeUp();
+	}
+}
+
+/** Put asleep all windows exept the one passed as an argument */
+void UIManager::putToSleepAllWindowsExcept(Window *w){
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i] != w) windows[i]->setToSleep();
 	}
 }
 

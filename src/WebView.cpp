@@ -192,7 +192,11 @@ void WebView::onPaint(Berkelium::Window *wini,
     size_t num_copy_rects, const Berkelium::Rect *copy_rects,
     int dx, int dy, const Berkelium::Rect &scroll_rect) {
 
+	if (parent->isSleeping()) return; // Do not paint if the parent is sleeping
+
 	const int kBytesPerPixel = 4;
+
+	//cout << "CALLED! " << parent->getID() << endl;;
 
 	// Convert BGRA to RGBA
 	unsigned int *tmpBuf = (unsigned int *)bitmap_in;
@@ -438,6 +442,11 @@ void WebView::adjustZoom(int mode){
     bkWindow->adjustZoom(mode); 
 }
 
+/** Ignore the next onPaint events until a complete one is received */
+void WebView::forceFullRefresh(){
+	needs_full_refresh = true;
+}
+
 /** Creates a new berkelium window and notifies the parent that we have crashed!
  * @param description a brief description of what happened. */
 void WebView::handleCrash(const string &description){
@@ -452,6 +461,14 @@ void WebView::handleCrash(const string &description){
 	RELEASE_SAFELY(previousWindow);
 
 	parent->onCrash(description);
+}
+
+/** Performs all the actions needed to get
+ * this window ready for disposal */
+void WebView::prepareForDisposal(){
+	if (bkWindow){
+		RELEASE_SAFELY(bkWindow);
+	}
 }
 
 WebView::~WebView(){

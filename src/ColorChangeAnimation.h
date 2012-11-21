@@ -25,7 +25,7 @@
 
 class ColorChangeAnimation : public Animation {
 public:
-	ColorChangeAnimation(float msecs, const sf::Color &targetColor, Window *window, void(*animationEndedCallback)(Window *));
+	ColorChangeAnimation(float msecs, const sf::Color &targetColor, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *));
 	virtual ~ColorChangeAnimation();
 
 	virtual void animate();
@@ -38,13 +38,13 @@ private:
 
 class FadeOutAnimation : public ColorChangeAnimation{
 public:
-	FadeOutAnimation(float msecs, Window *window, void(*animationEndedCallback)(Window *) = 0)
-		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 0), window, animationEndedCallback){}
+	FadeOutAnimation(float msecs, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
+		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 0), object, animationEndedCallback){}
 };
 
 class FadeInAnimation : public ColorChangeAnimation{
 public:
-	FadeInAnimation(float msecs, Window *window, void(*animationEndedCallback)(Window *) = 0)
-		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 255), window, animationEndedCallback){}
+	FadeInAnimation(float msecs, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
+		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 255), object, animationEndedCallback){}
 };
 #endif

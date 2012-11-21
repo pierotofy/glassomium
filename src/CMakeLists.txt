@@ -93,6 +93,7 @@ set(HDRS
     Launcher.h
     Blob.h
     PhysicsManager.h
+    AnimatedObject.h
     stdafx.h
 )
  
@@ -126,6 +127,7 @@ set(SRCS
     UserWindow.cpp
     Launcher.cpp
     Blob.cpp
+    AnimatedObject.cpp
     PhysicsManager.cpp
 )
 

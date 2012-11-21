@@ -71,6 +71,10 @@ public:
 
 	void notifyDomLoaded();
 	std::string getCurrentURL(){ return currentURL; }
+	
+	void forceFullRefresh();
+
+	void prepareForDisposal();
 private:
 	void bindJSAPI();
 

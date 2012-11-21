@@ -19,18 +19,18 @@
    
 #include "TransformAnimation.h"
 
-TransformAnimation::TransformAnimation(float msecs, const sf::Vector2f &targetScale, const sf::Vector2f &targetPosition, Degrees targetRotation, Easing easing, Window *window, void(*animationEndedCallback)(Window *))
-	: Animation(window, animationEndedCallback), targetScale(targetScale), targetPosition(targetPosition), targetRotation(targetRotation), easing(easing), msecs(msecs){
+TransformAnimation::TransformAnimation(float msecs, const sf::Vector2f &targetScale, const sf::Vector2f &targetPosition, Degrees targetRotation, Easing easing, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *))
+	: Animation(object, animationEndedCallback), targetScale(targetScale), targetPosition(targetPosition), targetRotation(targetRotation), easing(easing), msecs(msecs){
 }
 
 void TransformAnimation::animate(){
 
-	sf::Sprite *windowSprite = window->getSprite();
+	sf::Sprite *sprite = object->getSprite();
 	
 	// get current values
-	sf::Vector2f currentScale = windowSprite->getScale();
-	sf::Vector2f currentPosition = window->getPosition();
-	Degrees currentRotation = window->getRotation();
+	sf::Vector2f currentScale = sprite->getScale();
+	sf::Vector2f currentPosition = object->getPosition();
+	Degrees currentRotation = object->getRotation();
 
 	// deltas
 	sf::Vector2f deltaScale = (targetScale - currentScale) / msecs;
@@ -96,22 +96,22 @@ void TransformAnimation::animate(){
 		}
 
 		currentScale += scaleIncrement;
-		windowSprite->setScale(currentScale);
+		sprite->setScale(currentScale);
 
 		currentPosition += positionIncrement;
-		window->setPosition(currentPosition);
+		object->setPosition(currentPosition);
 
 		currentRotation += rotationIncrement;
-		window->setRotation(currentRotation);
+		object->setRotation(currentRotation);
 
 		sf::sleep(sf::milliseconds(1));
 		msecsElapsed++; // Not accurate, but relatively close
 	}
 
 	// Set the properties to their actual values (sometimes they might be off)
-	window->setScale(targetScale);
-	window->setPosition(targetPosition);
-	window->setRotation(targetRotation);
+	object->setScale(targetScale);
+	object->setPosition(targetPosition);
+	object->setRotation(targetRotation);
 
 	notifyAnimationEnded();
 }

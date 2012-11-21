@@ -17,28 +17,29 @@
    limitations under the License.
 */
    
-#ifndef ANIMATION_H
-#define ANIMATION_H
+#ifndef ANIMATEDOBJECT_H
+#define ANIMATEDOBJECT_H
 
 #include "stdafx.h"
-#include "UIManager.h"
-#include "AnimatedObject.h"
 
-using namespace pt;
-
-class Animation{
+class AnimatedObject{
 public:
-	Animation(AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *));
-	virtual ~Animation();
+	AnimatedObject();
+	virtual ~AnimatedObject();
 	
-	void start();
-	virtual void animate() = 0;
-	void notifyAnimationEnded();
-	void postAnimate();
-protected:
-	void(*animationEndedCallback)(AnimatedObject *);
-	AnimatedObject *object;
-	sf::Thread *thread;
+	virtual void onAnimationStarted(){};
+	virtual void onAnimationEnded(){};
+
+	virtual sf::Sprite *getSprite() = 0;
+
+	virtual Degrees getRotation() const = 0;
+	virtual sf::Vector2f getScale() const = 0;
+	virtual sf::Vector2f getPosition() const = 0;
+
+	virtual void setRotation(Degrees angle) = 0;
+	virtual void setScale(const sf::Vector2f &scale) = 0;
+	virtual void setPosition(const sf::Vector2f &screenPosition) = 0;
+
 };
 
 #endif

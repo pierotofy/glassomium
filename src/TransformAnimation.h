@@ -29,7 +29,7 @@ public:
 		None, Linear
 	};
 
-	TransformAnimation(float msecs, const sf::Vector2f &targetScale, const sf::Vector2f &targetPosition, Degrees targetRotation, Easing easing, Window *window, void(*animationEndedCallback)(Window *) = 0);
+	TransformAnimation(float msecs, const sf::Vector2f &targetScale, const sf::Vector2f &targetPosition, Degrees targetRotation, Easing easing, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0);
 	virtual ~TransformAnimation();
 
 	virtual void animate();
@@ -44,14 +44,14 @@ private:
 // Derived
 class ScaleAnimation : public TransformAnimation{
 public:
-	ScaleAnimation(float msecs, const sf::Vector2f &targetScale, Easing easing, Window *window, void(*animationEndedCallback)(Window *) = 0)
-		: TransformAnimation(msecs, targetScale, window->getPosition(), window->getRotation(), easing, window, animationEndedCallback){}
+	ScaleAnimation(float msecs, const sf::Vector2f &targetScale, Easing easing, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
+		: TransformAnimation(msecs, targetScale, object->getPosition(), object->getRotation(), easing, object, animationEndedCallback){}
 };
 
 class MoveAnimation : public TransformAnimation{
 public:
-	MoveAnimation(float msecs, const sf::Vector2f &targetPosition, Easing easing, Window *window, void(*animationEndedCallback)(Window *) = 0)
-		: TransformAnimation(msecs, window->getScale(), targetPosition, window->getRotation(), easing, window, animationEndedCallback){}
+	MoveAnimation(float msecs, const sf::Vector2f &targetPosition, Easing easing, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
+		: TransformAnimation(msecs, object->getScale(), targetPosition, object->getRotation(), easing, object, animationEndedCallback){}
 };
 
 
