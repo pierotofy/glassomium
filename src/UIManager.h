@@ -117,6 +117,10 @@ private:
 	// Keeps a count of all the keyboard windows
 	int keyboardsCount;
 
+	// Keep track of whether a window is in fullscreen
+	Window *currentFullscreenWindow;
+	bool hasFullscreenWindow(){ return currentFullscreenWindow != NULL; }
+
 	// Pointer sprite (useful for debugging tuio messages)
 	std::map<int, PointerSprite *> visiblePointers;
 	void addPointer(int screen_x, int screen_y, int pointer_id, PointerSprite::Color color);
