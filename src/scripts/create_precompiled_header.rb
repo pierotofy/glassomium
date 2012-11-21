@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/ruby1.9.1
 
 #Usage: ./program <precompiled_header_filename> <command_to_generate_header>
 

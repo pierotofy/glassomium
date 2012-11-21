@@ -47,8 +47,8 @@ endif()
 # Set some useful compile flags.
 if( CMAKE_COMPILER_IS_GNUCXX )
 	if( NOT CMAKE_CXX_FLAGS )
-		set( CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -Wconversion -Wno-long-long -pedantic" CACHE STRING "C++ compiler flags" FORCE )
-		set( CMAKE_C_FLAGS "-Wall -Wextra -Wshadow -Wconversion -Wno-long-long -pedantic" CACHE STRING "C compiler flags" FORCE )
+		set( CMAKE_CXX_FLAGS "-Wall -fno-inline -Wextra -Wshadow -Wconversion -Wno-long-long -pedantic" CACHE STRING "C++ compiler flags" FORCE )
+		set( CMAKE_C_FLAGS "-Wall -fno-inline -Wextra -Wshadow -Wconversion -Wno-long-long -pedantic" CACHE STRING "C compiler flags" FORCE )
 	endif()
 
 	if( NOT CMAKE_CXX_FLAGS_DEBUG )

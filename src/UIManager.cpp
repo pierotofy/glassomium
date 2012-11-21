@@ -68,6 +68,8 @@ UIManager::UIManager(){
 	screensaverShowing = false;
 
 	appConfigs = 0;
+
+	currentFullscreenWindow = NULL;
 }
 
 /** Requests from the UI server data that the UI manager will utilize to 
@@ -389,6 +391,9 @@ void UIManager::dumpWindows(){
 /** Returns the window with the highest visible Z order that is being hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstWindow(float screen_x, float screen_y){
+	// A fullscreen window always hits all the coordinates
+	if (hasFullscreenWindow()) return currentFullscreenWindow;
+
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible()){
 			if (windows[i]->coordsInsideWindow(screen_x, screen_y)){
@@ -415,6 +420,14 @@ Window* UIManager::findWindowById(int windowId){
 /** Returns the window with the highest visible Z order that is also TUIO-enabled hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords){
+	// A fullscreen window is the only window that can be hit
+	if (hasFullscreenWindow()){
+		if (currentFullscreenWindow->isTuioEnabled()){
+			currentFullscreenWindow->coordsInsideWindow(screen_x, screen_y, webviewCoords);
+			return currentFullscreenWindow;
+		}else return NULL;
+	} 
+
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible() && windows[i]->isTuioEnabled()){
 			if (windows[i]->coordsInsideWindow(screen_x, screen_y, webviewCoords)){
@@ -429,6 +442,9 @@ Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf
 /** Returns the window with the highest Z order that is being hit by all the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstWindow(sf::Vector2f screenCoords[], int numCoords){
+	// A fullscreen window always hits all the coordinates
+	if (hasFullscreenWindow()) return currentFullscreenWindow;
+
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible()){
 			bool allInside = true;
@@ -564,6 +580,9 @@ void UIManager::setFullscreen(Window *window){
 	window->setZOrder(FULLSCREEN_Z_ORDER);
 	sortWindowsByZOrder();
 
+
+	assert(currentFullscreenWindow == NULL);
+	currentFullscreenWindow = window;
 	//dumpWindows();
 }
 
@@ -625,6 +644,9 @@ void UIManager::onWindowExitFullscreenRequested(Window *sender){
 		sender->setFullscreen(false);
 		sender->setZOrder(-1);
 		sortWindowsByZOrder();
+
+		assert(sender == currentFullscreenWindow);
+		currentFullscreenWindow = NULL;
 	}
 }
 
@@ -651,6 +673,9 @@ void UIManager::onWindowAnimatedExitFullscreenRequested(Window *sender){
 
 /** Closes a window, frees up any resource that it might be using */
 void UIManager::closeWindow(Window *window){
+	// Check the fullscreen window reference
+	if (currentFullscreenWindow == window) currentFullscreenWindow = NULL;
+
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i] == window){
 			
