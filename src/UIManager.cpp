@@ -65,6 +65,8 @@ UIManager::UIManager(){
 	// Instantiate animation manager
 	animationManager = new AnimationManager();
 
+	overlaySprite = new OverlaySprite((unsigned int)Application::windowWidth, (unsigned int)Application::windowHeight);
+
 	screensaverShowing = false;
 
 	appConfigs = 0;
@@ -86,7 +88,8 @@ void UIManager::updateServerResources(){
 	PhysicsManager::getSingleton()->setEnabled(themeConfig->getBool("physics.enabled"));
 	PhysicsManager::getSingleton()->setFriction(themeConfig->getFloat("physics.drag-friction"));
 	PhysicsManager::getSingleton()->setRestitution(themeConfig->getFloat("physics.drag-restitution"));
-
+	
+	overlaySprite->setColor(intToColor(themeConfig->getInt("desktop.fade-transition-color")));
 }
 
 
@@ -164,11 +167,16 @@ void UIManager::setupSystemLayout(){
 
 	// Extract drag color components
 	int color = themeConfig->getInt("windows.drag-color");
-	dragColor = sf::Color((sf::Uint8)(color >> 16), 
-						  (sf::Uint8)(color >> 8), 
-						  (sf::Uint8)(color));
+	dragColor = intToColor(color);
 
 	onSystemLayoutChanged();
+}
+
+/** Helper to converts a 4 bytes integer to a SFML color object */
+sf::Color UIManager::intToColor(int color){
+	return sf::Color((sf::Uint8)(color >> 16), 
+						  (sf::Uint8)(color >> 8), 
+						  (sf::Uint8)(color));
 }
 
 /** This is called by the main loop, updates resources connected to the UI Manager */
@@ -224,6 +232,9 @@ void UIManager::draw(sf::RenderWindow *renderWindow){
 	for (unsigned int i = 0; i < size; i++){
 		renderWindow->draw(*windows[size - 1 - i]->getSprite());
 	}	
+
+	// Draw the overlay (when needed)
+	if (overlaySprite->isVisible()) renderWindow->draw(*overlaySprite->getSprite());
 
 	// Pointer sprites last
 	std::map<int, PointerSprite *>::iterator iter;
@@ -567,7 +578,8 @@ void UIManager::onWindowEnterFullscreenRequested(Window *sender){
 
 		sender->pushScale();
 
-		animateScaleAndSetFullscreen(sender);
+		animateFadeAndSetFullscreen(sender);
+		//animateScaleAndSetFullscreen(sender);
 	}
 }
 
@@ -581,6 +593,22 @@ void UIManager::setFullscreen(Window *window){
 	putToSleepAllWindowsExcept(window);
 
 	//dumpWindows();
+}
+
+void UIManager::animateFadeAndSetFullscreen(Window *window){
+	// Fade overlay in
+	overlaySprite->setData((void *)window);
+	Animation *a = new FadeInAnimation(250, overlaySprite, animateFadeAndSetFullscreenCallback);
+	a->start();
+}
+
+void UIManager::animateFadeAndSetFullscreenCallback(AnimatedObject *o){
+	// Set window to fullscreen, then fade overlay out
+	Window *w = (Window *)((OverlaySprite *)o)->getData();
+	UIManager::getSingleton()->setFullscreen(w);
+
+	Animation *a = new FadeOutAnimation(250, o);
+	a->start();
 }
 
 void UIManager::animateScaleAndSetFullscreen(Window *window){
@@ -977,6 +1005,7 @@ UIManager::~UIManager(){
 		RELEASE_SAFELY(appConfigs);
 	}
 
+	RELEASE_SAFELY(overlaySprite);
 	RELEASE_SAFELY(gestureManager);
 	RELEASE_SAFELY(animationManager);
 }

@@ -25,26 +25,27 @@
 
 class ColorChangeAnimation : public Animation {
 public:
-	ColorChangeAnimation(float msecs, const sf::Color &targetColor, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *));
+	ColorChangeAnimation(float msecs, const sf::Color &targetColor, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *), bool alphaOnly);
 	virtual ~ColorChangeAnimation();
 
 	virtual void animate();
 private:
 	sf::Color targetColor;
 	float msecs;
+	bool alphaOnly;
 };
 
 // Derived
 
 class FadeOutAnimation : public ColorChangeAnimation{
 public:
-	FadeOutAnimation(float msecs, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
-		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 0), object, animationEndedCallback){}
+	FadeOutAnimation(float msecs, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0, bool alphaOnly = true)
+		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 0), object, animationEndedCallback, alphaOnly){}
 };
 
 class FadeInAnimation : public ColorChangeAnimation{
 public:
-	FadeInAnimation(float msecs, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
-		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 255), object, animationEndedCallback){}
+	FadeInAnimation(float msecs, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0, bool alphaOnly = true)
+		: ColorChangeAnimation(msecs, sf::Color(255, 255, 255, 255), object, animationEndedCallback, alphaOnly){}
 };
 #endif

@@ -19,8 +19,8 @@
    
 #include "ColorChangeAnimation.h"
 
-ColorChangeAnimation::ColorChangeAnimation(float msecs, const sf::Color &targetColor, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
-	: Animation(object, animationEndedCallback), targetColor(targetColor), msecs(msecs){
+ColorChangeAnimation::ColorChangeAnimation(float msecs, const sf::Color &targetColor, AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0, bool alphaOnly = false)
+	: Animation(object, animationEndedCallback), targetColor(targetColor), msecs(msecs), alphaOnly(alphaOnly){
 
 }
 
@@ -50,18 +50,26 @@ void ColorChangeAnimation::animate(){
 	db /= msecs;
 
 	int c = 0;
-	while(sprite->getColor() != targetColor){
+	while(c < msecs){
 		ca += da;
-		cr += dr;
-		cg += dg;
-		cb += db;
+
+		if (!alphaOnly){
+			cr += dr;
+			cg += dg;
+			cb += db;
+		}
+
 		sprite->setColor(sf::Color((sf::Uint8)cr,(sf::Uint8)cg,(sf::Uint8)cb,(sf::Uint8)ca));
 		sf::sleep(sf::milliseconds(1));
+		c++;
+	}
 
-		// Safeguard
-		if (c++ > (int)msecs){
-			sprite->setColor(targetColor);
-		}
+	if (alphaOnly){
+		sf::Color color = currentColor;
+		color.a = targetColor.a;
+		sprite->setColor(color);
+	}else{
+		sprite->setColor(targetColor);
 	}
 
 	notifyAnimationEnded();

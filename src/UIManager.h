@@ -28,6 +28,7 @@
 #include "AnimationManager.h"
 #include "AppConfiguration.h"
 #include "ThemeConfiguration.h"
+#include "OverlaySprite.h"
 
 using namespace std;
 using namespace pt;
@@ -61,6 +62,8 @@ public:
 	//void onKeyUp(const OIS::KeyEvent &e);	
 
 	void setFullscreen(Window *window);
+	void animateFadeAndSetFullscreen(Window *window);
+	static void animateFadeAndSetFullscreenCallback(AnimatedObject *o);
 	void animateScaleAndSetFullscreen(Window *window);
 	static void animateScaleAndSetFullscreenCallback(AnimatedObject *w);
 
@@ -125,6 +128,10 @@ private:
 	void addPointer(int screen_x, int screen_y, int pointer_id, PointerSprite::Color color);
 	void removePointer(int screen_x, int screen_y, int pointer_id);
 	void movePointer(int screen_x, int screen_y, int pointer_id);
+
+	// Overlay
+	OverlaySprite *overlaySprite;
+	sf::Color intToColor(int color);
 
 	// Handles Z ordering operations
 	void setTopMostWindow(Window *w);

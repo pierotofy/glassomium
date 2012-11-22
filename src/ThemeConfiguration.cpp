@@ -28,6 +28,7 @@ map<std::string, int> ThemeConfiguration::getIntDefaults(){
 	result["screensaver.wait"] = 180;
 	result["window.z-order"] = 0;
 	result["windows.drag-color"] = 0x00FFEF00; // Yellow (00,R,G,B) B = LSB
+	result["desktop.fade-transition-color"] = 0x00000000; // Black
 	return result;
 }
 
