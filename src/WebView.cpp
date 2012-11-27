@@ -41,6 +41,7 @@ WebView::WebView(float normalizedWidth, float normalizedHeight, pt::Window *pare
  : needs_full_refresh(true){
     this->parent = parent;
 	this->bkWindow = NULL;
+	this->oldTexture = NULL;
 
 	updateTextureSize(normalizedWidth, normalizedHeight);
 
@@ -82,13 +83,11 @@ void WebView::resize(int width, int height){
 	textureHeight = height;
 
 	// Switch old texture with new one
-	sf::Texture *oldTexture = texture;
+	oldTexture = texture;
 
 	texture = new sf::Texture();
 	texture->create(textureWidth, textureHeight);
 	texture->setSmooth(true);
-
-	RELEASE_SAFELY(oldTexture);
 
 	char *previous_buffer = scroll_buffer;
 	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
@@ -188,8 +187,6 @@ void WebView::onPaint(Berkelium::Window *wini,
 
 	const int kBytesPerPixel = 4;
 
-	//cout << "CALLED! " << parent->getID() << endl;;
-
 	// Convert BGRA to RGBA
 	unsigned int *tmpBuf = (unsigned int *)bitmap_in;
 	const int numPixels = bitmap_rect.height() * bitmap_rect.width();
@@ -201,12 +198,20 @@ void WebView::onPaint(Berkelium::Window *wini,
 	// until a full one comes in. This handles out of date updates due to
 	// delays in event processing.
 	if (needs_full_refresh) {
-
 		// Ignore partial ones
 		if (bitmap_rect.left() != 0 || bitmap_rect.top() != 0 || bitmap_rect.right() != textureWidth || bitmap_rect.bottom() != textureHeight) {
 			return;
 		}
-      
+
+		// Do we have an old texture? We must have just resized
+		if (oldTexture != NULL){
+			cout << "Released old texture" << endl;
+			RELEASE_SAFELY(oldTexture);
+
+			// Notify the parent
+			parent->onResizeSpriteCompleted();
+		}
+
 		// Here's our full refresh
 		texture->update((sf::Uint8 *)bitmap_in, textureWidth, textureHeight, 0, 0);
 

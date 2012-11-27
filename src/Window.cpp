@@ -286,7 +286,6 @@ void Window::stopTransforming(){
 
 			if (sizeX > DYNAMIC_RESIZE_THRESHOLD || sizeY > DYNAMIC_RESIZE_THRESHOLD){
 				resizeSprite(sizeX, sizeY);
-				this->setScale(sf::Vector2f(1.0f, 1.0f));
 			}
 		}
 	
@@ -764,9 +763,14 @@ float Window::getTextureHeight() const{
  * switching to full screen */
 void Window::resizeSprite(float width, float height){
 	webView->resize((int)width, (int)height);
+}
 
+/** Called upon successful resize */
+void Window::onResizeSpriteCompleted(){
 	sprite->setTexture(*webView->getTexture(), true);
-	sprite->setOrigin((float)webView->getTextureWidth() / 2.0f, (float)webView->getTextureHeight() / 2.0f);
+	sprite->setOrigin(webView->getTextureWidth() / 2.0f, webView->getTextureHeight() / 2.0f);
+
+	setScale(sf::Vector2f(1.0f, 1.0f));
 }
 
 /** Turns transparency on or off. When transparent, every browser page

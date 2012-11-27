@@ -5,6 +5,9 @@ html,body{
 	height: 100%;
 	overflow: hidden;
 }
+html,body{
+	border-radius: 12px;
+}
 
 
 body {

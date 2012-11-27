@@ -186,6 +186,9 @@ public:
 	/** Called after we know that the DOM of the window has loaded */
 	virtual void onDOMLoaded();
 
+	/** Called after a successful resize and reception of the first paint */
+	void onResizeSpriteCompleted();
+
 	void setToSleep();
 	void wakeUp();
 	bool isSleeping(){ return sleeping; }

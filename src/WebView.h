@@ -86,9 +86,12 @@ private:
 
     // Width and height (in pixels) of our exture. These are also the sizes of the berkelium window
     int textureWidth, textureHeight;
-
+	
 	// The actual thing that gets rendered
 	sf::Texture *texture;
+
+	// Reference to the "old" texture during a resize
+	sf::Texture *oldTexture;
 
 	// Bool indicating when we need to refresh the entire texture
     bool needs_full_refresh;

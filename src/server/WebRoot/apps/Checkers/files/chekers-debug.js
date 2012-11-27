@@ -1,8 +1,8 @@
 var Checkers = new function() {
 	var kBoardWidth = 8;
 	var kBoardHeight = 8;
-	var kPieceWidth = Math.min(window.innerWidth, window.innerHeight - 100) / 8;
-	var kPieceHeight = Math.min(window.innerWidth, window.innerHeight - 100) / 8;
+	var kPieceWidth = Math.min(window.innerWidth, window.innerHeight - 60) / 8;
+	var kPieceHeight = Math.min(window.innerWidth, window.innerHeight - 60) / 8;
 	var kPixelWidth = 1 + (kBoardWidth * kPieceWidth);
 	var kPixelHeight = 1 + (kBoardHeight * kPieceHeight);
 
@@ -757,8 +757,8 @@ var Checkers = new function() {
 			whosTurnElement, redCountElement, blackCountElement) {
 
 		window.onresize = function(){
-			kPieceWidth = Math.min(window.innerWidth, window.innerHeight - 100) / 8;
-			kPieceHeight = Math.min(window.innerWidth, window.innerHeight - 100) / 8;
+			kPieceWidth = Math.min(window.innerWidth, window.innerHeight - 60) / 8;
+			kPieceHeight = Math.min(window.innerWidth, window.innerHeight - 60) / 8;
 			kPixelWidth = 1 + (kBoardWidth * kPieceWidth);
 			kPixelHeight = 1 + (kBoardHeight * kPieceHeight);
 			gCanvasElement.width = kPixelWidth;
