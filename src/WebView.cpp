@@ -112,8 +112,8 @@ bool WebView::isTransparent(){
  * textureWidth and textureHeight will change upon call of this method.
   */
 void WebView::updateTextureSize(float normalizedWidth, float normalizedHeight){
-    this->textureWidth = (int)ceil(Application::windowWidth) * normalizedWidth;
-    this->textureHeight = (int)ceil(Application::windowHeight) * normalizedHeight;
+    this->textureWidth = (int)ceil(Application::windowWidth * normalizedWidth);
+    this->textureHeight = (int)ceil(Application::windowHeight * normalizedHeight);
 }
 
 /** Instruct berkelium to load a URI*/

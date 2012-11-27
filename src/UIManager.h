@@ -143,7 +143,6 @@ private:
 	// Generic create window procedure
 	Window *createWindow(float windowRatio);
 	Window *createWindow(float width, float height);
-	void adjustWindowScale(Window *w, float width, float height);
 	void setNewWindowCenter(Window *parent, Window *newWindow);
 
 	void updateKeyboardsCount();

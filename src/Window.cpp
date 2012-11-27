@@ -278,6 +278,16 @@ void Window::stopTransforming(){
 			// Yes
 
 			UIManager::getSingleton()->onWindowEnterFullscreenRequested(this);
+		}else{
+			// No, resize the texture instead
+			
+			// Don't resize it too small or the content will look too squeezed
+			#define DYNAMIC_RESIZE_THRESHOLD 320.0f
+
+			if (sizeX > DYNAMIC_RESIZE_THRESHOLD || sizeY > DYNAMIC_RESIZE_THRESHOLD){
+				resizeSprite(sizeX, sizeY);
+				this->setScale(sf::Vector2f(1.0f, 1.0f));
+			}
 		}
 	
 		// Prevent other gestures from happening too quickly after this gesture

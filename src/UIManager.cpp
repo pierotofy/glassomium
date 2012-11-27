@@ -283,15 +283,6 @@ void UIManager::hideKeyboard(Window *window){
 	}
 }
 
-/** Given a width and a height, scales the window to the ideal size */
-void UIManager::adjustWindowScale(Window *w, float width, float height){
-	if (width > height){
-		w->scale(width);
-	}else{
-		w->scale(height);
-	}
-}
-
 /** Based on the location of the parent's center, chooses a new center for the new child window */
 void UIManager::setNewWindowCenter(Window *parent, Window *newWindow){
 	sf::Vector2f parentCenter = parent->getPosition();
@@ -360,7 +351,6 @@ Window *UIManager::createWindow(float width, float height, WindowType type){
 	// Created?
 	if (w != NULL){
 		windows.push_back(w);
-		adjustWindowScale(w, width, height);
 
 		if (type == User || type == Browser){
 			// Modify Z-order of existing applications

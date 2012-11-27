@@ -21,6 +21,6 @@
 #define APPINFO_H_
 
 #define APP_NAME "Glassomium"
-#define APP_VERSION "0.3 Prerelease 1121"
+#define APP_VERSION "0.3"
 
 #endif
