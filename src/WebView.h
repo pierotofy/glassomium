@@ -33,7 +33,7 @@ class WebView : public Berkelium::WindowDelegate {
 public:
 	static unsigned int webViewCount;
 
-	WebView(float windowRatio, Window *parent);
+	WebView(float normalizedWidth, float normalizedHeight, Window *parent);
     ~WebView();
 
 	sf::Texture* getTexture(){ return texture; }
@@ -84,8 +84,6 @@ private:
     // The Berkelium window, i.e. our web page
     Berkelium::Window* bkWindow;
 
-	float windowRatio;
-
     // Width and height (in pixels) of our exture. These are also the sizes of the berkelium window
     int textureWidth, textureHeight;
 
@@ -111,7 +109,7 @@ private:
 	// This method needs to be called after some of the material properties have changed
 	void updateMaterial();
 
-	void calculateTextureSize(float windowRatio, int &width, int &height);
+	void updateTextureSize(float normalizedWidth, float normalizedHeight);
 	string getUniqueIdentifier(const string &);
 
     virtual void onPaint(Berkelium::Window *wini,

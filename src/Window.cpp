@@ -26,6 +26,8 @@ namespace pt{
 
 unsigned int Window::windowCount = 0;
 
+/** Create a new window
+ */
 Window::Window(float normalizedWidth, float normalizedHeight){
 	id = Window::windowCount;
 	Window::windowCount++;
@@ -34,7 +36,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	this->normalizedHeight = normalizedHeight;
 
 	// Instantiate web view
-	webView = new WebView(normalizedWidth/normalizedHeight, this);
+	webView = new WebView(normalizedWidth, normalizedHeight, this);
 
 	// Create sprite to hold the webviews texture
 	sprite = new sf::Sprite(*webView->getTexture());
