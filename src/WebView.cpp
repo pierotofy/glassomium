@@ -37,14 +37,12 @@ unsigned int WebView::webViewCount = 0;
 /** Creates a new web view
  * @param windowRatio this value is used to calculate the dimensions of the window
 	 (it takes the resolution of the application and creates a window with the specified ratio)*/
-WebView::WebView(float windowRatio, pt::Window *parent)
+WebView::WebView(float normalizedWidth, float normalizedHeight, pt::Window *parent)
  : needs_full_refresh(true){
-	this->windowRatio = windowRatio;
     this->parent = parent;
 	this->bkWindow = NULL;
 
-	// Calculate the optimal texture size
-	calculateTextureSize(this->windowRatio, this->textureWidth, this->textureHeight);
+	updateTextureSize(normalizedWidth, normalizedHeight);
 
 	// Keep track of the number of web views so that we generate unique entity names
 	webViewId = WebView::webViewCount;
@@ -110,18 +108,12 @@ bool WebView::isTransparent(){
 	return transparent;
 }
 
-/** We calculate the size depending on the size of the rendering window. If a person is going
- * to scale our webview, we need to make sure we have a texture big enough as not to lose quality
- * this has the drawback of wasting resources when the webview is smaller than the full size of the 
- * rendering window, but as long as we don't have too many webviews we should be OK */
-void WebView::calculateTextureSize(float windowRatio, int &width, int &height){
-    width = (int)ceil(Application::windowWidth);
-    height = (int)ceil((float)width  / windowRatio);
-
-    if (height > Application::windowHeight){
-        height = (int)ceil(Application::windowHeight);
-        width = (int)ceil((float)width * windowRatio);
-    }
+/** Update the texture size
+ * textureWidth and textureHeight will change upon call of this method.
+  */
+void WebView::updateTextureSize(float normalizedWidth, float normalizedHeight){
+    this->textureWidth = (int)ceil(Application::windowWidth) * normalizedWidth;
+    this->textureHeight = (int)ceil(Application::windowHeight) * normalizedHeight;
 }
 
 /** Instruct berkelium to load a URI*/
