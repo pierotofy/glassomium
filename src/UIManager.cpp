@@ -531,10 +531,9 @@ void UIManager::onNewWindowRequested(const string &url, Window *parent, WindowTy
 
 	setTopMostWindow(newWindow);
 
-	// Start full screen (and not be able to go to windowed mode?)
+	// Start full screen
 	if ((*appConfigs)[url]->getBool("window.fullscreen")){
 		UIManager::getSingleton()->setFullscreen(newWindow);
-		newWindow->setPinchableOutOfFullscreen(false);
 	}
 
 	// Fade in

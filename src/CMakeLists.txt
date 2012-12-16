@@ -138,7 +138,7 @@ include_directories(./include/sfgui/include)
 
 # Add precompiled headers on windows and icon resource
 if (WIN32)
-	ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SRCS)
+  # ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SRCS)
 
   SET(SRCS ${SRCS} resources.rc)
 endif()

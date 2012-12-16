@@ -188,6 +188,7 @@ void WebView::onPaint(Berkelium::Window *wini,
 	const int kBytesPerPixel = 4;
 
 	// Convert BGRA to RGBA
+	
 	unsigned int *tmpBuf = (unsigned int *)bitmap_in;
 	const int numPixels = bitmap_rect.height() * bitmap_rect.width();
 	for (int i = 0; i < numPixels; i++){
@@ -205,7 +206,6 @@ void WebView::onPaint(Berkelium::Window *wini,
 
 		// Do we have an old texture? We must have just resized
 		if (oldTexture != NULL){
-			cout << "Released old texture" << endl;
 			RELEASE_SAFELY(oldTexture);
 
 			// Notify the parent
