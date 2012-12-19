@@ -15,9 +15,9 @@
 #if defined( __GNUC__ )
 
 #if defined( SHARED_PTR_PROFILE )
-#define SHARED_PTR_INLINE_ATTR __attribute__((noinline)) inline
+#define SHARED_PTR_INLINE_ATTR inline
 #else
-#define SHARED_PTR_INLINE_ATTR __attribute__((always_inline)) inline
+#define SHARED_PTR_INLINE_ATTR inline
 #endif
 
 #elif defined( _MSC_VER )

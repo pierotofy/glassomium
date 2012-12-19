@@ -48,6 +48,12 @@ void TouchGroup::update(Blob *touch){
 }
 
 void TouchGroup::remove(Blob *touch){
+	// Remove it from touchDeltas (if it's there)
+	if (touchDeltas.count(touch->id) == 1){
+		RELEASE_SAFELY(touchDeltas[touch->id]);
+		touchDeltas.erase(touch->id);
+	}
+
 	for (unsigned int i = 0; i < touchList.size(); i++){
 		if (touchList[i]->id == touch->id){
 
@@ -128,7 +134,67 @@ float TouchGroup::getLongestDistanceFromPoint(sf::Vector2f point) const{
 	return longestDistance;
 }
 
+/** The constant center is the same as the mean location with the difference
+ * that changing the number of touches in the group will not cause a big shift of 
+ * the center (thus the name "constant"). Touches that are taken off or added to the 
+ * group to not directly contribute to the change of position of the constant center.
+ * The constant center is modified only in the deltaX and deltaY changes of each touch.
+ * You need to call resetConstCenter() and updateConstCenter() before you can get
+ * a meaningful value.
+ * @return the location of the constant center of this group (values range between 0 and 1) */
+sf::Vector2f TouchGroup::getConstCenter(){
+	return constCenter;
+}
+
+/** Resets the value of the constant center */
+void TouchGroup::resetConstCenter(){
+	constCenter = this->getMeanTouchLocation();
+
+	for (unsigned int i = 0; i < touchList.size(); i++){
+		// Already there?
+		if (touchDeltas.count(touchList[i]->id) == 1){
+			touchDeltas[touchList[i]->id]->x = touchList[i]->x;
+			touchDeltas[touchList[i]->id]->y = touchList[i]->y;
+		}else{
+			touchDeltas[touchList[i]->id] = new sf::Vector2f(touchList[i]->x, touchList[i]->y);
+		}
+	}
+}
+
+/** Updates the location of the constant center */
+void TouchGroup::updateConstCenter(){
+	// Calculate new delta average
+	sf::Vector2f delta;
+	int evaluatedCount = 0;
+
+	for (unsigned int i = 0; i < touchList.size(); i++){
+		// Already there?
+		if (touchDeltas.count(touchList[i]->id) == 1){
+			delta.x += (touchList[i]->x - touchDeltas[touchList[i]->id]->x);
+			delta.y += (touchList[i]->y - touchDeltas[touchList[i]->id]->y);
+			evaluatedCount++;
+
+			// Reset
+			touchDeltas[touchList[i]->id]->x = touchList[i]->x;
+			touchDeltas[touchList[i]->id]->y = touchList[i]->y;
+		}else{
+			touchDeltas[touchList[i]->id] = new sf::Vector2f(touchList[i]->x, touchList[i]->y);
+		}
+	}
+
+	delta.x /= (float)evaluatedCount;
+	delta.y /= (float)evaluatedCount;
+
+	// Move const center
+	constCenter += delta;
+}
+
 TouchGroup::~TouchGroup(){
+	for (std::map<int, sf::Vector2f *>::iterator it = touchDeltas.begin(); it != touchDeltas.end(); it++){
+		RELEASE_SAFELY(it->second);
+	}
+	touchDeltas.clear();
+
 	TouchGroup::instances_count--;
 }
 

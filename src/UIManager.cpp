@@ -65,6 +65,8 @@ UIManager::UIManager(){
 	// Instantiate animation manager
 	animationManager = new AnimationManager();
 
+	overlaySprite = new OverlaySprite((unsigned int)Application::windowWidth, (unsigned int)Application::windowHeight);
+
 	screensaverShowing = false;
 
 	appConfigs = 0;
@@ -86,7 +88,8 @@ void UIManager::updateServerResources(){
 	PhysicsManager::getSingleton()->setEnabled(themeConfig->getBool("physics.enabled"));
 	PhysicsManager::getSingleton()->setFriction(themeConfig->getFloat("physics.drag-friction"));
 	PhysicsManager::getSingleton()->setRestitution(themeConfig->getFloat("physics.drag-restitution"));
-
+	
+	overlaySprite->setColor(intToColor(themeConfig->getInt("desktop.fade-transition-color")));
 }
 
 
@@ -164,11 +167,16 @@ void UIManager::setupSystemLayout(){
 
 	// Extract drag color components
 	int color = themeConfig->getInt("windows.drag-color");
-	dragColor = sf::Color((sf::Uint8)(color >> 16), 
-						  (sf::Uint8)(color >> 8), 
-						  (sf::Uint8)(color));
+	dragColor = intToColor(color);
 
 	onSystemLayoutChanged();
+}
+
+/** Helper to converts a 4 bytes integer to a SFML color object */
+sf::Color UIManager::intToColor(int color){
+	return sf::Color((sf::Uint8)(color >> 16), 
+						  (sf::Uint8)(color >> 8), 
+						  (sf::Uint8)(color));
 }
 
 /** This is called by the main loop, updates resources connected to the UI Manager */
@@ -185,6 +193,17 @@ void UIManager::update(){
 	if (screensaverWait > 0 && screensaverClock.getElapsedTime().asSeconds() > screensaverWait && !screensaverShowing){
 		showScreensaver();
 	}
+
+	// Check garbage bin
+	if (!garbageBin.empty() && garbageClock.getElapsedTime().asSeconds() > 10){
+		for (unsigned int i = 0; i < garbageBin.size(); i++){
+			if (g_debug){
+				cout << "Disposed window " << garbageBin[i]->getID() << endl;
+			}
+			RELEASE_SAFELY(garbageBin[i]);
+		}
+		garbageBin.clear();
+	}
 }
 
 /** Creates a screensaver window and displays it to the user, provided that a screensaver
@@ -200,6 +219,7 @@ void UIManager::showScreensaver(){
 		fadeIn->start();
 
 		screensaverShowing = true;
+		putToSleepAllWindowsExcept(screensaverWindow);
 	}
 }
 
@@ -212,6 +232,9 @@ void UIManager::draw(sf::RenderWindow *renderWindow){
 	for (unsigned int i = 0; i < size; i++){
 		renderWindow->draw(*windows[size - 1 - i]->getSprite());
 	}	
+
+	// Draw the overlay (when needed)
+	if (overlaySprite->isVisible()) renderWindow->draw(*overlaySprite->getSprite());
 
 	// Pointer sprites last
 	std::map<int, PointerSprite *>::iterator iter;
@@ -257,15 +280,6 @@ void UIManager::hideKeyboard(Window *window){
 				break;
 			}
 		}
-	}
-}
-
-/** Given a width and a height, scales the window to the ideal size */
-void UIManager::adjustWindowScale(Window *w, float width, float height){
-	if (width > height){
-		w->scale(width);
-	}else{
-		w->scale(height);
 	}
 }
 
@@ -337,7 +351,6 @@ Window *UIManager::createWindow(float width, float height, WindowType type){
 	// Created?
 	if (w != NULL){
 		windows.push_back(w);
-		adjustWindowScale(w, width, height);
 
 		if (type == User || type == Browser){
 			// Modify Z-order of existing applications
@@ -415,6 +428,7 @@ Window* UIManager::findWindowById(int windowId){
 /** Returns the window with the highest visible Z order that is also TUIO-enabled hit by the coordinates provided
  * @return window pointer if one is found, NULL otherwise */
 Window* UIManager::findFirstTuioEnabledWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords){
+	// Will need to scan our windows, find one (if any) and convert to webview coordinates
 	for (unsigned int i = 0; i < windows.size(); i++){
 		if (windows[i]->isVisible() && windows[i]->isTuioEnabled()){
 			if (windows[i]->coordsInsideWindow(screen_x, screen_y, webviewCoords)){
@@ -489,12 +503,18 @@ void UIManager::onNewWindowRequested(const string &url, Window *parent, WindowTy
 		float width = (*appConfigs)[url]->getFloat("window.width");
 		float height = (*appConfigs)[url]->getFloat("window.height");
 
+		// Is there an aspect ratio to override the height?
+		float aspectRatio = (*appConfigs)[url]->getFloat("window.aspectratio");
+		if (aspectRatio != 0.0f){
+			float heightPixels = (width * Application::windowWidth) / aspectRatio;
+			height = heightPixels / Application::windowHeight;
+		}
+
 		newWindow = UIManager::getSingleton()->createWindow(width, height, type);
 
 		// User windows might need to change some application configs
 		if (type == User){
 			newWindow->setTransparent((*appConfigs)[url]->getBool("window.transparent"));
-			((UserWindow *)newWindow)->setInjectMenu((*appConfigs)[url]->getBool("window.menu.show"));
 		}
 	}
 
@@ -511,10 +531,9 @@ void UIManager::onNewWindowRequested(const string &url, Window *parent, WindowTy
 
 	setTopMostWindow(newWindow);
 
-	// Start full screen (and not be able to go to windowed mode?)
+	// Start full screen
 	if ((*appConfigs)[url]->getBool("window.fullscreen")){
 		UIManager::getSingleton()->setFullscreen(newWindow);
-		newWindow->setPinchableOutOfFullscreen(false);
 	}
 
 	// Fade in
@@ -548,7 +567,8 @@ void UIManager::onWindowEnterFullscreenRequested(Window *sender){
 
 		sender->pushScale();
 
-		animateScaleAndSetFullscreen(sender);
+		animateFadeAndSetFullscreen(sender);
+		//animateScaleAndSetFullscreen(sender);
 	}
 }
 
@@ -558,7 +578,26 @@ void UIManager::setFullscreen(Window *window){
 	window->setZOrder(FULLSCREEN_Z_ORDER);
 	sortWindowsByZOrder();
 
+	// Put all other windows asleep
+	putToSleepAllWindowsExcept(window);
+
 	//dumpWindows();
+}
+
+void UIManager::animateFadeAndSetFullscreen(Window *window){
+	// Fade overlay in
+	overlaySprite->setData((void *)window);
+	Animation *a = new FadeInAnimation(250, overlaySprite, animateFadeAndSetFullscreenCallback);
+	a->start();
+}
+
+void UIManager::animateFadeAndSetFullscreenCallback(AnimatedObject *o){
+	// Set window to fullscreen, then fade overlay out
+	Window *w = (Window *)((OverlaySprite *)o)->getData();
+	UIManager::getSingleton()->setFullscreen(w);
+
+	Animation *a = new FadeOutAnimation(250, o);
+	a->start();
 }
 
 void UIManager::animateScaleAndSetFullscreen(Window *window){
@@ -607,8 +646,8 @@ void UIManager::animateScaleAndSetFullscreen(Window *window){
 	a->start();
 }
 
-void UIManager::animateScaleAndSetFullscreenCallback(Window *w){
-	UIManager::getSingleton()->setFullscreen(w);
+void UIManager::animateScaleAndSetFullscreenCallback(AnimatedObject *w){
+	UIManager::getSingleton()->setFullscreen((Window *)w);
 }
 
 
@@ -619,6 +658,8 @@ void UIManager::onWindowExitFullscreenRequested(Window *sender){
 		sender->setFullscreen(false);
 		sender->setZOrder(-1);
 		sortWindowsByZOrder();
+
+		wakeUpAllWindowsExcept(sender);
 	}
 }
 
@@ -657,12 +698,20 @@ void UIManager::closeWindow(Window *window){
 			// Stop physics
 			PhysicsManager::getSingleton()->stopAllPhysics(window);
 
-			// Free
-			RELEASE_SAFELY(window);
+			// If the window was in fullscreen, we need to remove the
+			// reference to the fullscreen window and do other stuff
+			if (window->isFullscreen()){
+				wakeUpAllWindowsExcept(window); // Others might be asleep
+			}
+
+			// Dispose later. This lets asynchronous events to be dispatched
+			// without making a mess with disposed memory areas
+			window->prepareForDisposal();
+			garbageBin.push_back(window);
+			garbageClock.restart();
 			break;
 		}
 	}
-
 }
 
 /** Fades and closes a window */
@@ -671,8 +720,8 @@ void UIManager::fadeAndCloseWindow(Window *window){
 	a->start();
 }
 
-void UIManager::fadeAndCloseWindowCallback(Window *w){
-	UIManager::getSingleton()->closeWindow(w);
+void UIManager::fadeAndCloseWindowCallback(AnimatedObject *w){
+	UIManager::getSingleton()->closeWindow((Window *)w);
 }
 
 /** Performs an animation on an existing screensaver window and closes it at the end */
@@ -703,10 +752,13 @@ void UIManager::onExitScreensaverRequested(Window *screensaver, ScreensaverAnima
 	screensaverShowing = false;
 }
 
-void UIManager::exitScreensaverCallback(Window *screensaver){
-	UIManager::getSingleton()->closeWindow(screensaver);
-
-	cout << "Closed screensaver!" << endl;
+void UIManager::exitScreensaverCallback(AnimatedObject *screensaver){
+	UIManager::getSingleton()->wakeUpAllWindowsExcept((Window *)screensaver); // Others might be asleep
+	UIManager::getSingleton()->closeWindow((Window *)screensaver);
+	
+	if (g_debug){
+		cout << "Closed screensaver!" << endl;
+	}
 }
 
 void UIManager::onTouchGesture(const GestureEvent &gestureEvent){
@@ -913,6 +965,20 @@ void UIManager::pushUpZOrdering(Window *w){
 	}
 }
 
+/** Wakes up all windows */
+void UIManager::wakeUpAllWindowsExcept(Window *w){
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i] != w) windows[i]->wakeUp();
+	}
+}
+
+/** Put asleep all windows exept the one passed as an argument */
+void UIManager::putToSleepAllWindowsExcept(Window *w){
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i] != w) windows[i]->setToSleep();
+	}
+}
+
 UIManager::~UIManager(){
 	for (unsigned int i = 0; i<windows.size(); i++){
 		RELEASE_SAFELY(windows[i]);
@@ -928,6 +994,7 @@ UIManager::~UIManager(){
 		RELEASE_SAFELY(appConfigs);
 	}
 
+	RELEASE_SAFELY(overlaySprite);
 	RELEASE_SAFELY(gestureManager);
 	RELEASE_SAFELY(animationManager);
 }

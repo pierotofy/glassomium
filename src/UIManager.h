@@ -28,6 +28,7 @@
 #include "AnimationManager.h"
 #include "AppConfiguration.h"
 #include "ThemeConfiguration.h"
+#include "OverlaySprite.h"
 
 using namespace std;
 using namespace pt;
@@ -56,13 +57,15 @@ public:
 
 	void closeWindow(Window *window);
 	void fadeAndCloseWindow(Window *window);
-	static void fadeAndCloseWindowCallback(Window *w);
+	static void fadeAndCloseWindowCallback(AnimatedObject *w);
 	//void onKeyDown(const OIS::KeyEvent &e);
 	//void onKeyUp(const OIS::KeyEvent &e);	
 
 	void setFullscreen(Window *window);
+	void animateFadeAndSetFullscreen(Window *window);
+	static void animateFadeAndSetFullscreenCallback(AnimatedObject *o);
 	void animateScaleAndSetFullscreen(Window *window);
-	static void animateScaleAndSetFullscreenCallback(Window *w);
+	static void animateScaleAndSetFullscreenCallback(AnimatedObject *w);
 
 
 	void onTouchGesture(const GestureEvent &);
@@ -84,7 +87,7 @@ public:
 	void onWindowAnimatedExitFullscreenRequested(Window *sender);
 
 	void onExitScreensaverRequested(Window *screensaver, ScreensaverAnimation animation, int animationMsTime);
-	static void exitScreensaverCallback(Window *screensaver);
+	static void exitScreensaverCallback(AnimatedObject *screensaver);
 
 	void showScreensaver();
 
@@ -94,12 +97,16 @@ public:
 	Window* findFirstWindow(sf::Vector2f screenCoords[], int numCoords);
 	Window* findWindowById(int windowId);
 
+	void wakeUpAllWindowsExcept(Window *w);
+	void putToSleepAllWindowsExcept(Window *w);
+
 	void update(); // To be called from the main loop
 	void draw(sf::RenderWindow *renderWindow); // Takes care of drawing the UI components in the rendering window
 
 	GestureManager *getGestureManager(){ return gestureManager; }
 	AnimationManager *getAnimationManager() { return animationManager; }
 	sf::Color getDragColor() const{ return dragColor; } 
+	ThemeConfiguration *getThemeConfig(){ return themeConfig; }
 private:
 	static UIManager *singleton;
 
@@ -122,6 +129,10 @@ private:
 	void removePointer(int screen_x, int screen_y, int pointer_id);
 	void movePointer(int screen_x, int screen_y, int pointer_id);
 
+	// Overlay
+	OverlaySprite *overlaySprite;
+	sf::Color intToColor(int color);
+
 	// Handles Z ordering operations
 	void setTopMostWindow(Window *w);
 	void pushUpZOrdering(Window *w);
@@ -132,13 +143,16 @@ private:
 	// Generic create window procedure
 	Window *createWindow(float windowRatio);
 	Window *createWindow(float width, float height);
-	void adjustWindowScale(Window *w, float width, float height);
 	void setNewWindowCenter(Window *parent, Window *newWindow);
 
 	void updateKeyboardsCount();
 
 	// Keeps track of all the windows
 	std::vector<Window *> windows;
+
+	// Windows to be disposed
+	std::vector<Window *> garbageBin;
+	sf::Clock garbageClock;
 
 	// Keeps the configuration information about the applications that will be launched
 	std::map<std::string, AppConfiguration *> *appConfigs;

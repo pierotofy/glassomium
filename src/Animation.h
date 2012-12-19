@@ -22,12 +22,13 @@
 
 #include "stdafx.h"
 #include "UIManager.h"
+#include "AnimatedObject.h"
 
 using namespace pt;
 
 class Animation{
 public:
-	Animation(Window *window, void(*animationEndedCallback)(Window *));
+	Animation(AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *));
 	virtual ~Animation();
 	
 	void start();
@@ -35,8 +36,8 @@ public:
 	void notifyAnimationEnded();
 	void postAnimate();
 protected:
-	void(*animationEndedCallback)(Window *);
-	Window *window;
+	void(*animationEndedCallback)(AnimatedObject *);
+	AnimatedObject *object;
 	sf::Thread *thread;
 };
 

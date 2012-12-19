@@ -5,15 +5,11 @@
 body{
 	margin:0;
 	padding:0;
-	background: transparent;
+	background: black;
 }
 </style>
 <script src="jquery-1.6.3.min.js"></script>
 <script>
-document.addEventListener('GLALoad', onGLALoad, false);
-function onGLALoad(event) {
-  GLA.SetMenuButtons(["close", "maximize", "restore"]);
-}
 
 $(document).ready(function(){
    $("body").append('<div style="text-align: left"><object type="application/x-shockwave-flash" data="AngryBirdsRio.swf" width="' + $(window).width() + '" height="' + $(window).height() + '" id="flash"><param name="wmode" value="transparent" /> <param name="movie" value="AngryBirdsRio.swf" /><param name="quality" value="high" /></object></div>');

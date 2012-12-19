@@ -19,13 +19,14 @@
    
 #include "Animation.h"
 
-Animation::Animation(Window *window, void(*animationEndedCallback)(Window *) = 0)
- : animationEndedCallback(animationEndedCallback), window(window){
+Animation::Animation(AnimatedObject *object, void(*animationEndedCallback)(AnimatedObject *) = 0)
+ : animationEndedCallback(animationEndedCallback), object(object){
 	thread = new sf::Thread(&Animation::animate, &(*this));
 }
 
 /** All animation must run asynchronously */
 void Animation::start(){
+	object->onAnimationStarted();
 	thread->launch();
 }
 
@@ -37,8 +38,9 @@ void Animation::notifyAnimationEnded(){
 /** To be called from the main UI thread */
 void Animation::postAnimate(){
 	if (animationEndedCallback != 0){
-		animationEndedCallback(window);
+		animationEndedCallback(object);
 	}
+	object->onAnimationEnded();
 }
 
 Animation::~Animation(){

@@ -40,7 +40,7 @@ class WebView : public CefClient,
 public:
 	static unsigned int webViewCount;
 
-	WebView(float windowRatio, Window *parent);
+	WebView(float normalizedWidth, float normalizedHeight, Window *parent);
     ~WebView();
 
    virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE { return this; }
@@ -98,8 +98,10 @@ public:
 
 	void notifyDomLoaded();
 	std::string getCurrentURL(){ return currentURL; }
+	
+	void forceFullRefresh();
 
-	void release();
+	void prepareForDisposal();
 private:
 	// The child browser window
    CefRefPtr<CefBrowser> cefWindow;
@@ -113,16 +115,22 @@ private:
 	// Reference to the parent object that hosts this webview
 	Window *parent;
 
-	float windowRatio;
-
     // Width and height (in pixels) of our exture. These are also the sizes of the berkelium window
     int textureWidth, textureHeight;
-
+	
 	// The actual thing that gets rendered
 	sf::Texture *texture;
 
-    // Buffer used to store the image for the texture
-    char* renderBuffer;
+	// Reference to the "old" texture during a resize
+	sf::Texture *oldTexture;
+
+	// Bool indicating when we need to refresh the entire texture
+    bool needs_full_refresh;
+
+    // Buffer used to store data for scrolling
+    char* scroll_buffer;
+
+	char* renderBuffer;
 
 	std::string currentURL; // Keep track of the current URL
 
@@ -134,7 +142,10 @@ private:
 	// Unique for each existing web view
 	unsigned int webViewId;
 
-	void calculateTextureSize(float windowRatio, int &width, int &height);
+	// This method needs to be called after some of the material properties have changed
+	void updateMaterial();
+
+	void updateTextureSize(float normalizedWidth, float normalizedHeight);
 	string getUniqueIdentifier(const string &);
 
 	void handleCrash(const string &description);

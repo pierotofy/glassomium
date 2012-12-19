@@ -49,6 +49,7 @@ PhysicsManager::PhysicsManager(){
 
 	restitution = 0.0f;
 	friction = 0.3f; // Default values
+	world = 0;
 }
 
 /** Initializes the physics world */

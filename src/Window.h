@@ -24,6 +24,7 @@
 #include "WebView.h"
 #include "Rectangle.h"
 #include "TouchGroup.h"
+#include "AnimatedObject.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ enum WindowOrientation{
 namespace pt{
 
 /** This class displays the actual web content to the user and can be dragged, resized, moved, etc. */
-class Window {
+class Window : public AnimatedObject {
 public:
 	static unsigned int windowCount;
 
@@ -54,9 +55,6 @@ public:
 	void rotate(Degrees angle);
 	void scale(float scale);
 	void scale(float scale_x, float scale_y);
-
-	void setScale(const sf::Vector2f &);
-	void setRotation(Degrees angle);
 
 	void setZOrder(int z);
 	int getZOrder();
@@ -78,15 +76,18 @@ public:
 	float getNormalizedWidth() const;
 	float getNormalizedHeight() const;
 
-	Degrees getRotation() const;
 	Degrees getNormalizedRotation() const;
 	void normalizeRotation();
 	WindowOrientation getOrientation() const;
-	sf::Vector2f getScale() const;
-
-	void setPosition(const sf::Vector2f &screenPosition);
 	void setPosition(float screen_x, float screen_y);
-	sf::Vector2f getPosition() const; // screen coordinates
+	
+	virtual void setPosition(const sf::Vector2f &screenPosition);
+	virtual void setScale(const sf::Vector2f &);
+	virtual void setRotation(Degrees angle);
+
+	virtual sf::Vector2f getScale() const;
+	virtual Degrees getRotation() const;
+	virtual sf::Vector2f getPosition() const; // screen coordinates
 
 	void resizeSprite(float width, float height);
 
@@ -118,6 +119,7 @@ public:
 	bool coordsInsideWindow(float screen_x, float screen_y);
 	bool coordsInsideWindow(float screen_x, float screen_y, sf::Vector2f &webviewCoords);
 	bool coordsInsideWindow(sf::Vector2f screenCoords[], int numCoords);
+	sf::Vector2f screenToWebViewCoordsInFullscreen(float screen_x, float screen_y);
 
 	sf::Vector2f screenToWebViewCoords(const sf::Vector2f &screenCoords);
 
@@ -168,6 +170,9 @@ public:
 	sf::Uint8 getAlpha();
 	void setAlpha(sf::Uint8 alpha);
 	void removeBlendColor();
+
+	void onAnimationStarted();
+	void onAnimationEnded();
 	
 	bool rotationSameAs(Window *otherWindow, Degrees threshold);
 
@@ -180,6 +185,15 @@ public:
 
 	/** Called after we know that the DOM of the window has loaded */
 	virtual void onDOMLoaded();
+
+	/** Called after a successful resize and reception of the first paint */
+	void onResizeSpriteCompleted();
+
+	void setToSleep();
+	void wakeUp();
+	bool isSleeping(){ return sleeping; }
+
+	void prepareForDisposal();
 
 	void repaint();
 
@@ -201,6 +215,16 @@ protected:
 	bool draggable; // Is this window draggable?
 	bool transformable; // Can this window be resized/rotated?
 	bool scrollable; // Can we do scrolling?
+
+	bool sleeping; // Is this window asleep?
+
+	//  We use this flag to stop user interaction from happening while
+	// an animation is affecting the look of this window
+	bool animationHappening;
+
+	// Used to filter out gestures too close in time to each other
+	sf::Clock gestureFilterClock;
+	bool gestureFilterClockExpired();
 
 	bool crashed; // Has the window crashed?
 	std::map<std::string, std::string> crashReport;

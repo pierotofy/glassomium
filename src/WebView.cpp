@@ -37,21 +37,23 @@ unsigned int WebView::webViewCount = 0;
 /** Creates a new web view
  * @param windowRatio this value is used to calculate the dimensions of the window
 	 (it takes the resolution of the application and creates a window with the specified ratio)*/
-WebView::WebView(float windowRatio, pt::Window *parent){
-	this->windowRatio = windowRatio;
+WebView::WebView(float normalizedWidth, float normalizedHeight, pt::Window *parent)
+ : needs_full_refresh(true){
     this->parent = parent;
+	this->cefWindow = NULL;
+	this->oldTexture = NULL;
 
-	// Calculate the optimal texture size
-	calculateTextureSize(this->windowRatio, this->textureWidth, this->textureHeight);
+	updateTextureSize(normalizedWidth, normalizedHeight);
 
 	// Keep track of the number of web views so that we generate unique entity names
 	webViewId = WebView::webViewCount;
 	WebView::webViewCount++; 
 
-	const int kNumPixels = textureWidth*(textureHeight+1)*4;
+	// Allocate scroll buffer
+	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
 
-	// Allocate buffer
-	renderBuffer = new char[kNumPixels];
+	// TEMP
+	renderBuffer = new char[textureWidth*(textureHeight+1)*4];
 
 	// Setup CEF
     CefWindowInfo info;
@@ -75,20 +77,126 @@ WebView::WebView(float windowRatio, pt::Window *parent){
 
 void WebView::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer)
 {
-	AutoLock lock_scope(this);
-	const int kBytesPerPixel = 4;
-	const int numPixels = textureHeight * textureWidth;
+	if (parent->isSleeping()) return; // Do not paint if the parent is sleeping
 
-	// Copy buffer
-	memcpy(renderBuffer, buffer, numPixels * kBytesPerPixel);
+	const int kBytesPerPixel = 4;
 
 	// Convert BGRA to RGBA
-	unsigned int *tmpBuf = (unsigned int *)renderBuffer;
+	unsigned int *tmpBuf = (unsigned int *)buffer;
+	const int numPixels = textureWidth * textureHeight;
 	for (int i = 0; i < numPixels; i++){
 		tmpBuf[i] = (tmpBuf[i] & 0xFF00FF00) | ((tmpBuf[i] & 0x00FF0000) >> 16) | ((tmpBuf[i] & 0x000000FF) << 16);
 	}
 
-	texture->update((sf::Uint8 *)renderBuffer, textureWidth, textureHeight, 0, 0);
+	// If we've reloaded the page and need a full update, ignore updates
+	// until a full one comes in. This handles out of date updates due to
+	// delays in event processing.
+	if (needs_full_refresh) {
+		/* TODO: CHECK!
+		// Ignore partial ones
+		if (bitmap_rect.left() != 0 || bitmap_rect.top() != 0 || bitmap_rect.right() != textureWidth || bitmap_rect.bottom() != textureHeight) {
+			return;
+		}*/
+
+		// Do we have an old texture? We must have just resized
+		if (oldTexture != NULL){
+			RELEASE_SAFELY(oldTexture);
+
+			// Notify the parent
+			parent->onResizeSpriteCompleted();
+		}
+
+		// Here's our full refresh
+		texture->update((sf::Uint8 *)buffer, textureWidth, textureHeight, 0, 0);
+
+		needs_full_refresh = false;
+		return;
+	}
+
+
+	// Now, we first handle scrolling. We need to do this first since it
+	// requires shifting existing data, some of which will be overwritten by
+	// the regular dirty rect update.
+	/*
+	if (dx != 0 || dy != 0) {
+
+		// scroll_rect contains the Rect we need to move
+		// First we figure out where the the data is moved to by translating it
+		Berkelium::Rect scrolled_rect = scroll_rect.translate(-dx, -dy);
+
+		// Next we figure out where they intersect, giving the scrolled
+		// region
+		Berkelium::Rect scrolled_shared_rect = scroll_rect.intersect(scrolled_rect);
+
+		// Only do scrolling if they have non-zero intersection
+		if (scrolled_shared_rect.width() > 0 && scrolled_shared_rect.height() > 0) {
+
+			// And the scroll is performed by moving shared_rect by (dx,dy)
+			Berkelium::Rect shared_rect = scrolled_shared_rect.translate(dx, dy);
+
+			int wid = scrolled_shared_rect.width();
+			int hig = scrolled_shared_rect.height();
+
+			int inc = 1;
+			char *outputBuffer = scroll_buffer;
+			// source data is offset by 1 line to prevent memcpy aliasing
+			// In this case, it can happen if dy==0 and dx!=0.
+			char *inputBuffer = scroll_buffer+(textureWidth*1*kBytesPerPixel);
+			int jj = 0;
+			if (dy > 0) {
+
+				// Here, we need to shift the buffer around so that we start in the
+				// extra row at the end, and then copy in reverse so that we
+				// don't clobber source data before copying it.
+				outputBuffer = scroll_buffer+((scrolled_shared_rect.top()+hig+1)*textureWidth - hig*wid)*kBytesPerPixel;
+				inputBuffer = scroll_buffer;
+				inc = -1;
+				jj = hig-1;
+			}
+
+			// Copy the data out of the texture
+			texture->bind(sf::Texture::Pixels);
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputBuffer);
+			
+			// Annoyingly, OpenGL doesn't provide convenient primitives, so
+			// we manually copy out the region to the beginning of the
+			// buffer
+			
+			for(; jj < hig && jj >= 0; jj+=inc) {
+				memcpy(
+					outputBuffer + (jj*wid) * kBytesPerPixel,
+					inputBuffer + ((scrolled_shared_rect.top()+jj)*textureWidth + scrolled_shared_rect.left()) * kBytesPerPixel,
+					wid*kBytesPerPixel
+				);
+			}
+
+			// And finally, we push it back into the texture in the right
+			// location
+			texture->update((sf::Uint8 *)outputBuffer, shared_rect.width(), shared_rect.height(), shared_rect.left(), shared_rect.top());
+		}
+	}*/
+
+	for (size_t i = 0; i < dirtyRects.size(); i++) {
+		int wid = dirtyRects[i].width;
+		int hig = dirtyRects[i].height;
+		int top = dirtyRects[i].y;// - dirtyRects.top();
+		int left = dirtyRects[i].x;// - dirtyRects.left();
+
+		for(int jj = 0; jj < hig; jj++) {
+			memcpy(
+				scroll_buffer + jj*wid*kBytesPerPixel,
+				//buffer + (left + (jj+top)*bitmap_rect.width())*kBytesPerPixel,
+				(char *)buffer + (left + (jj+top)*textureWidth)*kBytesPerPixel,
+				wid*kBytesPerPixel
+				);
+		}
+
+		// Finally, we perform the main update, just copying the rect that is
+		// marked as dirty but not from scrolled data.
+		texture->update((sf::Uint8 *)scroll_buffer, dirtyRects[i].width, dirtyRects[i].height, dirtyRects[i].x, dirtyRects[i].y);
+	}
+
+	needs_full_refresh = false;	
 }
 
 int WebView::getTextureWidth(){
@@ -105,16 +213,20 @@ void WebView::resize(int width, int height){
 	textureWidth = width;
 	textureHeight = height;
 
-	cefWindow->SetSize(PET_VIEW, width, height);
-	
 	// Switch old texture with new one
-	sf::Texture *oldTexture = texture;
+	oldTexture = texture;
 
 	texture = new sf::Texture();
 	texture->create(textureWidth, textureHeight);
 	texture->setSmooth(true);
 
-	RELEASE_SAFELY(oldTexture);
+	char *previous_buffer = scroll_buffer;
+	scroll_buffer = new char[textureWidth*(textureHeight+1)*4];
+	RELEASE_SAFELY(previous_buffer);
+
+	needs_full_refresh = true;
+	cefWindow->SetSize(PET_VIEW, width, height);
+	
 }
 
 /** Set the transparent property */
@@ -129,18 +241,12 @@ bool WebView::isTransparent(){
 	return transparent;
 }
 
-/** We calculate the size depending on the size of the rendering window. If a person is going
- * to scale our webview, we need to make sure we have a texture big enough as not to lose quality
- * this has the drawback of wasting resources when the webview is smaller than the full size of the 
- * rendering window, but as long as we don't have too many webviews we should be OK */
-void WebView::calculateTextureSize(float windowRatio, int &width, int &height){
-    width = (int)ceil(Application::windowWidth);
-    height = (int)ceil((float)width  / windowRatio);
-
-    if (height > Application::windowHeight){
-        height = (int)ceil(Application::windowHeight);
-        width = (int)ceil((float)width * windowRatio);
-    }
+/** Update the texture size
+ * textureWidth and textureHeight will change upon call of this method.
+  */
+void WebView::updateTextureSize(float normalizedWidth, float normalizedHeight){
+    this->textureWidth = (int)ceil(Application::windowWidth * normalizedWidth);
+    this->textureHeight = (int)ceil(Application::windowHeight * normalizedHeight);
 }
 
 /** Instruct berkelium to load a URI*/
@@ -160,8 +266,9 @@ string WebView::getUniqueIdentifier(const string &name){
 /** @param dx,dy the amount scrolled vertically and horizontally */
 void WebView::injectScroll(int dx, int dy)
 {
+	// TODO!!
 	//bkWindow->mouseWheel(dx, dy);
-	cout << "injectScroll NOT IMPLEMENTED" << endl;
+	//cout << "injectScroll NOT IMPLEMENTED" << endl;
 }
 
 /* @param x,y are relative */
@@ -215,6 +322,7 @@ void WebView::injectTextEvent(const std::string &utf8){
 	*/
 }
 
+
 void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame ){
 	AutoLock lock_scope(this);
 	if (frame->IsMain()){
@@ -225,6 +333,131 @@ void WebView::OnLoadStart( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame 
 		}
 	}
 }
+/*
+void WebView::onPaint(Berkelium::Window *wini,
+    const unsigned char *bitmap_in, const Berkelium::Rect &bitmap_rect,
+    size_t num_copy_rects, const Berkelium::Rect *copy_rects,
+    int dx, int dy, const Berkelium::Rect &scroll_rect) {
+
+	if (parent->isSleeping()) return; // Do not paint if the parent is sleeping
+
+	const int kBytesPerPixel = 4;
+
+	// Convert BGRA to RGBA
+	
+	unsigned int *tmpBuf = (unsigned int *)bitmap_in;
+	const int numPixels = bitmap_rect.height() * bitmap_rect.width();
+	for (int i = 0; i < numPixels; i++){
+		tmpBuf[i] = (tmpBuf[i] & 0xFF00FF00) | ((tmpBuf[i] & 0x00FF0000) >> 16) | ((tmpBuf[i] & 0x000000FF) << 16);
+	}
+
+	// If we've reloaded the page and need a full update, ignore updates
+	// until a full one comes in. This handles out of date updates due to
+	// delays in event processing.
+	if (needs_full_refresh) {
+		// Ignore partial ones
+		if (bitmap_rect.left() != 0 || bitmap_rect.top() != 0 || bitmap_rect.right() != textureWidth || bitmap_rect.bottom() != textureHeight) {
+			return;
+		}
+
+		// Do we have an old texture? We must have just resized
+		if (oldTexture != NULL){
+			RELEASE_SAFELY(oldTexture);
+
+			// Notify the parent
+			parent->onResizeSpriteCompleted();
+		}
+
+		// Here's our full refresh
+		texture->update((sf::Uint8 *)bitmap_in, textureWidth, textureHeight, 0, 0);
+
+		needs_full_refresh = false;
+		return;
+	}
+
+
+	// Now, we first handle scrolling. We need to do this first since it
+	// requires shifting existing data, some of which will be overwritten by
+	// the regular dirty rect update.
+	if (dx != 0 || dy != 0) {
+
+		// scroll_rect contains the Rect we need to move
+		// First we figure out where the the data is moved to by translating it
+		Berkelium::Rect scrolled_rect = scroll_rect.translate(-dx, -dy);
+
+		// Next we figure out where they intersect, giving the scrolled
+		// region
+		Berkelium::Rect scrolled_shared_rect = scroll_rect.intersect(scrolled_rect);
+
+		// Only do scrolling if they have non-zero intersection
+		if (scrolled_shared_rect.width() > 0 && scrolled_shared_rect.height() > 0) {
+
+			// And the scroll is performed by moving shared_rect by (dx,dy)
+			Berkelium::Rect shared_rect = scrolled_shared_rect.translate(dx, dy);
+
+			int wid = scrolled_shared_rect.width();
+			int hig = scrolled_shared_rect.height();
+
+			int inc = 1;
+			char *outputBuffer = scroll_buffer;
+			// source data is offset by 1 line to prevent memcpy aliasing
+			// In this case, it can happen if dy==0 and dx!=0.
+			char *inputBuffer = scroll_buffer+(textureWidth*1*kBytesPerPixel);
+			int jj = 0;
+			if (dy > 0) {
+
+				// Here, we need to shift the buffer around so that we start in the
+				// extra row at the end, and then copy in reverse so that we
+				// don't clobber source data before copying it.
+				outputBuffer = scroll_buffer+((scrolled_shared_rect.top()+hig+1)*textureWidth - hig*wid)*kBytesPerPixel;
+				inputBuffer = scroll_buffer;
+				inc = -1;
+				jj = hig-1;
+			}
+
+			// Copy the data out of the texture
+			texture->bind(sf::Texture::Pixels);
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, inputBuffer);
+			
+			// Annoyingly, OpenGL doesn't provide convenient primitives, so
+			// we manually copy out the region to the beginning of the
+			// buffer
+			
+			for(; jj < hig && jj >= 0; jj+=inc) {
+				memcpy(
+					outputBuffer + (jj*wid) * kBytesPerPixel,
+					inputBuffer + ((scrolled_shared_rect.top()+jj)*textureWidth + scrolled_shared_rect.left()) * kBytesPerPixel,
+					wid*kBytesPerPixel
+				);
+			}
+
+			// And finally, we push it back into the texture in the right
+			// location
+			texture->update((sf::Uint8 *)outputBuffer, shared_rect.width(), shared_rect.height(), shared_rect.left(), shared_rect.top());
+		}
+	}
+
+	for (size_t i = 0; i < num_copy_rects; i++) {
+		int wid = copy_rects[i].width();
+		int hig = copy_rects[i].height();
+		int top = copy_rects[i].top() - bitmap_rect.top();
+		int left = copy_rects[i].left() - bitmap_rect.left();
+
+		for(int jj = 0; jj < hig; jj++) {
+			memcpy(
+				scroll_buffer + jj*wid*kBytesPerPixel,
+				bitmap_in + (left + (jj+top)*bitmap_rect.width())*kBytesPerPixel,
+				wid*kBytesPerPixel
+				);
+		}
+
+		// Finally, we perform the main update, just copying the rect that is
+		// marked as dirty but not from scrolled data.
+		texture->update((sf::Uint8 *)scroll_buffer, copy_rects[i].width(), copy_rects[i].height(), copy_rects[i].left(), copy_rects[i].top());
+	}
+
+	needs_full_refresh = false;
+}*/
 
 void WebView::OnAddressChange( CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, const CefString& url ){
 	AutoLock lock_scope(this);
@@ -342,6 +575,11 @@ void WebView::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame
 //     }
 // }
 
+/** Ignore the next onPaint events until a complete one is received */
+void WebView::forceFullRefresh(){
+	needs_full_refresh = true;
+}
+
 /** Creates a new berkelium window and notifies the parent that we have crashed!
  * @param description a brief description of what happened. */
 void WebView::handleCrash(const string &description){
@@ -368,20 +606,18 @@ void WebView::OnBeforeClose(CefRefPtr<CefBrowser> browser){
    // Webview will be disposed by CEF
 }
 
-/** Deallocates the webview 
- * Use this method instead of the destructor to deallocate a webview */
-void WebView::release(){
 
-	// TODO: this crashes when a page is still loading and it gets closed
-
-	// This call is async and will return immediately
-	// We will dispose the actual object when onBeforeClose is called
-	cefWindow->CloseBrowser();
+/** Performs all the actions needed to get
+ * this window ready for disposal */
+void WebView::prepareForDisposal(){
+	if (cefWindow){
+		RELEASE_SAFELY(cefWindow);
+	}
 }
 
 WebView::~WebView(){
-	if (g_debug){
-		cout << "Deallocated webview" << endl;
+	if (cefWindow){
+		RELEASE_SAFELY(cefWindow);
 	}
 
 	RELEASE_SAFELY(texture);

@@ -93,6 +93,8 @@ set(HDRS
     Launcher.h
     Blob.h
     PhysicsManager.h
+    AnimatedObject.h
+    OverlaySprite.h
     stdafx.h
 )
  
@@ -126,6 +128,8 @@ set(SRCS
     UserWindow.cpp
     Launcher.cpp
     Blob.cpp
+    AnimatedObject.cpp
+    OverlaySprite.cpp
     PhysicsManager.cpp
 )
 
@@ -136,7 +140,7 @@ include_directories(./include/cef1)
 
 # Add precompiled headers on windows and icon resource
 if (WIN32)
-	ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SRCS)
+  # ADD_MSVC_PRECOMPILED_HEADER("stdafx.h" "stdafx.cpp" SRCS)
 
   SET(SRCS ${SRCS} resources.rc)
 endif()

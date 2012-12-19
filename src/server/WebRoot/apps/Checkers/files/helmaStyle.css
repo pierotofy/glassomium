@@ -1,0 +1,9 @@
+
+
+/* This is the style I'm borrowing from Mark Pilgrim's example in HTML5 */
+.legend{font:italic large/1.0 'Essays 1743','Marker Felt','Kristen ITC','Viner Hand ITC','Lucida Handwriting',Amienne,Boopee,'Segoe Print','Times New Roman',serif;text-shadow:0 0 1px #667;margin-left:.5em;vertical-align:top}
+
+/* CANVAS STYLE */
+canvas {
+	margin: 0 0 0 0;
+}

@@ -1,0 +1,11 @@
+{"playlist":
+    [
+	{
+	    "0": {"src":"music/world.mp3", "type":"audio/mp3"},
+	    "config": {
+			"title": "We are the world",
+			"poster": ""
+	    }
+	},
+    ]
+}

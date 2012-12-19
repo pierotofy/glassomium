@@ -32,7 +32,6 @@
 bool g_debug = false;
 float Application::windowWidth = 0;
 float Application::windowHeight = 0;
-//sf::Vector2f Application::aspectRatio;
 
 using namespace pt;
 
@@ -43,11 +42,6 @@ Application::Application(int argc, char* argv[]){
 	fullscreen = false;
 	mouseEnabled = true;
 
-	// Default aspect ratio
-	/*
-	Application::aspectRatio.x = 4.0f;
-	Application::aspectRatio.y = 3.0f;
-	*/
 	// If there are no command line arguments, launch the launcher
 	if (argc < 2){
 		Launcher launcher;
@@ -55,7 +49,6 @@ Application::Application(int argc, char* argv[]){
 		Application::windowWidth = (float)launcher.getResolutionWidth();
 		Application::windowHeight = (float)launcher.getResolutionHeight();
 		fullscreen = launcher.isFullscreen();
-		//Application::aspectRatio = launcher.getAspectRatio();
 		g_debug = launcher.isDebug();
 	}
 
@@ -74,18 +67,6 @@ Application::Application(int argc, char* argv[]){
 			int height = str_to_int(argv[i+1]);
 			if (height != -1) Application::windowHeight = (float)height;
 		}
-		/*
-		else if ((arg == "-a" || arg == "--aspectratio") && i+1 < argc){
-			string ar(argv[i+1]);
-			if (ar == "16:9"){
-				Application::aspectRatio.x = 16.0f;
-				Application::aspectRatio.y = 9.0f;
-			}else if (ar == "4:3"){
-				Application::aspectRatio.x = 4.0f;
-				Application::aspectRatio.y = 3.0f;
-			}
-		}
-		*/
 		else if (arg == "-d" || arg == "--debug"){
 			g_debug = true;
 		}	
@@ -102,8 +83,8 @@ Application::Application(int argc, char* argv[]){
 	cout << "Fullscreen: " << (fullscreen ? "yes" : "no" ) << endl;
 	cout << "Width: " << Application::windowWidth << endl;
 	cout << "Height: " << Application::windowHeight << endl;
-	//cout << "Aspect ratio: " << Application::aspectRatio.x << ":" << Application::aspectRatio.y << endl;
 	cout << "Debug mode: " << (g_debug ? "yes" : "no") << endl;
+	cout << "Mouse enabled: " << (mouseEnabled ? "yes" : "no") << endl;
 	cout << endl;
 	cout << "Starting up..." << endl;
 }
@@ -114,7 +95,6 @@ void Application::printUsage(){
 	   << "  --fullscreen, -f  \tRun in fullscreen." << endl
 	   << "  --width  \tSpecify width of the window in pixels" << endl
 	   << "  --height  \tSpecify height of the window in pixels" << endl
-	   //<< "  --aspectratio  \tSpecify the aspect ratio (16:9 or 4:3)" << endl
 	   << "  --debug, -d  \tEnable debug information and display touch blobs on the screen to troubleshoot resolution issues" << endl
 	   << "  --nomouse, -n  \tDisable mouse events. Only UDP TUIO events will allow the user to interact with the UI" << endl
 	   << endl << "Examples:" << endl
@@ -153,12 +133,10 @@ void Application::go(){
 	icon.loadFromFile("icon.png");
 	renderWindow->setIcon(32, 32, icon.getPixelsPtr());
 
-	// Set aspect ratio
-	/*
-	float newH = (Application::windowWidth*Application::aspectRatio.y)/Application::aspectRatio.x;
-	float displace = (newH - Application::windowHeight)/(-2.0f);
-	renderWindow->setView(sf::View(sf::FloatRect(0.0f, displace, Application::windowWidth, newH)));
-	*/
+	// Hide cursor?
+	if (!mouseEnabled){
+		renderWindow->setMouseCursorVisible(false);
+	}
 
 	CefRefPtr<CefApp> app;
     CefSettings settings;
@@ -167,16 +145,16 @@ void Application::go(){
 	// initialize CEF
     CefInitialize(settings, app);
 
-	FileManager::initialize();
-
 	ServerManager::initialize("localhost", 5555);
 
-	tuioManager = new TuioManager(3333);
-	
+	FileManager::initialize();
+
 	PhysicsManager::initialize();
 
 	// Initialize window manager
 	UIManager::initialize();
+
+	tuioManager = new TuioManager(3333);
 	
 	// Fetch resources, setup layout
 	try{
@@ -193,8 +171,6 @@ void Application::go(){
 	*/
 	// Create the layout
 	UIManager::getSingleton()->setupSystemLayout();
-
-	tuioManager = new TuioManager(3333);
 
 	// Start loop
 	//sf::Clock cefClock;	
@@ -293,24 +269,14 @@ bool Application::isPointOnScreenCorner(const sf::Vector2f &point, float cornerS
 }
 
 Application::~Application(){
-	UIManager::destroy();
-
-	CefShutdown();
-
 	RELEASE_SAFELY(tuioManager);
-	RELEASE_SAFELY(renderWindow);
-
+	UIManager::destroy();
 	PhysicsManager::destroy();
+	FileManager::destroy();
 	ServerManager::destroy();
-    FileManager::destroy();
+	CefShutdown();
+	RELEASE_SAFELY(renderWindow);
 }
-
-/*
-#if _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-#endif
-*/
 
 int main(int argc, char** argv)
 {

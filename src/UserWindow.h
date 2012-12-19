@@ -34,13 +34,8 @@ public:
 	UserWindow(float normalizedWidth, float normalizedHeight);
     virtual ~UserWindow();
 
-	void setInjectMenu(bool flag);
-
-	virtual void injectJavascriptResources();
 	virtual WindowType getType(){ return User; }
 protected:
-
-	bool injectMenu;
 private:
 };
 

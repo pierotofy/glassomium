@@ -26,6 +26,8 @@ namespace pt{
 
 unsigned int Window::windowCount = 0;
 
+/** Create a new window
+ */
 Window::Window(float normalizedWidth, float normalizedHeight){
 	id = Window::windowCount;
 	Window::windowCount++;
@@ -34,7 +36,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	this->normalizedHeight = normalizedHeight;
 
 	// Instantiate web view
-	webView = new WebView(normalizedWidth/normalizedHeight, this);
+	webView = new WebView(normalizedWidth, normalizedHeight, this);
 
 	// Create sprite to hold the webviews texture
 	sprite = new sf::Sprite(*webView->getTexture());
@@ -50,6 +52,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	// Don't fire tuio events unless specified otherwise
 	tuioEnabled = false;
 
+	animationHappening = false;
 	crashed = false; 
 
 	currentZoom = 1.0f; // Normal
@@ -64,6 +67,8 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	pinchedOutOfFullscreen = false;
 	pinchableOutOfFullscreen = true;
 	pinchableToFullscreen = true;
+
+	sleeping = false;
 }
 
 /** Sets a color that will blend the content of the window */
@@ -88,7 +93,7 @@ void Window::setScrollable(bool scrollable){
 
 /** Converts a scroll direction to the proper values and scrolls the window */
 void Window::updateScrolling(const sf::Vector2f &scrollDirection){
-	if (scrollable && !scrollOnMouseMove){
+	if (scrollable && !scrollOnMouseMove && !animationHappening){
 		#define SCROLL_SENSITIVITY 4 // Higher values will make the scroll more sensitive
 
 		scroll((int)(scrollDirection.x * cos(getRotation()) + scrollDirection.y * sin(getRotation())) * SCROLL_SENSITIVITY, 
@@ -189,7 +194,7 @@ void Window::onStartLoading(){
 
 /** Changes the color of the window and begins the drag */
 void Window::startDragging(const sf::Vector2f &dragTouchPosition){
-     if (!dragging && draggable){
+     if (!dragging && draggable && !animationHappening && gestureFilterClockExpired()){
 
 #ifdef SMOOTH_DRAG
 		 beginningDragTouchPosition = dragTouchPosition;
@@ -204,7 +209,7 @@ void Window::startDragging(const sf::Vector2f &dragTouchPosition){
 
 /** Moves the window if the window is being dragged */
 void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
-	if (dragging && draggable){
+	if (dragging && draggable && !animationHappening){
 #ifdef SMOOTH_DRAG
 		sf::Vector2f newPosition = windowCenterOnDragBegin + (dragTouchPosition - beginningDragTouchPosition);
 		setPosition(newPosition);
@@ -216,7 +221,7 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 
 /** Terminates the drag gesture */
 void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vector2f &speedOnDragEnd){
-     if (dragging && draggable){
+     if (dragging && draggable && !animationHappening){
 
 		// Uncolor
 		removeBlendColor();
@@ -224,12 +229,15 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vecto
         dragging = false;               
 
 		PhysicsManager::getSingleton()->applyForce(this, speedOnDragEnd);
+
+		// Prevent other gestures from happening too quickly after this gesture
+		gestureFilterClock.restart();
      }         
 }
 
 /** All vectors are points in range 0..1 (as received from the gesture manager) */
 void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
-	if (transformable && !dragging){
+	if (transformable && !dragging && !animationHappening && gestureFilterClockExpired()){
 		blockTransformsFlag = false;
 		
 		float dx = firstTouchLocation.x - secondTouchLocation.y;
@@ -255,9 +263,9 @@ void Window::startTransforming(const sf::Vector2f &firstTouchLocation, const sf:
 
 void Window::stopTransforming(){
 	// Have we reached full screen threshold?
-	if (transformable && !dragging && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen){
+	if (transformable && !dragging && pinchableToFullscreen && !fullscreen && !pinchedOutOfFullscreen && !animationHappening){
 
-		const float fullscreenThreshold = 0.9f;
+		const float fullscreenThreshold = 0.98f;
 		WindowOrientation orientation = getOrientation();
 		float sizeX = this->getScale().x * (float)webView->getTextureWidth();
 		float sizeY = this->getScale().y * (float)webView->getTextureHeight();
@@ -270,13 +278,27 @@ void Window::stopTransforming(){
 			// Yes
 
 			UIManager::getSingleton()->onWindowEnterFullscreenRequested(this);
+		}else{
+			// No, resize the texture instead
+			
+			// Don't resize it too small or the content will look too squeezed
+			#define DYNAMIC_RESIZE_THRESHOLD 320.0f
+
+			if (sizeX > DYNAMIC_RESIZE_THRESHOLD || sizeY > DYNAMIC_RESIZE_THRESHOLD){
+				resizeSprite(sizeX, sizeY);
+			}
 		}
+	
+		// Prevent other gestures from happening too quickly after this gesture
+		gestureFilterClock.restart();
 	}
 }
 
 /** Handles the transformations on this window. This includes scaling and rotating.
  */
 void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::Vector2f &secondTouchLocation){
+	if (animationHappening) return;
+
 	// Start checks for validity here, the function might return without doing anything				
 	if (blockTransformsFlag || dragging) return;
 
@@ -288,7 +310,7 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 		if (!(pinchableOutOfFullscreen || scrollOnPinch)) return;
 
 		// In fullscreen, only pinching one of the corners of the window will allow resizing
-		#define CORNER_SIZE 0.10f
+		#define CORNER_SIZE 0.20f
 		bool pinchedCorner = Application::isPointOnScreenCorner(firstTouchLocationOnTransformBegin, CORNER_SIZE) ||
 			  Application::isPointOnScreenCorner(secondTouchLocationOnTransformBegin, CORNER_SIZE);
 
@@ -334,6 +356,15 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 		
 			this->setScale(sf::Vector2f(windowScaleOnTransformBegin.x + deltaScale, 
 								windowScaleOnTransformBegin.y + deltaScale));
+
+			// If we have resized a window past the close value, close the window
+			float scaleCloseValue = UIManager::getSingleton()->getThemeConfig()->getFloat("windows.close-threshold");
+
+			if (this->getScale().x < scaleCloseValue || this->getScale().y < scaleCloseValue){
+				UIManager::getSingleton()->onCloseWindowRequested(this);
+				return;
+			}
+
 		}else{
 			// Perform scroll instead
 			int dy;
@@ -544,6 +575,16 @@ void Window::removeBlendColor(){
 	setBlendColor(sf::Color(255, 255, 255)); // No blend
 }
 
+/** Called when an animation acting on this window has started */
+void Window::onAnimationStarted(){
+	animationHappening = true;
+}
+
+/** Called when an animation acting on this window has terminated */
+void Window::onAnimationEnded(){
+	animationHappening = false;
+}
+
 /** Compares the rotation of the current window and otherWindow within a defined threshold
  @param otherWindow the window to compare to
  @param threshold amount in degrees where the comparison is true
@@ -722,9 +763,14 @@ float Window::getTextureHeight() const{
  * switching to full screen */
 void Window::resizeSprite(float width, float height){
 	webView->resize((int)width, (int)height);
+}
 
+/** Called upon successful resize */
+void Window::onResizeSpriteCompleted(){
 	sprite->setTexture(*webView->getTexture(), true);
-	sprite->setOrigin((float)webView->getTextureWidth() / 2.0f, (float)webView->getTextureHeight() / 2.0f);
+	sprite->setOrigin(webView->getTextureWidth() / 2.0f, webView->getTextureHeight() / 2.0f);
+
+	setScale(sf::Vector2f(1.0f, 1.0f));
 }
 
 /** Turns transparency on or off. When transparent, every browser page
@@ -804,7 +850,11 @@ bool Window::coordsInsideWindow(float screen_x, float screen_y, sf::Vector2f &we
 /** Evaluates whether the global screen coordinates fit inside the current window. 
  * When returning true, it also calculates and fills in the windowRect and webviewCoords params */
 bool Window::coordsInsideWindow(float screen_x, float screen_y, pt::Rectangle &windowRect, sf::Vector2f &webviewCoords){
-	
+	if (isFullscreen()){
+		webviewCoords = screenToWebViewCoordsInFullscreen(screen_x, screen_y);
+		return true;
+	}
+
 	pt::Rectangle tempWindowRect = getClientRectangle();
 	sf::Vector2f rotatedScreenCoords = getRotatedScreenCoords(tempWindowRect, screen_x, screen_y);
 
@@ -822,9 +872,32 @@ bool Window::coordsInsideWindow(float screen_x, float screen_y, pt::Rectangle &w
 
 /** Public method (hides some of the other params) */
 bool Window::coordsInsideWindow(float screen_x, float screen_y){
+	if (isFullscreen()) return true;
+
 	pt::Rectangle windowRect;
 	sf::Vector2f webviewCoords;
 	return coordsInsideWindow(screen_x, screen_y, windowRect, webviewCoords);
+}
+
+/** Converts the given screen coordinates into webview coordinates for a window
+ * that is in fullscreen mode. By being in fullscreen we can take advantage of
+ * the fact that the orientation is fixed to 4 options (0, 90, 180, 270 degrees)
+ * and that the size matches the screen. This makes the computation much quicker. */
+sf::Vector2f Window::screenToWebViewCoordsInFullscreen(float screen_x, float screen_y){
+	int rotation = (int)getRotation();
+	switch(rotation){
+		case 0:
+			return sf::Vector2f(screen_x, screen_y);
+		case 90:
+			return sf::Vector2f(screen_y, Application::windowWidth - screen_x);
+		case 180:
+			return sf::Vector2f(Application::windowWidth - screen_x, Application::windowHeight - screen_y);
+		case 270:
+			return sf::Vector2f(Application::windowHeight - screen_y, screen_x);
+	}
+
+	cout << "This should not have happened! screenToWebViewCoordsInFullscreen() unhandled switch." << endl;
+	return sf::Vector2f(screen_x, screen_y);
 }
 
 /** Converts the given screen coordinates into webview coordinates */
@@ -879,6 +952,8 @@ void Window::onMouseUp(int cursor_id, int screen_x, int screen_y){
 
 /** Handles a mouse down event */
 void Window::handleMouseDown(int cursor_id, const sf::Vector2f &webviewCoords){
+	if (!gestureFilterClockExpired()) return;
+
 	mouseDown = true;
 
 	// Stop physics
@@ -1106,7 +1181,7 @@ void Window::injectJavascriptResources(){
 }
 
 void Window::update(){
-
+	// Nothing to update, so far
 }
 
 /** Pop/push functions allow for keeping track of changes in the position/rotation/scale of 
@@ -1166,9 +1241,40 @@ void Window::repaint(){
 	executeJavascript("GLA._repaint();");
 }
 
+/** If the clock expired, a gesture can be performed safely.
+ * otherwise the gesture should be discarded */
+bool Window::gestureFilterClockExpired(){
+	return gestureFilterClock.getElapsedTime().asMilliseconds() > 100;
+}
+
+/** Set this window to sleep. When sleeping a window does not refresh
+ * it's content (saves computation time). A window should be put asleep 
+ * only when the user will not notice that it's not being refreshed. */
+void Window::setToSleep(){
+	if (!sleeping){
+		sleeping = true;
+	}
+}
+
+/** Wake this window up from sleep. Refresh the content */
+void Window::wakeUp(){
+	if (sleeping){
+		sleeping = false;
+		webView->forceFullRefresh();
+		this->repaint();
+	}
+}
+
+/** Performs all the actions needed to get
+ * this window ready for disposal */
+void Window::prepareForDisposal(){
+	setToSleep();
+	webView->prepareForDisposal();
+}
+
 Window::~Window(){
 	RELEASE_SAFELY(sprite);
-	webView->release();
+	RELEASE_SAFELY(webView);
 }
 
 }
