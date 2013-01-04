@@ -21,6 +21,7 @@
 #define PHYSICSMANAGER_H
 
 #include "stdafx.h"
+#include "Box2D/Box2D.h"
 #include "ThemeConfiguration.h"
 #include "Window.h"
 
