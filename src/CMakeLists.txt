@@ -61,6 +61,7 @@ set(HDRS
     Appinfo.h
     Globals.h
     Rectangle.h
+    RotatedRectangle.h
     Utils.h
     WebView.h
     Window.h

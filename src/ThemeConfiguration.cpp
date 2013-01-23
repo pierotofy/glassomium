@@ -48,6 +48,7 @@ map<std::string, float> ThemeConfiguration::getFloatDefaults(){
 map<std::string, bool> ThemeConfiguration::getBoolDefaults(){
 	map<std::string, bool> result;
 	result["physics.enabled"] = false;
+	result["windows.minimize.enabled"] = false;
 	return result;
 }
 

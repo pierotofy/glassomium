@@ -23,6 +23,7 @@
 #include "stdafx.h"
 #include "WebView.h"
 #include "Rectangle.h"
+#include "RotatedRectangle.h"
 #include "TouchGroup.h"
 #include "AnimatedObject.h"
 
@@ -33,7 +34,11 @@ enum WindowType{
 };
 
 enum WindowOrientation{
-	Bottom, Left, Top, Right
+	WOBottom, WOLeft, WOTop, WORight
+};
+
+enum ScreenBorder{
+	SBNone, SBTop, SBBottom, SBLeft, SBRight
 };
 
 namespace pt{
@@ -180,6 +185,9 @@ public:
 	
 	bool rotationSameAs(Window *otherWindow, Degrees threshold);
 
+	ScreenBorder getTouchingScreenBorder(int threshold);
+	bool isTouchingScreenBorder();
+
 	void copyAttributesTo(Window *otherWindow);
 
 	virtual void update();  // To be called from the main loop (or UIManager)
@@ -258,6 +266,8 @@ protected:
 
 	sf::Vector2f transformCoordinatesForWebView(pt::Rectangle &windowRect, const sf::Vector2f &rotatedScreenCoords);
 	sf::Vector2f getRotatedScreenCoords(pt::Rectangle &windowRect, float screen_x, float screen_y);
+	pt::RotatedRectangle getRotatedRectangle();
+	
 
 	bool coordsInsideWindow(float screen_x, float screen_y, pt::Rectangle &windowRect, sf::Vector2f &webviewCoords);
 

@@ -131,22 +131,22 @@ void Window::setFullscreen(bool flag){
 		// Rotate to closest 90 degree angle
 		WindowOrientation orientation = getOrientation();
 		switch (orientation){
-			case Left:
+			case WOLeft:
 				setRotation(90.0f);
 				break;
-			case Right:
+			case WORight:
 				setRotation(270.0f);
 				break;
-			case Top:
+			case WOTop:
 				setRotation(180.0f);
 				break;
-			case Bottom:
+			case WOBottom:
 				setRotation(0.0f);
 				break;
 		}
 
 		// Resize the sprite
-		if (orientation == Top || orientation == Bottom){
+		if (orientation == WOTop || orientation == WOBottom){
 			resizeSprite(Application::windowWidth, Application::windowHeight);
 		}else{
 			resizeSprite(Application::windowHeight, Application::windowWidth);
@@ -229,19 +229,35 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 /** Terminates the drag gesture */
 void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
      if (dragging && draggable && !animationHappening){
-
 		// Uncolor
 		removeBlendColor();
 
         dragging = false;               
 
+		// Prevent other gestures from happening too quickly after this gesture
+		gestureFilterClock.restart();
+
+		// Check if the window is outside the screen
+		if ( UIManager::getSingleton()->getThemeConfig()->getBool("windows.minimize.enabled")){
+			pt::RotatedRectangle rotatedRect = getRotatedRectangle();
+			/*
+			LOG("TopLeft: " << rotatedRect.topLeft.x << "," << rotatedRect.topLeft.y);
+			LOG("TopRight: " << rotatedRect.topRight.x << "," << rotatedRect.topRight.y);
+			LOG("BottomLeft: " << rotatedRect.bottomLeft.x << "," << rotatedRect.bottomLeft.y);
+			LOG("BottomRight: " << rotatedRect.bottomRight.x << "," << rotatedRect.bottomRight.y);
+			LOG(getTouchingScreenBorder(80));
+			*/
+
+			
+		}
+
+		// TODO: if a window is dragged very close to the edge of the screen
+		// it will disappear beyond the screen. Need to fix this fault!
+
 		const float msecsTosecs = 0.001f;
 		sf::Vector2f speedVector = (dragSpeedP2 - dragSpeedP1) / (DRAG_SPEED_SAMPLE_TIME * msecsTosecs);
 		PhysicsManager::getSingleton()->applyForce(this, speedVector);
-
-		// Prevent other gestures from happening too quickly after this gesture
-		gestureFilterClock.restart();
-     }         
+	 }         
 }
 
 /** All vectors are points in range 0..1 (as received from the gesture manager) */
@@ -278,10 +294,10 @@ void Window::stopTransforming(){
 		WindowOrientation orientation = getOrientation();
 		float sizeX = this->getScale().x * (float)webView->getTextureWidth();
 		float sizeY = this->getScale().y * (float)webView->getTextureHeight();
-		if (((orientation == Top || orientation == Bottom) && 
+		if (((orientation == WOTop || orientation == WOBottom) && 
 			(sizeX >= Application::windowWidth * fullscreenThreshold || sizeY >= Application::windowHeight * fullscreenThreshold))
 			||
-			((orientation == Left || orientation == Right) && 
+			((orientation == WOLeft || orientation == WORight) && 
 			(sizeX >= Application::windowHeight * fullscreenThreshold || sizeY >= Application::windowWidth * fullscreenThreshold))
 			){
 			// Yes
@@ -609,6 +625,48 @@ bool Window::rotationSameAs(Window *otherWindow, Degrees threshold){
 		fabs(smaller - (bigger - 360.0f)) <= threshold);
 }
 
+/** Checks the corners of the window to see if they are outside the screen
+ * and returns the border that the window is hidden into (or None if it's inside the screen).
+ * If a window is hidden on a corner of the screen (crossing multiple borders), 
+ * the side that hides most of the window will be returned 
+ * @param threshold the number of pixels that a window can go over the screen borders and still be 
+		considered "not touching any border" (return SBNone despite the fact that it is touching a border) */
+ScreenBorder Window::getTouchingScreenBorder(int threshold = 0){
+	pt::RotatedRectangle rotatedRect = getRotatedRectangle();
+
+	sf::Vector2f points[4];
+	points[0] = rotatedRect.topLeft;
+	points[1] = rotatedRect.topRight;
+	points[2] = rotatedRect.bottomLeft;
+	points[3] = rotatedRect.bottomRight;
+	float maxDistance = 0.0f;
+	ScreenBorder border = SBNone;
+
+	#define UPDATEMAX(__DISTANCE, __BORDER) { if (__DISTANCE > maxDistance) { border = __BORDER; maxDistance = __DISTANCE; } }
+	for (int i = 0; i < 4; i++){
+		sf::Vector2f p = points[i];
+		
+		// Top
+		if (p.y < 0.0f) UPDATEMAX(-p.y, SBTop);
+
+		// Bottom
+		if (p.y > Application::windowHeight) UPDATEMAX(p.y - Application::windowHeight, SBBottom);
+
+		// Left
+		if (p.x < 0.0f) UPDATEMAX(-p.x, SBLeft);
+
+		// Right
+		if (p.x > Application::windowWidth) UPDATEMAX(p.x - Application::windowWidth, SBRight);
+	}
+
+	if (maxDistance < threshold) return SBNone;
+	else return border;
+}
+
+bool Window::isTouchingScreenBorder(){
+	return getTouchingScreenBorder() != SBNone;
+}
+
 void Window::show(){
 	sf::Color currentColor = sprite->getColor();
 	currentColor.a = 255;
@@ -722,13 +780,13 @@ void Window::normalizeRotation(){
 WindowOrientation Window::getOrientation() const{
 	Degrees rotation = getNormalizedRotation();
 	if (rotation <= 45.0f || rotation >= 315.0f){
-		return Bottom;
+		return WOBottom;
 	}else if (rotation > 45.0f && rotation <= 135.0f){
-		return Left;
+		return WOLeft;
 	}else if (rotation > 135.0f && rotation < 225.0f){
-		return Top;
+		return WOTop;
 	}else{
-		return Right;
+		return WORight;
 	}
 }
 
@@ -808,6 +866,29 @@ sf::Vector2f Window::getRotatedScreenCoords(pt::Rectangle &windowRect, float scr
 	Radians angle = -getRotation() * DEGREES_TO_RADIANS;
 	sf::Vector2f center = windowRect.getCenter();
 	return getPointRotatedAround(angle, center, screenCoords);
+}
+
+/** Calculates the rotated rectangle (the four corners in global screen coordinates) of the current window.
+ * The points reflect the true position of the window (after scale, translate and rotate). */
+pt::RotatedRectangle Window::getRotatedRectangle(){
+	pt::Rectangle rect = getClientRectangle();
+
+	// Populate
+	sf::Vector2f topLeft = sf::Vector2f(rect.left, rect.top);
+	sf::Vector2f topRight = sf::Vector2f(rect.right, rect.top);
+	sf::Vector2f bottomLeft = sf::Vector2f(rect.left, rect.bottom);
+	sf::Vector2f bottomRight = sf::Vector2f(rect.right, rect.bottom);
+
+	// Rotate
+	Radians angle = getRotation() * DEGREES_TO_RADIANS;
+	sf::Vector2f center = rect.getCenter();
+
+	topLeft = getPointRotatedAround(angle, center, topLeft);
+	topRight = getPointRotatedAround(angle, center, topRight);
+	bottomLeft = getPointRotatedAround(angle, center, bottomLeft);
+	bottomRight = getPointRotatedAround(angle, center, bottomRight);
+
+	return pt::RotatedRectangle(topLeft, topRight, bottomLeft, bottomRight);
 }
 
 /** Takes in rotated screen coordinates and applies transformations and scaling to fit the content

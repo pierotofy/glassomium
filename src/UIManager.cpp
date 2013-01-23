@@ -610,7 +610,7 @@ void UIManager::animateScaleAndSetFullscreen(Window *window){
 
 	WindowOrientation orientation = window->getOrientation();
 
-	if (orientation == Bottom){
+	if (orientation == WOBottom){
 		if (currentRotation >= 0.0f && currentRotation <= 45.0f){
 			targetRotation = 0.0f;
 		}else{
@@ -618,23 +618,23 @@ void UIManager::animateScaleAndSetFullscreen(Window *window){
 		}
 	}else{
 		switch(orientation){
-		case Left:
+		case WOLeft:
 			targetRotation = 90.0f;
 			break;
-		case Top:
+		case WOTop:
 			targetRotation = 180.0f;
 			break;
-		case Right:
+		case WORight:
 			targetRotation = 270.0f;
 			break;
-		case Bottom: // Never executed, but compiler complains if it's not here
+		case WOBottom: // Never executed, but compiler complains if it's not here
 			targetRotation = 0.0f;
 			break;
 		}
 	}
 
 	sf::Vector2f targetScale;
-	if (orientation == Bottom || orientation == Top){
+	if (orientation == WOBottom || orientation == WOTop){
 		targetScale = sf::Vector2f(Application::windowWidth / window->getTextureWidth(), 
 							Application::windowHeight / window->getTextureHeight());
 	}else{
