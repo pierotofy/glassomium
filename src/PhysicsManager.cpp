@@ -45,7 +45,7 @@ PhysicsManager::PhysicsManager(){
 	initialized = false;
 	timeStep = 1.0f / 30.0f; // Should this be dynamic for better physics? 
 
-	speedScalingFactor = (20.0f * Application::windowWidth * Application::windowHeight) / (800.0f * 600.0f);
+	//speedScalingFactor = (20.0f * Application::windowWidth * Application::windowHeight) / (800.0f * 600.0f);
 
 	restitution = 0.0f;
 	friction = 0.3f; // Default values
@@ -138,13 +138,14 @@ bool PhysicsManager::isEnabled(){
 
 
 /** Applies a force to the window, which will cause the window to move and bounce on the 
- * boundaries of the screen */
+ * boundaries of the screen
+@param speed vector representing the force to be applied (pixels / seconds) */
 void PhysicsManager::applyForce(Window *window, const sf::Vector2f &speed){
 	if (enabled){
 		updateBody(window);
 		
 		b2Body *body = bodies[window->getID()];
-		body->ApplyLinearImpulse(b2Vec2(speed.x * speedScalingFactor, speed.y * speedScalingFactor), body->GetWorldCenter());
+		body->ApplyLinearImpulse(b2Vec2(speed.x * PIXEL_TO_METER, speed.y * PIXEL_TO_METER), body->GetWorldCenter());
 	}
 }
 

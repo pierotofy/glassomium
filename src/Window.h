@@ -141,9 +141,13 @@ public:
 
 	void updateScrolling(const sf::Vector2f &);
 
+	#define DRAG_SPEED_SAMPLE_TIME 100 //millisecs
 	void startDragging(const sf::Vector2f &);
 	void updateDragging(const sf::Vector2f &);
 	void stopDragging(const sf::Vector2f &, const sf::Vector2f &);
+	sf::Clock dragSpeedClock;
+	sf::Vector2f dragSpeedP1;
+	sf::Vector2f dragSpeedP2;
 
 	void startTransforming(const sf::Vector2f &, const sf::Vector2f &);
 	void updateTransform(const sf::Vector2f &, const sf::Vector2f &);
@@ -263,12 +267,8 @@ protected:
 
 	unsigned int id; // Unique for each window
 private:
-
-#define SMOOTH_DRAG 1
-#ifdef SMOOTH_DRAG
 	sf::Vector2f beginningDragTouchPosition; // Used to compute the window dragging algorithm
 	sf::Vector2f windowCenterOnDragBegin; // Same
-#endif
 
 	bool blockTransformsFlag; // After we detect a scroll, we want to avoid receiving accidental transform gestures
 	float distanceBetweenTouchesOnTransformBegin;

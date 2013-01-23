@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Glassomium"
-#define MyAppVersion "0.2"
+#define MyAppVersion "0.3"
 #define MyAppPublisher "Piero Toffanin"
 #define MyAppURL "http://www.glassomium.org"
 #define MyAppExeName "Launcher.bat"
@@ -48,5 +48,5 @@ Name: "{commondesktop}\{#MyAppExeName}"; Filename: "{userappdata}\{#MyAppName}\{
 [Run] 
 Filename: "{tmp}\rubyinstaller-1.9.3-p194.exe"; Parameters: "/silent /dir=""c:\ruby193"" /tasks=""assocfiles,modpath"""
 Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/passive /norestart"
-Filename: "{userappdata}\{#MyAppName}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
+
 
