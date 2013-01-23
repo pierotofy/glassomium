@@ -823,7 +823,7 @@ void UIManager::onDragGesture(const GestureEvent &gestureEvent){
 		}
 
 		if (drag->getPhase() == Gesture::ENDING){
-			window->stopDragging(gestureEvent.location, drag->getSpeedOnDragEnd());
+			window->stopDragging(gestureEvent.location);
 		}
 	}
 }

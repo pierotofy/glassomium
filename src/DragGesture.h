@@ -30,11 +30,7 @@ public:
 
 	static DragGesture *recognize(TouchGroup &, Gesture::Phase phase);
 	virtual Type getGestureType(){ return DRAG; }
-
-	sf::Vector2f getSpeedOnDragEnd(){ return speedOnDragEnd; }
-	void setSpeedOnDragEnd(const sf::Vector2f& speedOnDragEnd){ this->speedOnDragEnd = speedOnDragEnd; }
 private:
-	sf::Vector2f speedOnDragEnd;
 };
 
 #endif

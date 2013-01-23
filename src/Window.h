@@ -144,7 +144,7 @@ public:
 	#define DRAG_SPEED_SAMPLE_TIME 100 //millisecs
 	void startDragging(const sf::Vector2f &);
 	void updateDragging(const sf::Vector2f &);
-	void stopDragging(const sf::Vector2f &, const sf::Vector2f &);
+	void stopDragging(const sf::Vector2f &);
 	sf::Clock dragSpeedClock;
 	sf::Vector2f dragSpeedP1;
 	sf::Vector2f dragSpeedP2;

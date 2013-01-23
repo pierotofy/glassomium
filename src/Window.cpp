@@ -227,7 +227,7 @@ void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 }
 
 /** Terminates the drag gesture */
-void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vector2f &speedOnDragEnd){
+void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
      if (dragging && draggable && !animationHappening){
 
 		// Uncolor
@@ -235,7 +235,8 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vecto
 
         dragging = false;               
 
-		sf::Vector2f speedVector = (dragSpeedP2 - dragSpeedP1) / (DRAG_SPEED_SAMPLE_TIME / 1000.0f);
+		const float msecsTosecs = 0.001f;
+		sf::Vector2f speedVector = (dragSpeedP2 - dragSpeedP1) / (DRAG_SPEED_SAMPLE_TIME * msecsTosecs);
 		PhysicsManager::getSingleton()->applyForce(this, speedVector);
 
 		// Prevent other gestures from happening too quickly after this gesture

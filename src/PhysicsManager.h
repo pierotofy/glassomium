@@ -42,7 +42,7 @@ private:
 	float friction;
 	float restitution;
 
-	//float speedScalingFactor;
+	float speedScalingFactor;
 
 	std::map<int, b2Body*> bodies;
 
