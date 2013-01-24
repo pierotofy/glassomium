@@ -69,6 +69,7 @@ Window::Window(float normalizedWidth, float normalizedHeight){
 	pinchableToFullscreen = true;
 
 	sleeping = false;
+	minimized = false;
 }
 
 /** Sets a color that will blend the content of the window */
@@ -237,26 +238,29 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
 		// Prevent other gestures from happening too quickly after this gesture
 		gestureFilterClock.restart();
 
+		bool skipPhysics = false;
+
 		// Check if the window is outside the screen
 		if ( UIManager::getSingleton()->getThemeConfig()->getBool("windows.minimize.enabled")){
-			pt::RotatedRectangle rotatedRect = getRotatedRectangle();
+			ScreenBorder border = getTouchingScreenBorder(40);
+			if (border != SBNone){
+				UIManager::getSingleton()->setMinimized(this, border);
+				skipPhysics = true;
+			}
 			/*
 			LOG("TopLeft: " << rotatedRect.topLeft.x << "," << rotatedRect.topLeft.y);
 			LOG("TopRight: " << rotatedRect.topRight.x << "," << rotatedRect.topRight.y);
 			LOG("BottomLeft: " << rotatedRect.bottomLeft.x << "," << rotatedRect.bottomLeft.y);
 			LOG("BottomRight: " << rotatedRect.bottomRight.x << "," << rotatedRect.bottomRight.y);
 			LOG(getTouchingScreenBorder(80));
-			*/
-
-			
+			*/			
 		}
 
-		// TODO: if a window is dragged very close to the edge of the screen
-		// it will disappear beyond the screen. Need to fix this fault!
-
-		const float msecsTosecs = 0.001f;
-		sf::Vector2f speedVector = (dragSpeedP2 - dragSpeedP1) / (DRAG_SPEED_SAMPLE_TIME * msecsTosecs);
-		PhysicsManager::getSingleton()->applyForce(this, speedVector);
+		if (!skipPhysics){
+			const float msecsTosecs = 0.001f;
+			sf::Vector2f speedVector = (dragSpeedP2 - dragSpeedP1) / (DRAG_SPEED_SAMPLE_TIME * msecsTosecs);
+			PhysicsManager::getSingleton()->applyForce(this, speedVector);
+		}
 	 }         
 }
 
@@ -631,7 +635,7 @@ bool Window::rotationSameAs(Window *otherWindow, Degrees threshold){
  * the side that hides most of the window will be returned 
  * @param threshold the number of pixels that a window can go over the screen borders and still be 
 		considered "not touching any border" (return SBNone despite the fact that it is touching a border) */
-ScreenBorder Window::getTouchingScreenBorder(int threshold = 0){
+ScreenBorder Window::getTouchingScreenBorder(int threshold){
 	pt::RotatedRectangle rotatedRect = getRotatedRectangle();
 
 	sf::Vector2f points[4];
@@ -685,15 +689,15 @@ bool Window::isVisible(){
 }
 
 void Window::loadURL(const string &url){
+	if (firstURLLoaded == "") firstURLLoaded = url;
 	webView->loadURI(url);
 }
 
 void Window::loadFile(const string &file){
-	loadURL("file://" + FileManager::getSingleton()->getCurrentWorkingDirectory() + file);
-}
+	string url = "file://" + FileManager::getSingleton()->getCurrentWorkingDirectory() + file;
 
-void Window::loadInternal(const string &file){
-	loadURL("chrome://" + file);
+	if (firstURLLoaded == "") firstURLLoaded = url;
+	loadURL(url);
 }
 
 void Window::reload(){
@@ -1352,6 +1356,23 @@ void Window::wakeUp(){
 		sleeping = false;
 		webView->forceFullRefresh();
 		this->repaint();
+	}
+}
+
+/** Minimize the window to the specified border */
+void Window::minimize(ScreenBorder border){
+	if (!minimized){
+		positionBeforeMinimize = getPosition();
+
+		minimized = true;
+	}
+}
+
+/** Restore a window that has been minimized */
+void Window::restore(){
+	if (minimized){
+
+		minimized = false;
 	}
 }
 

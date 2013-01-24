@@ -67,6 +67,9 @@ public:
 	void animateScaleAndSetFullscreen(Window *window);
 	static void animateScaleAndSetFullscreenCallback(AnimatedObject *w);
 
+	void setMinimized(Window *window, ScreenBorder border);
+	static void setMinimizedCallback(AnimatedObject *w);
+	void onWindowMinimized(Window *window);
 
 	void onTouchGesture(const GestureEvent &);
 	void onDragGesture(const GestureEvent &);

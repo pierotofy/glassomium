@@ -6,7 +6,7 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
 var $jsafe = jQuery.noConflict();
 
 /**
-    @namespace Glassomium JS Public API 0.2
+    @namespace Glassomium JS Public API 0.4
 */
 var GLA = GLA || {};
 GLA.keyboardVisible = false;
@@ -163,6 +163,16 @@ Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);
   this.length = from < 0 ? this.length + from : from;
   return this.push.apply(this, rest);
+};
+
+/** Minimize notification */
+GLA._notifyWindowMinimized = function(windowId, url, screenBorder){
+	var evt = document.createEvent("Event");
+	evt.initEvent("GLAWindowMinimized", true, true);
+	evt.windowId = windowId;
+	evt.url = url;
+	evt.screenBorder = screenBorder;
+	document.dispatchEvent(evt);
 };
 
 /* Wrapper functions (public JS API) */

@@ -5,16 +5,121 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 
 <title>launcher</title>
+<style type="text/css" media="all">
+html{
+	overflow: hidden;
+}
 
+#applist li img{
+	border: 0;
+	-right: 20px;
+}
+
+body,ul,li {
+	padding:0;
+	margin:0;
+}
+
+body {
+	font-size:12px;
+	-webkit-user-select:none;
+    -webkit-text-size-adjust:none;
+	background-color: transparent;
+/*	-webkit-box-sizing:border-box;*/
+	font-family:helvetica;
+/*	padding-bottom:45px;	/*	This prevents the scroller to lock if the user swipes down outside of the screen.
+							 	NOT needed if in home screen mode. */
+}
+
+#wrapper {
+	position:absolute; z-index:1;
+	top:0; bottom:0; left:0;
+	width:100%;
+	background:transparent;
+	overflow:auto;
+}
+
+#scroller {
+/*	width: 2000px;
+	height:80px;*/
+	float:left;
+	padding:0;
+	text-align:center;
+}
+
+#scroller ul {
+	list-style:none;
+	display:block;
+	float:left;
+	width:100%;
+	height:100%;
+	padding:0;
+	margin:0;
+	text-align:center;
+}
+
+#scroller li {
+	display:block;
+	vertical-align:middle;
+	float:left;
+	padding:0 0;
+	width: 100%;
+	height:100%;
+	background-color:transparent;
+	font-size:14px;
+}
+
+#scroller ul li ul li{
+	display: block;
+	float: none;
+	vertical-align:middle;
+	height:100%;
+/*	width: 80px;*/
+}
+
+#arrow{
+	text-align:center;
+	display: none;
+/*	height: 80px;*/
+}
+
+#stash{
+	text-align: left;
+	display: block;
+	float: left;
+}
+
+#arrow img{
+	width: 48px;
+	height: 48px;
+}
+</style>
 <script type="application/javascript" src="/resources/system/launcher/iscroll.js"></script>
 <script type="application/javascript" src="/resources/jquery-1.6.3.min.js"></script>
 <script type="application/javascript" src="/resources/system/launcher/jquery.pulse.js"></script>
 
+<script type="application/javascript">
+var $_GET = {};
+(function () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    while (match = search.exec(query))
+       $_GET[decode(match[1])] = decode(match[2]);
+})();
+</script>
+
 <script type="text/javascript">
 
-// document.addEventListener('touchmove', function (e) { 
-// 		e.preventDefault();
-// 	}, false);
+document.addEventListener('GLAWindowMinimized', onGLAWindowMinimized, false);
+function onGLAWindowMinimized(e) {
+	if ($_GET['position'] == e.screenBorder){
+		add_app_to_stash(e.url, e.windowId);
+	}
+}
 
 var app_count = 0;
 function add_app(url, icon, js){
@@ -23,6 +128,37 @@ function add_app(url, icon, js){
    $('#applist li').append('<a class="appbutton" href="' + url + '"><img src="' + icon + '" /></a>');
 
    app_count++;
+}
+
+function add_app_to_stash(url, app_id){
+   var app_img = $("a.appbutton[href='" + url + "'] img");
+   var arrow_width = parseFloat($("#arrow img").css('width'));
+   var icon;
+
+   var icon_margin = $(window).height() / 2;
+   var icon_size = app_img.height();
+   var items_in_stash = $("#stash ul li a").size();
+      
+   
+   // Fetch icon from URL using existing anchors (from menu)
+   if ((icon = app_img.attr('src')) !== undefined){
+   	  var stash_a = $('<a class="stashbutton" href="' + url + '"><img src="' + icon + '" /></a>');
+
+	  $('#stash ul li').append(stash_a);
+	  stash_a.pulse({opacity : 0.3}, 1000, 1);
+
+	  // Reposition layout
+	  $('#stash ul li a img').css({"width" : icon_size, "height" :  icon_size,
+									"'margin-left" : icon_margin / 2, "margin-right" :  icon_margin / 2});
+
+	  var stash_width = icon_margin / 2 + items_in_stash * (icon_margin + icon_size);
+	  if (stash_width > $(window).width() - (icon_margin / 2 + arrow_width)){
+	  	// Icons need to be smaller
+	  	var new_icon_size = (-arrow_width - icon_margin - items_in_stash * icon_margin + $(window).width()) / items_in_stash;
+
+	  	$('#stash ul li a img').css({"width" : new_icon_size, "height" : new_icon_size, "margin-top": (icon_size -new_icon_size) / 2});
+	  }
+   }
 }
 
 var mouse_down = false;
@@ -100,6 +236,8 @@ $(document).ready(function() {
 	$('#scroller').css('height', height + "px");
 
 	$('#arrow').css('height', height + "px");
+	$('#stash').css('height', height + "px");
+
 	var arrow_img_height = parseInt($('#arrow img').css('height').replace(/px/, ""));
 	$('#arrow img').css('padding-top', (height/2 - arrow_img_height/2) + "px");
 
@@ -123,6 +261,7 @@ $(document).ready(function() {
 	$('#arrow img').click(function() {
 		// Hidden
 	  	$('#arrow').hide();
+	  	$('#stash').hide();
 	  	$('#scroller').css('margin-top', height + "px");
 	  	$('#wrapper').show();
 		$('#scroller').animate({
@@ -164,6 +303,7 @@ function hide_menu(height){
 	 }, 600, function() {
 		  	$('#wrapper').hide();
 		  	$('#arrow').show();
+		  	$('#stash').show();
 	 });
 }
 
@@ -175,96 +315,15 @@ function pulse_arrow(){
 $('#arrow img').pulse({'margin-top' : '+=' + ($(document).height() / 30)}, 400, 1);
 }
 </script>
-
-<style type="text/css" media="all">
-#applist li img{
-	border: 0;
-/*	width: 80px;
-	height: 80px;*/
-/*	margin-left: 20px;*/
-	-right: 20px;
-/*	-webkit-box-reflect: below 0
-	-webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.75, transparent), to(white)); 
-*/
-}
-
-body,ul,li {
-	padding:0;
-	margin:0;
-}
-
-body {
-	font-size:12px;
-	-webkit-user-select:none;
-    -webkit-text-size-adjust:none;
-	background-color: transparent;
-/*	-webkit-box-sizing:border-box;*/
-	font-family:helvetica;
-/*	padding-bottom:45px;	/*	This prevents the scroller to lock if the user swipes down outside of the screen.
-							 	NOT needed if in home screen mode. */
-}
-
-#wrapper {
-	position:absolute; z-index:1;
-	top:0; bottom:0; left:0;
-	width:100%;
-	background:transparent;
-	overflow:auto;
-}
-
-#scroller {
-/*	width: 2000px;
-	height:80px;*/
-	float:left;
-	padding:0;
-	text-align:center;
-}
-
-#scroller ul {
-	list-style:none;
-	display:block;
-	float:left;
-	width:100%;
-	height:100%;
-	padding:0;
-	margin:0;
-	text-align:center;
-}
-
-#scroller li {
-	display:block;
-	vertical-align:middle;
-	float:left;
-	padding:0 0;
-	width: 100%;
-	height:100%;
-	background-color:transparent;
-	font-size:14px;
-}
-
-#scroller ul li ul li{
-	display: block;
-	float: none;
-	vertical-align:middle;
-	height:100%;
-/*	width: 80px;*/
-}
-
-#arrow{
-	text-align:center;
-	display: block;
-	display: none;
-
-/*	height: 80px;*/
-}
-
-#arrow img{
-	width: 48px;
-	height: 48px;
-}
-</style>
 </head>
 <body>
+
+<div id="stash">
+	<ul>
+		<li>
+		</li>
+	</ul>
+</div>
 
 <div id="arrow">
 	<img src="/resources/system/launcher/arrow.png" />

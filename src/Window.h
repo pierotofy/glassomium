@@ -53,8 +53,8 @@ public:
 
 	void loadURL(const string &);
 	void loadFile(const string &);
-	void loadInternal(const string &);
 	void reload();
+	string getFirstURLLoaded(){ return firstURLLoaded; }
 
 	void translate(float screen_delta_x, float screen_delta_y);
 	void rotate(Degrees angle);
@@ -185,7 +185,7 @@ public:
 	
 	bool rotationSameAs(Window *otherWindow, Degrees threshold);
 
-	ScreenBorder getTouchingScreenBorder(int threshold);
+	ScreenBorder getTouchingScreenBorder(int threshold = 0);
 	bool isTouchingScreenBorder();
 
 	void copyAttributesTo(Window *otherWindow);
@@ -204,6 +204,10 @@ public:
 	void setToSleep();
 	void wakeUp();
 	bool isSleeping(){ return sleeping; }
+
+	void minimize(ScreenBorder border);
+	void restore();
+	bool isMinimized(){ return minimized; }
 
 	void prepareForDisposal();
 
@@ -229,6 +233,8 @@ protected:
 	bool scrollable; // Can we do scrolling?
 
 	bool sleeping; // Is this window asleep?
+
+	bool minimized; // Is this window minized?
 
 	//  We use this flag to stop user interaction from happening while
 	// an animation is affecting the look of this window
@@ -277,6 +283,8 @@ protected:
 
 	unsigned int id; // Unique for each window
 private:
+	std::string firstURLLoaded; // The first URL that is loaded by this window
+	
 	sf::Vector2f beginningDragTouchPosition; // Used to compute the window dragging algorithm
 	sf::Vector2f windowCenterOnDragBegin; // Same
 
@@ -300,6 +308,9 @@ private:
 	// And other properties
 	bool draggableBeforeFullscreen;
 	bool transparentBeforeFullscreen;
+
+	// Minimize attributes
+	sf::Vector2f positionBeforeMinimize;
 
 	std::stack<Degrees> rotationStack;
 	std::stack<sf::Vector2f> positionStack;

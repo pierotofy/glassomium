@@ -66,19 +66,21 @@ void PhysicsManager::initializeWorld(){
 		halfPhysicsWorldWidth = worldWidth / 2.0f;
 		halfPhysicsWorldHeight = worldHeight / 2.0f;
 
+		float thickness = max(worldHeight, worldWidth);
+
 		// Create boundaries across the screen so that windows do not fly out of the screen
 		
 		// Bottom
-		addBoundaryBox(0.0f, halfPhysicsWorldHeight, worldWidth, 0.0001f);
+		addBoundaryBox(0.0f, halfPhysicsWorldHeight + thickness / 2.0f, worldWidth, thickness);
 		
 		// Top
-		addBoundaryBox(0.0f, -halfPhysicsWorldHeight, worldWidth, 0.0001f);
+		addBoundaryBox(0.0f, -halfPhysicsWorldHeight - thickness / 2.0f, worldWidth, thickness);
 		
 		// Left
-		addBoundaryBox(-halfPhysicsWorldWidth, 0.0f, 0.0001f, worldHeight);
+		addBoundaryBox(-halfPhysicsWorldWidth - thickness / 2.0f, 0.0f, thickness, worldHeight);
 
 		// Right
-		addBoundaryBox(halfPhysicsWorldWidth, 0.0f, 0.0001f, worldHeight);
+		addBoundaryBox(halfPhysicsWorldWidth + thickness / 2.0f, 0.0f, thickness, worldHeight);
 
 		initialized = true;
 	}

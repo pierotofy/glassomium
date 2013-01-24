@@ -650,6 +650,72 @@ void UIManager::animateScaleAndSetFullscreenCallback(AnimatedObject *w){
 	UIManager::getSingleton()->setFullscreen((Window *)w);
 }
 
+/** Minimize the specified window to the specified screen border */
+void UIManager::setMinimized(Window *window, ScreenBorder border){
+	assert(border != SBNone);
+	window->minimize(border);
+
+	// Move the window outside the screen at the specified border	
+	sf::Vector2f center = window->getPosition();
+	sf::Vector2f targetPosition = center;
+	float longestSide = max(window->getWidth(), window->getHeight());
+	switch(border){
+		case SBRight:
+			targetPosition.x += longestSide;
+			break;
+		case SBLeft:
+			targetPosition.x -= longestSide;
+			break;
+		case SBTop:
+			targetPosition.y -= longestSide;
+			break;
+		case SBBottom:
+			targetPosition.y += longestSide;
+			break;
+	}
+
+	(new MoveAnimation(250, targetPosition,TransformAnimation::Linear, window, setMinimizedCallback)
+		)->start();
+}
+
+void UIManager::setMinimizedCallback(AnimatedObject *w){
+	Window *win = (Window *)w;
+	
+	// Set asleep
+	win->setToSleep();
+
+	// Notify system windows
+	UIManager::getSingleton()->onWindowMinimized(win);	
+}
+
+/** Notifies system windows that an application as become minimized */
+void UIManager::onWindowMinimized(Window *window){
+	stringstream oss;
+	string borderStr;
+	ScreenBorder border = window->getTouchingScreenBorder();
+	switch(border){
+		case SBTop:
+			borderStr = "top";
+			break;
+		case SBBottom:
+			borderStr = "bottom";
+			break;
+		case SBLeft:
+			borderStr = "left";
+			break;
+		case SBRight:
+			borderStr = "right";
+			break;
+	}
+
+	oss << "GLA._notifyWindowMinimized(" << window->getID() << ", '" << window->getFirstURLLoaded() << "', '" << borderStr << "');";
+
+	for (unsigned int i = 0; i < windows.size(); i++){
+		if (windows[i]->getType() == System){
+			windows[i]->executeJavascript(oss.str());
+		}
+	}
+}
 
 /** Called whenever a window has requested to exit out of fullscreen.
  * No animation/scaling/rotating is performed. */
@@ -965,10 +1031,10 @@ void UIManager::pushUpZOrdering(Window *w){
 	}
 }
 
-/** Wakes up all windows */
+/** Wakes up all windows, expect the one specified as an argument and those that are minimized */
 void UIManager::wakeUpAllWindowsExcept(Window *w){
 	for (unsigned int i = 0; i < windows.size(); i++){
-		if (windows[i] != w) windows[i]->wakeUp();
+		if (windows[i] != w && !windows[i]->isMinimized()) windows[i]->wakeUp();
 	}
 }
 
