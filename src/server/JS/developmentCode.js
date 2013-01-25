@@ -22,3 +22,4 @@ function _GLASetScrollOnTouchMove(flag){}
 function _GLASetDraggable(flag){}
 function _GLASetTransformable(flag){}
 function _GLASetPinchableOutOfFullscreen(flag){}
+function _GLARestoreWindow(windowId){}

@@ -406,3 +406,10 @@ GLA.SetPinchableToFullscreen = function(flag){
 GLA.SetScrollOnPinch = function(flag){
 	_GLASetScrollOnPinch(flag ? "1" : "0");
 };
+
+/** Restore a window that has been minimized.
+ * @param windowId the integer that identifies the window that needs to be 
+ 		restored as received during a GLAWindowMinimized event */ 
+GLA.RestoreWindow = function(windowId){
+	_GLARestoreWindow(windowId.toString());
+}

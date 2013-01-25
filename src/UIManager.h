@@ -70,6 +70,8 @@ public:
 	void setMinimized(Window *window, ScreenBorder border);
 	static void setMinimizedCallback(AnimatedObject *w);
 	void onWindowMinimized(Window *window);
+	void onRestoreWindowRequested(int windowId);
+	static void onRestoreWindowRequestedCallback(AnimatedObject *w);
 
 	void onTouchGesture(const GestureEvent &);
 	void onDragGesture(const GestureEvent &);

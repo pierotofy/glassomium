@@ -653,7 +653,7 @@ void UIManager::animateScaleAndSetFullscreenCallback(AnimatedObject *w){
 /** Minimize the specified window to the specified screen border */
 void UIManager::setMinimized(Window *window, ScreenBorder border){
 	assert(border != SBNone);
-	window->minimize(border);
+	window->setMinimized(true);
 
 	// Move the window outside the screen at the specified border	
 	sf::Vector2f center = window->getPosition();
@@ -715,6 +715,23 @@ void UIManager::onWindowMinimized(Window *window){
 			windows[i]->executeJavascript(oss.str());
 		}
 	}
+}
+
+/** A request for a window to be restored has been performed */
+void UIManager::onRestoreWindowRequested(int windowId){
+	Window *w = findWindowById(windowId);
+	if (w != NULL){
+		setTopMostWindow(w);	
+
+		(new MoveAnimation(250, w->getPositionBeforeMinimize() ,TransformAnimation::Linear, w, onRestoreWindowRequestedCallback)
+			)->start();
+	}
+}
+
+void UIManager::onRestoreWindowRequestedCallback(AnimatedObject *w){
+	Window *win = (Window *)w;
+	win->setMinimized(false);
+	win->wakeUp();
 }
 
 /** Called whenever a window has requested to exit out of fullscreen.

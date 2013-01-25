@@ -29,6 +29,7 @@ map<std::string, int> ThemeConfiguration::getIntDefaults(){
 	result["window.z-order"] = 0;
 	result["windows.drag-color"] = 0x00FFEF00; // Yellow (00,R,G,B) B = LSB
 	result["desktop.fade-transition-color"] = 0x00000000; // Black
+	result["windows.minimize.border-threshold"] = 40;
 	return result;
 }
 
@@ -42,6 +43,7 @@ map<std::string, float> ThemeConfiguration::getFloatDefaults(){
 	result["physics.drag-friction"] = 0.6f;
 	result["physics.drag-restitution"] = 0.3f;
 	result["windows.close-threshold"] = 0.12f;
+	result["windows.scale-factor"] = 1.0f;
 	return result;
 }
 

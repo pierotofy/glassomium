@@ -239,10 +239,10 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
 		gestureFilterClock.restart();
 
 		bool skipPhysics = false;
-
+		
 		// Check if the window is outside the screen
-		if ( UIManager::getSingleton()->getThemeConfig()->getBool("windows.minimize.enabled")){
-			ScreenBorder border = getTouchingScreenBorder(40);
+		if (UIManager::getSingleton()->getThemeConfig()->getBool("windows.minimize.enabled")){
+			ScreenBorder border = getTouchingScreenBorder(UIManager::getSingleton()->getThemeConfig()->getInt("windows.minimize.border-threshold"));
 			if (border != SBNone){
 				UIManager::getSingleton()->setMinimized(this, border);
 				skipPhysics = true;
@@ -358,12 +358,12 @@ void Window::updateTransform(const sf::Vector2f &firstTouchLocation, const sf::V
 
 	// End checks, start actual transforms
 	#define DELTA_SCALE_THRESHOLD 0.1f
-	#define DELTA_MITIGATION_FACTOR 0.5f // Otherwise it scales too quickly
+	float scaleFactor = UIManager::getSingleton()->getThemeConfig()->getFloat("windows.scale-factor");
 
 	float dx = firstTouchLocation.x - secondTouchLocation.x;
 	float dy = firstTouchLocation.y - secondTouchLocation.y;
 	float newDistanceBetweenTouches = sqrt(dx * dx + dy * dy);
-	float deltaScale = ((newDistanceBetweenTouches / distanceBetweenTouchesOnTransformBegin) - 1.0f) * DELTA_MITIGATION_FACTOR;
+	float deltaScale = ((newDistanceBetweenTouches / distanceBetweenTouchesOnTransformBegin) - 1.0f) * scaleFactor;
 
 	if (fabs(deltaScale) > DELTA_SCALE_THRESHOLD && !deltaScaleBigEnough){
 		deltaScaleBigEnough = true;
@@ -470,6 +470,7 @@ std::vector<std::wstring> Window::getJavascriptBindings(){
 	result.push_back(L"_GLASetScrollOnPinch");	
 	result.push_back(L"_GLAShowScreensaver");
 	result.push_back(L"_GLAEnterDragMode");
+	result.push_back(L"_GLARestoreWindow");
 	return result;
 }
 
@@ -532,6 +533,11 @@ void Window::onJavascriptCallback(std::wstring functionName, std::vector<std::st
 		UIManager::getSingleton()->hideKeyboard(this);
 	}else if (functionName == L"_GLAOpenNewWebBrowserWindow"){
 		UIManager::getSingleton()->onNewWindowRequested(params[0], this, Browser);
+	}else if (functionName == L"_GLARestoreWindow"){
+		if (params.size() == 1){
+			int windowId = str_to_int(params[0].c_str());
+			UIManager::getSingleton()->onRestoreWindowRequested(windowId);
+		}		
 	}else if (functionName == L"_GLAGoBack"){
 		webView->goBack();
 	}else if (functionName == L"_GLAGoForward"){
@@ -1359,19 +1365,13 @@ void Window::wakeUp(){
 	}
 }
 
-/** Minimize the window to the specified border */
-void Window::minimize(ScreenBorder border){
-	if (!minimized){
+/** Sets whether this window is minimized */
+void Window::setMinimized(bool flag){
+	if (!minimized && flag){
 		positionBeforeMinimize = getPosition();
 
 		minimized = true;
-	}
-}
-
-/** Restore a window that has been minimized */
-void Window::restore(){
-	if (minimized){
-
+	}else if (minimized && !flag){
 		minimized = false;
 	}
 }

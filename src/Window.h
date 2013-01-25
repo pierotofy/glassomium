@@ -205,9 +205,9 @@ public:
 	void wakeUp();
 	bool isSleeping(){ return sleeping; }
 
-	void minimize(ScreenBorder border);
-	void restore();
+	void setMinimized(bool flag);
 	bool isMinimized(){ return minimized; }
+	sf::Vector2f getPositionBeforeMinimize(){ return positionBeforeMinimize; }
 
 	void prepareForDisposal();
 

@@ -130,6 +130,11 @@ function add_app(url, icon, js){
    app_count++;
 }
 
+function remove_app_from_stash(app_id){
+	GLA.RestoreWindow(app_id);
+	$("#stash ul li a.stashbutton[data-appid='" + app_id + "']").remove();
+}
+
 function add_app_to_stash(url, app_id){
    var app_img = $("a.appbutton[href='" + url + "'] img");
    var arrow_width = parseFloat($("#arrow img").css('width'));
@@ -142,7 +147,7 @@ function add_app_to_stash(url, app_id){
    
    // Fetch icon from URL using existing anchors (from menu)
    if ((icon = app_img.attr('src')) !== undefined){
-   	  var stash_a = $('<a class="stashbutton" href="' + url + '"><img src="' + icon + '" /></a>');
+   	  var stash_a = $('<a class="stashbutton" href="javascript:remove_app_from_stash(' + app_id + ');" data-appid="' + app_id + '"><img src="' + icon + '" /></a>');
 
 	  $('#stash ul li').append(stash_a);
 	  stash_a.pulse({opacity : 0.3}, 1000, 1);
