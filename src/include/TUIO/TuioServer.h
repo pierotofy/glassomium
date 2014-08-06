@@ -27,6 +27,7 @@
 #include <iostream>
 #include <vector>
 #include <stdio.h>
+#include <unistd.h>
 #ifndef WIN32
 #include <netdb.h>
 #include <arpa/inet.h>
