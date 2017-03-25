@@ -195,32 +195,39 @@ void Window::onStartLoading(){
 /** Changes the color of the window and begins the drag */
 void Window::startDragging(const sf::Vector2f &dragTouchPosition){
      if (!dragging && draggable && !animationHappening && gestureFilterClockExpired()){
-
-#ifdef SMOOTH_DRAG
 		 beginningDragTouchPosition = dragTouchPosition;
 		 windowCenterOnDragBegin = getPosition();
-#endif
+
 		 // Color
 		 setBlendColor(UIManager::getSingleton()->getDragColor());
 
-         dragging = true;               
+         dragging = true;
+
+		 // Speed
+		 dragSpeedClock.restart();
+		 dragSpeedP1 = dragSpeedP2 = dragTouchPosition;
      }                        
 }
 
 /** Moves the window if the window is being dragged */
 void Window::updateDragging(const sf::Vector2f &dragTouchPosition){
 	if (dragging && draggable && !animationHappening){
-#ifdef SMOOTH_DRAG
 		sf::Vector2f newPosition = windowCenterOnDragBegin + (dragTouchPosition - beginningDragTouchPosition);
 		setPosition(newPosition);
-#else
-		setPosition(dragTouchPosition); // Temporary solution that doesn't lag, but no smooth movements
-#endif
+
+		// Sample the position of the window at small intervals of time
+		// as to later calculate a deltaP / time which gives us a velocity vector
+		// to apply to a window for the physics engine
+		if (dragSpeedClock.getElapsedTime().asMilliseconds() > DRAG_SPEED_SAMPLE_TIME){
+			dragSpeedP1 = dragSpeedP2;
+			dragSpeedP2 = dragTouchPosition;
+			dragSpeedClock.restart();
+		}
 	}
 }
 
 /** Terminates the drag gesture */
-void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vector2f &speedOnDragEnd){
+void Window::stopDragging(const sf::Vector2f &dragTouchPosition){
      if (dragging && draggable && !animationHappening){
 
 		// Uncolor
@@ -228,7 +235,9 @@ void Window::stopDragging(const sf::Vector2f &dragTouchPosition, const sf::Vecto
 
         dragging = false;               
 
-		PhysicsManager::getSingleton()->applyForce(this, speedOnDragEnd);
+		const float msecsTosecs = 0.001f;
+		sf::Vector2f speedVector = (dragSpeedP2 - dragSpeedP1) / (DRAG_SPEED_SAMPLE_TIME * msecsTosecs);
+		PhysicsManager::getSingleton()->applyForce(this, speedVector);
 
 		// Prevent other gestures from happening too quickly after this gesture
 		gestureFilterClock.restart();

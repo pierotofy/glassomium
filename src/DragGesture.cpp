@@ -48,7 +48,6 @@ DragGesture* DragGesture::recognize(TouchGroup &touchGroup, Gesture::Phase phase
 			if (touchGroup.getSize() == 1){
 				touchGroup.updateConstCenter();
 				DragGesture *result = new DragGesture(Gesture::ENDING); // We had a drag, but now the number of touches has changed
-				result->setSpeedOnDragEnd(sf::Vector2f(touchGroup.getTouch(0)->speedX, touchGroup.getTouch(0)->speedY));
 				return result;				
 			}else{
 				return 0; // We haven't ended our gesture yet
