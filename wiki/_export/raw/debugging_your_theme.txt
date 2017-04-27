@@ -1,0 +1,3 @@
+====== Debugging Your Theme ======
+
+Debugging of a theme is the same as [[Debugging an application|debugging applications]]. The URLs you want to connect to are http://localhost:5555/system/NAME/?development=1, where NAME is "launcher", "screensaver", etc.

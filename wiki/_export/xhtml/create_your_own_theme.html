@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/create_your_own_theme by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:21:09 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>create_your_own_theme</title>
+<meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-11-14T23:00:06+0000"/>
+<meta name="keywords" content="create_your_own_theme"/>
+<link rel="search" type="application/opensearchdescription+xml" href="../../lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="../../index.html"/>
+<link rel="contents" href="../../create_your_own_themedecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="../../feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="../../feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="create_your_own_theme.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="../raw/create_your_own_theme.txt"/>
+<link rel="canonical" href="../../create_your_own_theme.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="../../lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="../../lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="../../lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"create_your_own_theme","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="../../lib/exe/js5fd1.php?tseed=1343686328"></script>
+</head>
+<body>
+<div class="dokuwiki export">
+<!-- TOC START -->
+<div class="toc">
+<div class="tocheader toctoggle" id="toc__header">Table of Contents</div>
+<div id="toc__inside">
+
+<ul class="toc">
+<li class="level1"><div class="li"><span class="li"><a href="#create_your_own_theme" class="toc">Create your own theme</a></span></div>
+<ul class="toc">
+<li class="level2"><div class="li"><span class="li"><a href="#themecfg_syntax" class="toc">Theme.cfg syntax</a></span></div>
+<ul class="toc">
+<li class="level3"><div class="li"><span class="li"><a href="#windowtype" class="toc">Window.type</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#windowz-order" class="toc">Window.z-order</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#windowurl" class="toc">Window.URL</a></span></div></li>
+</ul>
+</li>
+<li class="level2"><div class="li"><span class="li"><a href="#minimum_requirements_of_a_theme" class="toc">Minimum requirements of a theme</a></span></div>
+<ul class="toc">
+<li class="level3"><div class="li"><span class="li"><a href="#launcher" class="toc">Launcher</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#crash_page" class="toc">Crash Page</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#screensaver" class="toc">Screensaver</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#keyboards" class="toc">Keyboards</a></span></div></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<!-- TOC END -->
+
+<h1 class="sectionedit1"><a name="create_your_own_theme" id="create_your_own_theme">Create your own theme</a></h1>
+<div class="level1">
+
+<p>
+A good way to learn how to make your own themes is to look at the existing ones that ship with Glassomium. A good theme to use as a template is the <strong>minimal</strong> theme that you can find in the /server/Themes/minimal folder. To create your own theme, simply copy the minimal folder and all of its contents in a new folder and call it myTheme (or however you like).
+</p>
+
+<p>
+Inside the folder you will notice three elements:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>system</strong>: this is where your system windows (launcher, keyboard, screensaver, background, etc.) will be placed</div>
+</li>
+<li class="level1"><div class="li"> <strong>resources</strong>: this is a directory where you can place images, scripts and other resources you plan to use in your system windows. This directory will be mounted as <a href="http://localhost:5555/resources/" class="urlextern" title="http://localhost:5555/resources/"  rel="nofollow">http://localhost:5555/resources/</a>.</div>
+</li>
+<li class="level1"><div class="li"> <strong>theme.cfg</strong>: this is the place where you specify the design your theme. It follows a very simple syntax, which is explained below.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT1 SECTION "Create your own theme" [1-908] -->
+<h2 class="sectionedit2"><a name="themecfg_syntax" id="themecfg_syntax">Theme.cfg syntax</a></h2>
+<div class="level2">
+
+<p>
+This is an example of a theme.cfg:
+</p>
+<pre class="code"># This is a comment and will be ignored
+
+# How many seconds before the screensaver window should be invoked?
+# A value of 0 means never invoke the screensaver
+screensaver.wait	180
+
+# When a window is being dragged, what color should it be? 
+windows.drag-color	#FFEF00
+
+# At what size compared to its original size should a window be closed?
+# A value of 0.12 means that when a user window gets pinched to 12% of
+# it original size, it will be closed. You can disable this feature by setting a value of 0.
+windows.close-threshold		0.12
+
+# Starting from Glassomium 0.3, the physics engine can be turned on
+physics.enabled			yes
+
+# How much friction should be applied to windows when released from a drag
+physics.drag-friction		0.6
+
+# How much should windows bounce off from the corners of the screen
+physics.drag-restitution	0.3
+
+# Define a new system window (name it ButtonMenu) of type foreground
+# that points to the URL &quot;/system/launcher&quot;, that spawns 90% of the screen in width
+# 4% of the screen in height, with its center positioned 50% from the left and 96.5% from the top,
+# default rotation and default z-order
+[BottomMenu]
+window.type			&quot;foreground&quot;
+window.URL			&quot;/system/launcher&quot;
+window.width			0.9
+window.height			0.04
+window.position.x		0.5
+window.position.y		0.965
+window.rotation			0.0
+window.z-order			0
+
+# Create a keyboard window with the following parameters
+[BottomKeyboard]
+window.type			&quot;keyboard&quot;
+window.URL			&quot;/system/keyboard&quot;
+window.width			0.60
+window.height			0.22
+window.position.x		0.5
+window.position.y		0.83
+window.rotation			0.0
+window.z-order			0
+
+# Create a background window with the following parameters
+[Background]
+window.type			&quot;background&quot;
+window.URL			&quot;/system/background&quot;
+window.width			1.0
+window.height			1.0
+window.position.x		0.5
+window.position.y		0.5</pre>
+
+<p>
+You can define as many windows as you want inside a theme.cfg and using these basic properties you should be able to create very cool designs. Let&#039;s look in more details a few key properties.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Theme.cfg syntax" [909-2982] -->
+<h3 class="sectionedit3"><a name="windowtype" id="windowtype">Window.type</a></h3>
+<div class="level3">
+
+<p>
+There are 4 types of windows you can define:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>foreground</strong>: windows that are always on top of user windows and background windows. The only window that can overlap a foreground window is a window in fullscreen mode, a keyboard or the screensaver.</div>
+</li>
+<li class="level1"><div class="li"> <strong>background</strong>: windows that are always overlapped by other windows, expect by other background windows with a lower Z-order.</div>
+</li>
+<li class="level1"><div class="li"> <strong>keyboard</strong>: this is a special kind of window as it is not displayed by default. It only gets displayed whenever a user focuses a textbox or a textarea (or through the GLA.ShowKeyboard() <acronym title="Application Programming Interface">API</acronym>). You do not need to define a keyboard for your theme, but if you want users to be able to type you probably want to implement one (or copy one from an existing theme).</div>
+</li>
+<li class="level1"><div class="li"> <strong>user</strong>: this is the same type of window that gets created when a user launches an application. It&#039;s meant to be used for automatically launching an application at startup.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Window.type" [2983-3931] -->
+<h3 class="sectionedit4"><a name="windowz-order" id="windowz-order">Window.z-order</a></h3>
+<div class="level3">
+
+<p>
+If you want to fine tune which window of the same type is on top, you can set its z-order. Note that this value only accepts <strong>positive integers</strong>. Negative z-order numbers will be converted to 0.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Window.z-order" [3932-4155] -->
+<h3 class="sectionedit5"><a name="windowurl" id="windowurl">Window.URL</a></h3>
+<div class="level3">
+
+<p>
+This can be either an absolute address (<a href="http://www.google.com/" class="urlextern" title="http://www.google.com"  rel="nofollow">http://www.google.com</a>) or a relative (/system/launcher). Whenever a relative address is used, the full address of the UI Server will be appended to it (/system/launcher will be expanded to <a href="http://localhost:5555/system/launcher" class="urlextern" title="http://localhost:5555/system/launcher"  rel="nofollow">http://localhost:5555/system/launcher</a>).
+</p>
+
+<p>
+System windows need not to be launchers or keyboards. You can define them to be whatever you want. If you want to add a weather widget for example, place the code in your theme&#039;s /system/weatherWidget folder and create a system window for it.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Window.URL" [4156-4691] -->
+<h2 class="sectionedit6"><a name="minimum_requirements_of_a_theme" id="minimum_requirements_of_a_theme">Minimum requirements of a theme</a></h2>
+<div class="level2">
+
+<p>
+At a minimum, your theme should <strong>always</strong> provide at least:
+</p>
+<ul>
+<li class="level1"><div class="li"> One launcher (placed in /system/launcher)</div>
+</li>
+<li class="level1"><div class="li"> One crash handler page (placed in /system/crashpage)</div>
+</li>
+<li class="level1"><div class="li"> One screensaver (placed in /system/screensaver, unless you set the screensaver.wait property to zero)</div>
+</li>
+</ul>
+
+<p>
+Everything else is optional. I will describe the details of each, as they are somewhat “special”.
+</p>
+
+</div>
+<!-- EDIT6 SECTION "Minimum requirements of a theme" [4692-5106] -->
+<h3 class="sectionedit7"><a name="launcher" id="launcher">Launcher</a></h3>
+<div class="level3">
+
+<p>
+If you look at the launcher folder in the minimal theme you will notice that there are no html or htm files, but only a main.tml and item.tml. Tml files are simply <acronym title="HyperText Markup Language">HTML</acronym> files, with a special feature that allows for dynamic content generation.
+In the <strong>main.tml</strong>, every string ”{ITEM_LIST}” will be replaced with the contents of item.tml for each user application in the /server/WebRoot/apps folder. In turn, each <strong>item.tml</strong> file will replace the strings ”{ITEM_<acronym title="Uniform Resource Locator">URL</acronym>}” and ”{ITEM_ICON}” with the absolute <acronym title="Uniform Resource Locator">URL</acronym> of the application and its icon. This is meant as a simple way to create launchers without involving a more complicated setup. See <a href="../../using_a_web_server_with_glassomium.html" class="wikilink1" title="using_a_web_server_with_glassomium">Using a web server with Glassomium</a> for more information on generating dynamic content.
+</p>
+
+<p>
+You can use the GLA.OpenNewWindow() <acronym title="Application Programming Interface">API</acronym> to spawn a new application or use anchor tags that have a _blank target. The result is the same.
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Launcher" [5107-6033] -->
+<h3 class="sectionedit8"><a name="crash_page" id="crash_page">Crash Page</a></h3>
+<div class="level3">
+
+<p>
+At times Glassomium applications might become unresponsive or crash. The users need to be notified of this unfortunate event and given options to choose (usually quit or restart the application). When an application crashes, the web page at /system/crashpage is displayed and an event is fired upon page load to provide more information about the crash:
+</p>
+<pre class="code javascript">document.<span class="me1">addEventListener</span><span class="br0">&#40;</span><span class="st0">'GLACrashInformationChanged'</span><span class="sy0">,</span> onGLACrashInformationChanged<span class="sy0">,</span> <span class="kw2">false</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw2">function</span> onGLACrashInformationChanged<span class="br0">&#40;</span>event<span class="br0">&#41;</span> <span class="br0">&#123;</span>
+    <span class="co1">// event.description contains a brief description of the error</span>
+    <span class="co1">// event.URL contains the URL of the page that crashed   </span>
+<span class="br0">&#125;</span></pre>
+
+<p>
+The crash page can then use these two information to notify the user and allow him/her to take action.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "Crash Page" [6034-6813] -->
+<h3 class="sectionedit9"><a name="screensaver" id="screensaver">Screensaver</a></h3>
+<div class="level3">
+
+<p>
+If a screensaver timeout is specified in the theme&#039;s configuration, the page at /system/screensaver will be displayed when no user activity is detected. Screensaver windows are always displayed in fullscreen and there&#039;s need for a way to close them. There is a special <acronym title="Application Programming Interface">API</acronym> that needs to be called to close a screensaver window, namely GLA.ExitScreensaver().
+</p>
+<pre class="code javascript"><span class="sy0">&lt;</span>script<span class="sy0">&gt;</span>
+<span class="co1">// Using jquery</span>
+$<span class="br0">&#40;</span>document<span class="br0">&#41;</span>.<span class="me1">click</span><span class="br0">&#40;</span><span class="kw2">function</span><span class="br0">&#40;</span><span class="br0">&#41;</span><span class="br0">&#123;</span>
+    GLA.<span class="me1">ExitScreensaver</span><span class="br0">&#40;</span><span class="st0">&quot;fadeout&quot;</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="sy0">&lt;/</span>script<span class="sy0">&gt;</span></pre>
+
+</div>
+<!-- EDIT9 SECTION "Screensaver" [6814-7332] -->
+<h3 class="sectionedit10"><a name="keyboards" id="keyboards">Keyboards</a></h3>
+<div class="level3">
+
+<p>
+Keyboards are a special type of windows that allow the user to type. Whenever a window calls GLA.ShowKeyboard(), Glassomium finds the closest keyboard available on the screen (if any is available), links that keyboard with the window and shows it to the user. Before the keyboard can be used by another window, the window needs to release it by calling GLA.HideKeyboard(). By default touching any textarea or textbox will cause GLA.ShowKeyboard() to be called and once visible, touching any area of the window that is not a textarea or a textbox will cause a call to GLA.HideKeyboard(). Also GLA.HideKeyboard() will be automatically called whenever a window is closed. This behavior can be (although we don&#039;t encourage it) altered by changing server/<acronym title="JavaScript">JS</acronym>/injectOnLoad.js.
+</p>
+
+<p>
+Keyboard windows have access to one special <acronym title="Application Programming Interface">API</acronym>, GLA.KeyboardOnKeyPressed() which can be used to send characters from the keyboard to the linked window.
+</p>
+
+</div>
+<!-- EDIT10 SECTION "Keyboards" [7333-] --></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/create_your_own_theme by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:21:09 GMT -->
+</html>

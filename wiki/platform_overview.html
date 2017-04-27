@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/platform_overview by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:01:30 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    Platform Overview  </title>
+
+  <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-07-31T01:42:51+0000"/>
+<meta name="keywords" content="platform_overview"/>
+<link rel="search" type="application/opensearchdescription+xml" href="lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="index.html"/>
+<link rel="contents" href="platform_overviewdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="_export/xhtml/platform_overview.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="_export/raw/platform_overview.txt"/>
+<link rel="canonical" href="platform_overview.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"platform_overview","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="lib/exe/js5fd1.php?tseed=1343686328"></script>
+
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  </head>
+
+<body>
+
+	
+	
+
+
+
+
+
+		
+	<div class="dokuwiki">
+	  <div id="header">
+	    <div class="inner">
+	      <div class="bar_left">
+		<div id="sitename">
+		  <a href="index.html"  name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[H]">Glassomium Wiki</a>		</div>
+	      </div>
+	      <div class="bar_right" style="padding-top:7px">
+		<form action="http://glassomium.org/wiki/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><input type="submit" value="Search" class="button" title="Search" /><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>&nbsp;
+	      </div>
+	      <div class="clearer"></div>
+	      	    </div>
+	  </div>
+	
+	</div>
+	<div id="location" class="inner">
+		</div>
+	<div id="content" class="inner">
+	    <div id="maincol" class="dokuwiki">
+	      <div class="page">
+
+		<!-- wikipage start -->
+		
+<h1 class="sectionedit1"><a name="platform_overview" id="platform_overview">Platform Overview</a></h1>
+<div class="level1">
+
+</div>
+
+<h3 class="sectionedit2"><a name="basic_terminology" id="basic_terminology">Basic Terminology</a></h3>
+<div class="level3">
+
+<p>
+The reader should familiarize with these terms before going into any further reading:
+</p>
+<ul>
+<li class="level1"><div class="li"> Glassomium (or Glassomium client): the binary application that displays content to the screen. </div>
+</li>
+<li class="level1"><div class="li"> Glassomium UI Server (or UI Server): the Ruby program that provides Glassomium with content to display via local web server.</div>
+</li>
+<li class="level1"><div class="li"> Injection: the process of taking <acronym title="HyperText Markup Language">HTML</acronym>/<acronym title="Cascading Style Sheets">CSS</acronym>/Javascript code and forcing it into an existing web page at runtime.</div>
+</li>
+<li class="level1"><div class="li"> Glassomium <acronym title="Application Programming Interface">API</acronym> (or <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym>): the set of Javascript functions that can be called within Glassomium, but that will not work on a regular browser.</div>
+</li>
+<li class="level1"><div class="li"> Root directory (or /): the directory containing LICENSE.txt.</div>
+</li>
+</ul>
+
+</div>
+
+<h3 class="sectionedit3"><a name="directory_structure" id="directory_structure">Directory structure</a></h3>
+<div class="level3">
+
+<p>
+On Windows, by default Glassomium&#039;s root directory is installed in the %appdata% (X:\Users\&lt;user&gt;\AppData\Roaming) folder. The program files folder only contains the uninstaller files.
+On Linux there&#039;s no installer and the root folder can be placed anywhere.
+</p>
+<ul>
+<li class="level1"><div class="li"> /server is the directory containing the UI Server</div>
+</li>
+<li class="level1"><div class="li"> /bin is the directory containing the Glassomium client</div>
+</li>
+<li class="level1"><div class="li"> /server/WebRoot/apps is the directory where user applications should be placed.</div>
+</li>
+<li class="level1"><div class="li"> /server/Themes is where system layouts are placed.</div>
+</li>
+<li class="level1"><div class="li"> /server/main.rb is the script to run to launch the UI Server (see ruby main.rb –help)</div>
+</li>
+<li class="level1"><div class="li"> /Launcher.sh and /Launcher.bat are scripts for Linux and Windows respectively that will attempt to launch the UI Server and then Glassomium.</div>
+</li>
+<li class="level1"><div class="li"> /server/<acronym title="JavaScript">JS</acronym>/injectOnLoad.js is Javascript code that will get injected in each window that is displayed on Glassomium after the content of a page has been loaded. This is also the place where the user can explore the <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym> available to Glassomium applications.</div>
+</li>
+</ul>
+
+</div>
+
+<h3 class="sectionedit4"><a name="launcher_scripts" id="launcher_scripts">Launcher scripts</a></h3>
+<div class="level3">
+
+<p>
+Glassomium has a basic Launcher script (Launcher.bat and Launcher.sh) that allows the user to quickly get a taste for the platform without much configuration. It is however recommended that the user quickly learns how to start and restart the Glassomium client and UI Server separately from the command line. Available options are available by typing:
+</p>
+<pre class="code">~/glassomium# ruby server/main.rb --help</pre>
+
+<p>
+And
+</p>
+<pre class="code">~/glassomium# bin/Glassomium --help</pre>
+
+<p>
+The UI Server should always be started before Glassomium. Glassomium will fail with an error message if the server is not reachable. Make sure you allow your local firewall to allow the two programs to communicate.
+</p>
+
+</div>
+
+		<!-- wikipage stop -->
+	
+			
+	      	<div class="bar" id="bar__top" style="margin-top:20px;">
+      <div class="bar-left" id="bar__topleft">
+        <form class="button btn_source" method="post" action="http://glassomium.org/wiki/platform_overview"><div class="no"><input type="hidden" name="do" value="edit" /><input type="hidden" name="rev" value="" /><input type="submit" value="Show pagesource" class="button" accesskey="v" title="Show pagesource [V]" /></div></form>        <form class="button btn_revs" method="get" action="http://glassomium.org/wiki/platform_overview"><div class="no"><input type="hidden" name="do" value="revisions" /><input type="submit" value="Old revisions" class="button" accesskey="o" title="Old revisions [O]" /></div></form>              </div>
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="http://glassomium.org/wiki/platform_overview"><div class="no"><input type="hidden" name="do" value="recent" /><input type="submit" value="Recent changes" class="button" accesskey="r" title="Recent changes [R]" /></div></form>                                <form class="button btn_login" method="get" action="http://glassomium.org/wiki/platform_overview"><div class="no"><input type="hidden" name="do" value="login" /><input type="hidden" name="sectok" value="4def3a5dd4a31b99cc6b0d4eb140ef47" /><input type="submit" value="Login" class="button" title="Login" /></div></form>
+      </div>
+      <div class="clearer"></div>
+    </div>
+	      </div>
+	    </div>
+	    
+	    <div class="clearer"></div>
+	</div>
+	<div id="copyright" style="text-align:center;">
+		<p>Content on this wiki is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" rel="nofollow">CC Attribution-Noncommercial-Share Alike 3.0 Unported</a>    
+		<p>Theme based on the work by <a href="http://www.mohdshakir.net/" rel="nofollow">Mohd Shakir Zakaria</a></p>
+	</div>
+	  
+	
+	
+	
+	
+	<div class="no"><img src="lib/exe/indexer251c.gif?id=platform_overview&amp;1493315714" width="2" height="1" alt="" /></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/platform_overview by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:02:13 GMT -->
+</html>

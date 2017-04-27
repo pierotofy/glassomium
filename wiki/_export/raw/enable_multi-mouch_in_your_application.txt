@@ -1,0 +1,88 @@
+====== Enable Multi-Touch in Your Application ======
+
+===== Capturing Touches =====
+
+Glassomium by default acts as an intermediary that receives TUIO messages and converts them to equivalent mousedown, mousemove and mouseup events. This guarantees that a normal desktop web application still works in Glassomium's multi-touch environment.
+
+When you want to handle multiple touches at the same time (like in the Keyboard application) you need to make explicit request to receive multi-touch events, via the GLA.SetTuioEnabled() API.
+
+<code html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetTuioEnabled(true);
+}
+</script>
+</head>
+</code>
+
+You can see that the GLA.SetTuioEnabled API is called upon receiving the GLALoad event. To better understand why the API cannot be called within a normal document onload event see [[Understanding the page load process|Understanding the page load process]].
+
+Now that the application is receiving multi-touch events, you need to catch them. Developers who created web applications for iOS or Android will be pleased to know that Glassomium utilizes an almost identical method to handle multi touch events:
+
+<code html>
+<script>
+document.addEventListener('touchstart', onDocumentTouchStart, false);
+document.addEventListener('touchmove', onDocumentTouchMove, false);
+document.addEventListener('touchend', onDocumentTouchEnd, false);  
+
+function onDocumentTouchStart(event) {    
+    for (var i = 0; i < event.touches.length; i++) {
+    	console.log("Touchstart: " + event.touches[i].identifier);
+        console.log("PageX: " + event.touches[i].pageX);
+        console.log("PageY: " + event.touches[i].pageY);
+    }    
+}
+
+function onDocumentTouchMove(event) {
+    for (var i = 0; i < event.touches.length; i++) {
+    	console.log("Touchmove: " + event.touches[i].identifier);
+        console.log("PageX: " + event.touches[i].pageX);
+        console.log("PageY: " + event.touches[i].pageY);
+    }   
+}
+
+function onDocumentTouchEnd(event) {   
+    for (var i = 0; i < event.changedTouches.length; i++) {
+    	console.log("Touchend: " + event.touches[i].identifier);
+        console.log("PageX: " + event.touches[i].pageX);
+        console.log("PageY: " + event.touches[i].pageY);
+    }       
+}
+</script>
+</code>
+
+Every event object carries the following information:
+  * **touches**: an array containing all the touches the user is pressing on the surface
+  * **changedTouches**: an array containing all the touches that have changed since the last event.
+  * **touch**: the equivalent of touches[0]
+
+Every touch object contains the following data members:
+  * **identifier**: an integer representing the touch as received from TUIO (or -1 if it's simulated through the mouse)
+  * **pageX** and **pageY** The X and Y coordinates of the touch point relative to the left edge of the document
+  * **clientX** and **clientY** The X and Y coordinates of the touch point relative to the left edge of the browser viewport, not including any scroll offset.
+  * **screenX** and **screenY** The same as clientX and clientY, included to guarantee more compatibility with existing applications. 
+  * **target** The element the touch point is currently touching.
+
+Additionally, if you are detecting blobs using TUIO 1.1 (CCV 1.5 supports this) you can access the following data members:
+
+  * **radiusX**: the horizontal radius size of the blob.
+  * **radiusY**: the vertical radius size of the blob.
+  * **rotationAngle**: the rotation of the blob.
+
+When TUIO 1.0 is used, these data members have a default value of 0.
+
+For an example, check the **Shapes** application that is provided with Glassomium.
+
+===== Capturing Gestures =====
+
+While Glassomium is capable of delivering touch events, it doesn't take care of gestures. Instead, this task can be accomplished through Javascript by deriving the gestures from the touch events.
+
+For this purpose, we suggest you take a look at the **MagicGesture.js** library, which is capable of generating two finger gestures for scaling and rotating. The source code is available on Github: https://github.com/pierotofy/MagicGesture.js
+
+The **Photo Canvas Demo** application that ships with Glassomium uses this library to move the pictures on the canvas.
+
+Another library that offers even more gestures is available here: https://github.com/eightmedia/hammer.js

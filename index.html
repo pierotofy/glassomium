@@ -1,0 +1,665 @@
+<!doctype html>  
+<html lang="en">  
+  
+<!-- Mirrored from glassomium.org/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 16:31:18 GMT -->
+<head>
+    <meta charset="utf-8">
+    <title>Glassomium - Open-source cross-platform web-based TUIO-enabled multi-touch window manager</title>  
+    <meta name="description" content="The official home page of the Glassomium project, an open-source cross-platform web-based TUIO-enabled multi-touch window manager">  
+    <meta name="author" content="Piero Toffanin">  
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+      
+    <link rel="stylesheet" href="css/stylec619.css?v=1.0">
+    <link rel="stylesheet" href="js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/fancybox/jquery.fancybox-1.3.4.js"></script>
+    <script src="js/jquery.scrollTo-min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/jquery.galleriffic.js"></script>
+    <script src="js/jquery.opacityrollover.js"></script>
+    
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+   
+    <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+    <script type="text/javascript">stLight.options({publisher: "ur-f3fae7d-9643-67d2-6ca1-e8a941a37407"}); </script>
+
+    <script type="text/javascript" src="http://use.typekit.com/vyb5axf.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+   
+    <script>
+var initialHomeLeft = 0;
+var animatingHome = false;
+
+	$(window).load(function(){
+  	setTimeout(function(){ 
+	adjustLayout();
+
+    	if (document.images) {
+    		var img1 = new Image();
+    		var img2 = new Image();
+
+    		img1.src = "images/home-button-over.png";
+    		img2.src = "images/fork-me-over.png";
+    	}
+
+
+      initBootstrap();
+
+          $("a.navigation").click(function (event){
+      var target = $(this).attr('href');
+      var offsetY = $(target).offset().top;
+      $(document).scrollTo( {top:offsetY, left:0}, 700);
+      event.preventDefault();
+    });
+
+    jQuery.validator.messages.required = "";
+    $("#contactForm").validate({
+     submitHandler: function(form) {
+       var button = $("#contactForm input[type='submit']");
+       button.attr('value', "Sending...");
+       button.attr('disabled', '1');
+
+      $.ajax({
+            type: "POST",
+            url: "email.php",
+            data: { "name" : $('#contactForm input[name="name"]').val() , 
+                    "email" : $('#contactForm input[name="email"]').val(),
+                    "body" : $('#contactForm textarea[name="body"]').val(),
+                    "phone" : $('#contactForm input[name="phone"]').val(),
+                  },
+            timeout: 10000,
+            success: function(data) {
+                button.attr('value', "Sent! Thank you for contacting us!")
+            },
+            error: function(){
+                button.attr('value', "Sorry, an error occured. Click to send again.");
+                button.removeAttr('disabled');
+            }
+        }); 
+
+       return false;
+     },
+      rules: {
+        email: {
+          required: true,
+          email: true
+        }
+      }
+    });
+
+    var gallery = $('#thumbs').galleriffic({
+        delay:                     3000, // in milliseconds
+        numThumbs:                 12, // The number of thumbnails to show page
+        preloadAhead:              -1, // Set to -1 to preload all images
+        enableTopPager:            false,
+        enableBottomPager:         true,
+        maxPagesToShow:            7,  // The maximum number of pages to display in either the top or bottom pager
+        imageContainerSel:         '#image-display #image', // The CSS selector for the element within which the main slideshow image should be rendered
+        controlsContainerSel:      '#image-display #controls', // The CSS selector for the element within which the slideshow controls should be rendered
+        captionContainerSel:       '#image-display #caption .caption-content', // The CSS selector for the element within which the captions should be rendered
+        loadingContainerSel:       '', // The CSS selector for the element within which should be shown when an image is loading
+        renderSSControls:          false, // Specifies whether the slideshow's Play and Pause links should be rendered
+        renderNavControls:         true, // Specifies whether the slideshow's Next and Previous links should be rendered
+        playLinkText:              'Play',
+        pauseLinkText:             'Pause',
+        prevLinkText:              'Previous',
+        nextLinkText:              'Next',
+        nextPageLinkText:          '',
+        prevPageLinkText:          '',
+        enableHistory:             false, // Specifies whether the url's hash and the browser's history cache should update when the current slideshow image changes
+        enableKeyboardNavigation:  true, // Specifies whether keyboard navigation is enabled
+        autoStart:                 false, // Specifies whether the slideshow should be playing or paused when the page first loads
+        syncTransitions:           false, // Specifies whether the out and in transitions occur simultaneously or distinctly
+        defaultTransitionDuration: 1000, // If using the default transitions, specifies the duration of the transitions
+        onSlideChange:             undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
+        onTransitionOut:           undefined, // accepts a delegate like such: function(slide, caption, isSync, callback) { ... }
+        onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
+          onPageTransitionOut:       function(callback) {
+            this.fadeTo('fast', 0.0, callback);
+          },
+          onPageTransitionIn:        function() {
+            this.fadeTo('fast', 1.0);
+          },
+        onImageAdded:              undefined, // accepts a delegate like such: function(imageData, $li) { ... }
+        onImageRemoved:            undefined  // accepts a delegate like such: function(imageData, $li) { ... }
+    });
+
+    initialHomeLeft = $("#btn-go-home").offset().left;
+    $(window).scroll(function() {
+      var scroll = $(document).scrollTop();
+      var currentHomeLeft = $("#btn-go-home").offset().left;
+      var width = $("#btn-go-home").width() + 6;
+      var time = 500;
+      var threshold = 400;
+
+      if (!animatingHome){
+        if (scroll > threshold && currentHomeLeft == initialHomeLeft){
+          animatingHome = true;
+          $('#btn-go-home').animate({
+            right: "+=" + width + "px",
+          }, time, function(){
+            animatingHome = false;
+          });
+        }else if (scroll <= threshold && currentHomeLeft != initialHomeLeft){
+          animatingHome = true;
+          $('#btn-go-home').animate({
+            right: "-=" + width + "px",
+          }, time, function(){
+            animatingHome = false;
+          });
+        }
+      }
+    });
+
+    $("a.iframe").fancybox({
+      'hideOnContentClick': true,
+      'width' : $(window).innerWidth() - 50,
+      'height' : $(window).innerHeight() - 50,
+      'centerOnScroll': true
+    });
+
+    $("div#explore ul.thumbs").click(function(){
+        $(".video-display").hide();
+        $("#video-iframe").attr('src', 'about:blank');
+        $("#image-display").show();
+    });
+
+    $("div#explore div.video-thumb").hover(
+        function () {
+          $(this).children("a").children(".video-title").slideDown();
+        }, 
+        function () {
+          $(this).children("a").children(".video-title").slideUp();
+        }
+    );
+}, 300);
+}); // window.load end
+
+  viewVideo = function(url){
+    $("#video-iframe").attr('src', url);
+    $(".video-display").show();
+    $("#image-display").hide();
+  };
+
+	$(window).resize(function(){
+		adjustLayout();
+	});
+
+	adjustLayout = function(){
+
+		var windowHeight = $(window).innerHeight();
+		var windowWidth = $(window).innerWidth();
+
+    $("div.page").each(function(index){
+        $(this).css('height', Math.max(windowHeight, $(this).find("div.content").height()));
+    });
+
+		$("div.content").each(function(index){
+			$(this).css({'top':  Math.max(0, (windowHeight / 2) - ($(this).innerHeight() / 2))  + 'px', 
+					   'left':   (windowWidth / 2) - ($(this).innerWidth() / 2)  + 'px'
+					});
+		});
+
+    $("div.line").each(function(index){
+      var MARGIN = 48;
+      var prevPage = $(this).prev("div.page");
+      var prevContent = prevPage.children("div.content");
+
+      var nextPage = $(this).next("div.page");
+      var nextContent = nextPage.children("div.content");
+      var nextContentTop = nextContent.offset() ? nextContent.offset().top : 0;
+
+      $(this).css({'top':(prevPage.offset().top + prevPage.height() - (prevContent.offset().top - prevPage.offset().top - MARGIN) + 'px'),
+                   'height':roundTo((nextContentTop - (prevContent.offset().top + prevContent.height()) - MARGIN*2 - 12), 6) + 'px'
+                  });
+    });
+
+    $("a.navigation-link.top").each(function(index){
+        $(this).css('top', $(this).next("div.content").position().top - 56 + 'px');
+    });
+
+    $("a.navigation-link.bottom").each(function(index){
+        var content = $(this).prev("div.content");
+        $(this).css('top', content.position().top + content.height() + 8 + 'px');
+    });
+
+    $("a.navigation-link.top").hover(function(){
+        // in
+        $(this).parent().prev("div.line").css('background', 'url(../images/dotted-line-hover.png)');
+    },
+    function(){
+        // out
+        $(this).parent().prev("div.line").css('background', 'url(../images/dotted-line.png)');
+    });
+
+    $("a.navigation-link.bottom").hover(function(){
+        // in
+        $(this).parent().next("div.line").css('background', 'url(../images/dotted-line-hover.png)');
+    },
+    function(){
+        // out
+        $(this).parent().next("div.line").css('background', 'url(../images/dotted-line.png)');
+    });
+  
+  };
+
+  function roundTo(number, multiple){
+    if (multiple == 0) return 0;
+
+    var add = multiple / Math.abs(multiple);
+    return Math.round((Math.round((number + multiple - add) / multiple)) * multiple);
+  }
+
+  initBootstrap = function(){
+    $('.dropdown-toggle').dropdown();
+  };
+    </script>
+  </head>
+  <body>
+    <a id="btn-fork-me" target="_blank" href="http://www.github.com/pierotofy/glassomium"></a>
+    <a id="btn-go-home" class='navigation' href="#home"></a>
+
+    </div>
+  	<div class="page" id="home">
+  		<div class="content">
+  			<div id="logo-container">
+  				<img id="logo" src="images/logo.png" alt="Glassomium logo" />
+  			</div>
+
+  			<div class="box blue download-box">
+          <h2 class="box-title">Get your copy</h2>
+          <div class="download">
+              <img src="images/windows-ico.png" alt="Windows" class="icon" /> 
+              <div class="btn-group">
+                <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Windows Downloads <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="glassomium-0.3-win32-installer.zip">Windows Installer (0.3)</a></li>
+                  <!--
+		  <li><a href="/glassomium-0.3-pre-1121.zip">Binary Release (0.3 Experimental)</a></li>
+                  -->
+                  <li class="divider"></li>
+                  <li><a href="https://github.com/pierotofy/glassomium/zipball/v0.3">Source Code</a></li>
+                </ul>
+              </div>
+          </div>
+          <div class="clear"></div>
+          <div class="download">
+              <img src="images/linux-ico.png" alt="Linux" class="icon" /> 
+              <div class="btn-group">
+                <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">Linux Downloads <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="glassomium-0.3-linux32.tar.gz">Binary Release (0.3)</a></li>
+                  <li class="divider"></li>
+                  <li><a href="https://github.com/pierotofy/glassomium/zipball/v0.3">Source Code</a></li>
+                </ul>
+              </div>
+          </div>
+          
+  			</div>
+  			<div class="text-container">
+			 <h1>Create HTML5 multi-touch applications!</h1>
+	  			 <div class="text">
+By running everything in texture-mapped web browser windows, you can focus on creating applications rather than spending time learning a new complicated framework or API. 
+<br/><br/>In fact many web applications are ready to be ported on Glassomium, with no changes!
+	  			 </div>
+	  		</div>
+        <div class="clear"></div>
+        <div class="box blue navigation-box">
+            <div class="panel left">
+                <h2 class="box-title">Explore</h2>
+                <img src="images/video-ico.png" alt="Video" class="icon" /> 
+                <a class='navigation' href="#explore"><button class="btn btn-primary">Check out the videos</button></a><br/>
+                
+                <img src="images/camera-ico.png" alt="Screenshots" class="icon" /> 
+                <a class='navigation' href="#explore"><button class="btn btn-primary">See the screenshots</button></a>                
+            </div>
+            <div class="panel middle">
+                <h2 class="box-title">Learn</h2>
+
+                <img src="images/gear-ico.png" alt="Features" class="icon" /> 
+                <a class='navigation' href="#learn"><button class="btn btn-primary">Features overview</button></a><br/>
+
+
+                <img src="images/wikimedia-ico.png" alt="Wiki" class="icon" /> 
+                <a class='navigation' href="wiki/index.html" target="_blank"><button class="btn btn-primary">Browse the wiki</button></a><br/>
+
+            </div>
+
+            <div class="panel right">
+                <h2 class="box-title">Connect</h2>
+
+                <img src="images/twitter-ico.png" alt="Twitter" class="icon" /> 
+                <a class='navigation' href="http://www.twitter.com/pierotofy"><button class="btn btn-primary">Follow on Twitter</button></a><br/>
+                
+                <img src="images/email-ico.png" alt="E-mail" class="icon" /> 
+                <a class='navigation' href="#connect"><button class="btn btn-primary">Get in touch</button></a>     
+            </div>
+        </div>
+  		</div>
+  	</div>
+
+    <div class="line">&nbsp;</div>
+
+  	<div class="page" id="explore">
+      <a href="#home" class="navigation navigation-link top">Home</a>
+      <div class="content">
+        <div class="box green screenshots-box">
+          <h2 class="box-title">Screenshots</h2>
+          <div id="caption"></div>
+          <div id="thumbs">
+            <ul class="thumbs noscript">
+
+                <li>
+                    <a class="thumb" href="screenshots/images/1.jpg" title="Have fun with HTML">
+                        <img src="screenshots/thumbs/1.jpg" alt="Whether it's a menu or a background, it's all web powered." />
+                    </a>
+                    <div class="caption">
+                        <h3>Have fun with HTML</h3>
+                        Whether it's a menu or a background, it's all web powered.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/2.jpg" title="Don't say no to Flash">
+                        <img src="screenshots/thumbs/2.jpg" alt="If you have an existing application that runs in Flash, simply add it." />
+                    </a>
+                    <div class="caption">
+                        <h3>Don't say no to Flash</h3>
+                        If you have an existing application that runs in Flash, simply add it.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/3.jpg" title="HTML5 with multi-touch">
+                        <img src="screenshots/thumbs/3.jpg" alt="Create awesome applications that use multi-touch, using existing mobile web standards." />
+                    </a>
+                    <div class="caption">
+                        <h3>HTML5 with multi-touch</h3>
+                        Create awesome applications that use multi-touch, using existing mobile web standards.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/4.jpg" title="View online content">
+                        <img src="screenshots/thumbs/4.jpg" alt="It's also possible to create beautiful multi-touch keyboards for handling user input." />
+                    </a>
+                    <div class="caption">
+                        <h3>View online content</h3>
+                        It's also possible to create beautiful multi-touch keyboards for handling user input.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/5.jpg" title="Fullscreen support">
+                        <img src="screenshots/thumbs/5.jpg" alt="You can also restore windows back to windowed mode." />
+                    </a>
+                    <div class="caption">
+                        <h3>Fullscreen support</h3>
+                        You can also restore windows back to windowed mode.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/6.jpg" title="Theme selection">
+                        <img src="screenshots/thumbs/6.jpg" alt="Don't like the default theme? Change it. Can't find a good one? Create one." />
+                    </a>
+                    <div class="caption">
+                        <h3>Theme selection</h3>
+                        Don't like the default theme? Change it. Can't find a good one? Create one.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/7.jpg" title="Perfect for entertainment">
+                        <img src="screenshots/thumbs/7.jpg" alt="As long as the entertainment works in a web browser." />
+                    </a>
+                    <div class="caption">
+                        <h3>Perfect for entertainment</h3>
+                        As long as the entertainment works in a web browser.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/8.jpg" title="Screensaver support">
+                        <img src="screenshots/thumbs/8.jpg" alt="You can still amuse your guests when nobody is using your device." />
+                    </a>
+                    <div class="caption">
+                        <h3>Screensaver support</h3>
+                        You can still amuse your guests when nobody is using your device.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/9.jpg" title="Combine server-side technologies">
+                        <img src="screenshots/thumbs/9.jpg" alt="Useful if you need to do things like reading pictures from a SD card." />
+                    </a>
+                    <div class="caption">
+                        <h3>Combine server-side technologies</h3>
+                        Useful if you need to do things like reading pictures from a SD card.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/10.jpg" title="Design the multi-touch way">
+                        <img src="screenshots/thumbs/10.jpg" alt="Swipe to unlock is so overrated." />
+                    </a>
+                    <div class="caption">
+                        <h3>Design the multi-touch way</h3>
+                        Swipe to unlock is so overrated.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/11.jpg" title="Dazzle the users">
+                        <img src="screenshots/thumbs/11.jpg" alt="There's no theoretical limit on the number of touches." />
+                    </a>
+                    <div class="caption">
+                        <h3>Dazzle the users</h3>
+                        There's no theoretical limit on the number of touches.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/12.jpg" title="Dynamic Resize">
+                        <img src="screenshots/thumbs/12.jpg" alt="Applications resize to fit in the space they are given." />
+                    </a>
+                    <div class="caption">
+                        <h3>Dynamic Resize</h3>
+                        Applications resize to fit in the space they are given.               
+                    </div>
+                </li>
+                <li>
+                    <a class="thumb" href="screenshots/images/13.jpg" title="Multi-task ready">
+                        <img src="screenshots/thumbs/13.jpg" alt="Multiple people, multiple applications. At the same time." />
+                    </a>
+                    <div class="caption">
+                        <h3>Multi-task ready</h3>
+                        Multiple people, multiple applications. At the same time.               
+                    </div>
+                </li>
+
+            </ul>
+          </div> <!-- thumbs -->
+        </div> <!-- screenshot box -->
+
+        <div class="text-container">
+           <h1>Explore</h1>
+           <div class="multimedia-box">
+              <div class="video-display" style="display: none;">
+              <iframe id="video-iframe" width="560" height="315" src="http://www.youtube.com/embed/ESw2K_VCwu0" frameborder="0" allowfullscreen></iframe>
+              </div>
+              <div id="image-display">
+                <div id="controls"></div>
+                <div id="caption">
+                  <div class="background">&nbsp;</div>
+                  <div class="caption-content"></div>
+                </div>
+                <div id="image"></div>
+              </div>
+           </div>
+        </div>
+        <div class="clear"></div>
+
+        <div class="box green videos-box">
+          <h2 class="box-title">Videos</h2>
+            <div class="video-thumb">
+              <a href="javascript:viewVideo('http://www.youtube.com/embed/exUOge_qWvU?autoplay=1');">
+                <div class="video-thumb-image-container">
+                  <img src="http://img.youtube.com/vi/exUOge_qWvU/1.jpg" alt="Glassomium 0.4 Minimize Demo" />
+                </div>
+
+                <div class="video-title">
+                  Glassomium 0.4 Minimize Demo                </div>
+              </a>
+            </div>
+            <div class="video-thumb">
+              <a href="javascript:viewVideo('http://www.youtube.com/embed/MfjJ1n33mH0?autoplay=1');">
+                <div class="video-thumb-image-container">
+                  <img src="http://img.youtube.com/vi/MfjJ1n33mH0/1.jpg" alt="Glassomium 0.3 Drag Physics" />
+                </div>
+
+                <div class="video-title">
+                  Glassomium 0.3 Drag Physics                </div>
+              </a>
+            </div>
+            <div class="video-thumb">
+              <a href="javascript:viewVideo('http://www.youtube.com/embed/KZ7rOtAdPbc?autoplay=1');">
+                <div class="video-thumb-image-container">
+                  <img src="http://img.youtube.com/vi/KZ7rOtAdPbc/1.jpg" alt="Glassomium 0.2 Photo Canvas Demo" />
+                </div>
+
+                <div class="video-title">
+                  Glassomium 0.2 Photo Canvas Demo                </div>
+              </a>
+            </div>
+            <div class="video-thumb">
+              <a href="javascript:viewVideo('http://www.youtube.com/embed/Onuf5HoWCQM?autoplay=1');">
+                <div class="video-thumb-image-container">
+                  <img src="http://img.youtube.com/vi/Onuf5HoWCQM/1.jpg" alt="Glassomium 0.1 Live Demo" />
+                </div>
+
+                <div class="video-title">
+                  Glassomium 0.1 Live Demo                </div>
+              </a>
+            </div>
+            <div class="video-thumb">
+              <a href="javascript:viewVideo('http://www.youtube.com/embed/ESw2K_VCwu0?autoplay=1');">
+                <div class="video-thumb-image-container">
+                  <img src="http://img.youtube.com/vi/ESw2K_VCwu0/1.jpg" alt="Glassomium 0.1 Demo" />
+                </div>
+
+                <div class="video-title">
+                  Glassomium 0.1 Demo                </div>
+              </a>
+            </div>
+        </div>
+      </div>
+      <a href="#learn" class="navigation navigation-link bottom">Learn</a>
+  	</div>
+
+    <div class="line">&nbsp;</div>
+
+  	<div class="page" id="learn">
+      <a href="#explore" class="navigation navigation-link top">Explore</a>
+      <div class="content">
+        <div class="box red resources-box">
+          <h2 class="box-title">Resources</h2>
+
+          <ul>
+            <li><a class="iframe" href="faq.html">FAQ</a></li>
+            <li><a target="_blank" href="wiki/index.html">Browse the wiki</a></li>
+            <li><a href="wiki/create_a_simple_hello_world_application.html">Create an application</a></li>
+            <li><a class="iframe" href="JSAPI.html">JS API Reference</a></li>
+            <li><a target="_blank" href="https://github.com/pierotofy/glassomium/issues">Submit a bug</a></li>
+            <li><a target="_blank" href="https://groups.google.com/forum/#!forum/glassomium">Mailing list</a></li>
+            
+          </ul>
+        </div>
+        <div class="text-container">
+          <h1>Focus on the application, not on the platform!</h1>
+          <div class="text">
+  You can use your favorite language to develop for Glassomium, as long as it runs in a web browser! That includes HTML5, CSS, Javascript, Flash, PHP, Ruby, ASP.NET.</div>
+          <div class="explore-column">
+            <ul>
+              <li>Multi-touch gestures for zooming, rotating and dragging windows</li>
+              <li>Adobe Flash support. Think about all those games, YouTube, Hulu...</li>
+              <li>TUIO-to-JS support for developing true multi-touch applications</li>
+              <li>Fullscreen application support</li>
+            </ul>
+          </div>
+
+          <div class="explore-column">
+            <ul>
+              <li>Small API. Yes, this is a feature!</li>
+              <li>Customizable user interface</li>
+              <li>Cross-platform (currently Windows and Linux)</li>
+              <li>Apache 2.0 Commercial-friendly license</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <a href="#connect" class="navigation navigation-link bottom">Connect</a>
+  	</div>
+
+    <div class="line">&nbsp;</div>
+
+	  <div class="page bottom" id="connect">
+        <a href="#learn" class="navigation navigation-link top">Learn</a>
+	      <div class="content">
+          <div class="twitter-container">
+            <script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
+            <script>
+            new TWTR.Widget({
+              version: 2,
+              type: 'search',
+              search: 'glassomium',
+              interval: 30000,
+              title: 'Glassomium on Twitter',
+              subject: '',
+              width: 250,
+              height: 330,
+              theme: {
+                shell: {
+                  background: '#7AAFEF',
+                  color: '#ffffff'
+                },
+                tweets: {
+                  background: '#ffffff',
+                  color: '#444444',
+                  links: '#1985b5'
+                }
+              },
+              features: {
+                scrollbar: false,
+                loop: true,
+                live: true,
+                behavior: 'default'
+              }
+            }).render().start();
+            </script> 
+          </div>
+          <div class="left-container">
+            <div class="text-container">
+             <h1>Connect</h1>
+             <div class="text">
+                For all inquiries please use the form below. If you liked what you saw, let other people know about Glassomium by sharing this website to your social media.
+             </div>
+            </div>
+
+            <div class="box blue contact-box">
+              <form id="contactForm" method="post" action="#">
+                  <label for="name">Name</label> <input tabindex="1" type="text" class='required' value="" name="name" /><br/>
+                  <label for="email">E-mail address</label> <input tabindex="2" type="text" class='required' value="" name="email" /><br/>
+                  <textarea name="body" class='required' tabindex="3"></textarea><br/>
+                  <input type="submit" value="Send" class="btn" tabindex="5" />
+                  <label for="phone">7 + 3 =</label> <input type="text" tabindex="4" class='required' value="" name="phone" maxlength="2" style="width: 2em;"/> (Just making sure you are a human :)
+                  
+              </form>
+            </div>
+            <div class="box blue share-box">
+              <span class='st_fblike_vcount' displayText='Facebook Like'></span>
+              <span class='st_plusone_vcount' displayText='Google +1'></span>
+              <span class='st_twitterfollow_vcount' displayText='Twitter Follow' st_username='pierotofy'></span>
+            </div>
+          </div>
+          <div class="clear"></div>
+          <div class="footer">
+              <span class="text">A project by <a href="https://www.masseranolabs.com/">MasseranoLabs LLC</a></a>
+          </div>
+        </div>
+  	</div>
+  </body>
+
+<!-- Mirrored from glassomium.org/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 16:37:15 GMT -->
+</html>

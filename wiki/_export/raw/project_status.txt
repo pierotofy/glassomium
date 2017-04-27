@@ -1,0 +1,48 @@
+====== Project Status ======
+
+**Current binary release:** 0.3 (unstable beta)
+
+**Next release:** 0.4
+
+Upcoming features:
+
+^ Description      ^ Status       ^
+| Preservation of window states (a.k.a. minimize) | Planned for 0.4 |
+| Add in-app console | Planned for 1.0 |
+| Add support for WebGL | Planned when upgrading Berkelium |
+| Update Chromium to latest release  | Planned when upgrading Berkelium |
+
+
+If you have a feature request or want to help implement one of these features, get in touch via[[https://groups.google.com/forum/#!forum/glassomium|mailing list]].
+
+** Changelog for 0.4 **
+   * Improved speed calculation for windows' drag physics
+   * Fixed a bug that was causing windows to disappear outside the screen if dragged too close to the edge while physics effects were enabled
+   * Minimize feature added. Now windows can be minimized by dragging them toward the borders of the screen.
+
+** Changelog for 0.3 **
+   * More compatible touch events. Now DOM elements receive the events before the document object.
+   * Added Box2d physics drag. Now windows can have momentum when released from a drag.
+   * Improved dragging. Now adding/removing a touch while dragging a window will not cause a sudden shift.
+   * New demo applications including Glow Hockey, Checkers, Chess, Feed The Panda (Cut the rope clone) and Movie Player.
+   * Fixed heap overflow bug while maximizing a window.
+   * Fixed race conditions that were causing display issues during animations.
+   * Removed system menus, now applications can be closed by a pinch gesture.
+   * Removed GLA.SetMenuButtons API.
+   * Added aspect ratio option in the configuration for applications.
+   * Faster input and rendering for fullscreen applications!
+   * Improved the transitions to fullscreen (now fades instead of scaling).
+   * Fixed the default theme's navigator size.
+   * Improved deallocation of windows that were causing crashes due to racing conditions.
+   * Dynamic resize of windows. Now upon resize the browser tab mapped to the window will get resized as well, making rendering faster and interaction easier.
+   * Improved texture size calculation of theme windows.
+
+** Changelog for 0.2 **
+   * Add support for recognizing untagged objects' geometries
+   * Filtering of unwanted touches when a window is dragged or scaled/resized 
+   * Add speech to text support in the keyboard
+   * Add plugin support for the UI Server
+   * Improving the pinch gesture algorithm
+   * Development of photo application
+   * UI Server plugins support
+   * OSX Theme

@@ -1,0 +1,48 @@
+====== Define Application Settings ======
+
+Glassomium offers two ways of defining settings for user applications; through configuration files and through the JS API.
+
+===== Configuration Files =====
+If you have read [[Understanding the Page Load Process|Understanding the Page Load Process]] you know that the JS API is only available after a successful page load. This can cause some visual issues if what we are trying to set is related to how the window looks. For example if we were to define the dimensions of the window through an API call, we would have first to create a default window size, load the page, resize it, then display it. This is not ideal since it involves modifying the size of the window and likely cause an unwanted flickering effect.
+
+Instead, Glassomium allows the user to define a simple configuration file, that supports only the following properties:
+
+  * **window.width**: width of the window (expressed as a percentage value between 0 and 1)
+  * **window.height**: height of the window (expressed as a percentage value between 0 and 1)
+  * **window.aspectratio**: a floating point number that indicates the relation between width and height (width/height). When this value is set, the window.height property will be ignored and the the height will be calculated as a function of window.width. For example if you need to make a window that is a perfect square, set this value to 1.
+  * **window.transparent**: whether transparent colors in the web page should be rendered as transparent or white (yes/no)
+  * **window.fullscreen**: whether the window should be launched directly into fullscreen mode (yes/no)
+
+A configuration file is never required and if it's not included with an application, Glassomium will choose the default values for each property. When you decide that you need a configuration file, simply add to your application's **assets** folder an application.cfg file:
+
+/server/WebRoot/apps/MyApp/assets/application.cfg
+<code>
+# Application configuration file
+# ----------------------------------------
+# In this file you can specify several properties for the window that will host
+# the application in glassomium
+
+window.transparent no
+
+window.fullscreen  no
+
+window.width	0.7
+window.height	0.5
+</code>
+
+Save the file, restart the UI Server and restart Glassomium. Next time you start your application, the configuration values will be applied.
+
+===== JS API =====
+
+Many properties can be defined within the JS API, including the default zoom level, whether the window should scroll on a touch move gesture and so forth. Just make sure that you call the APIs only after the GLALoad event.
+
+<code html>
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetScrollOnTouchMove(true);
+}
+</script>
+</code>
+
+For a complete list of APIs, check the [[http://www.glassomium.org/JSAPI.html|Javascript API Reference]]

@@ -1,0 +1,38 @@
+====== Build Instructions ======
+
+==== Prerequisites ====
+  * CMake >= 2.6 (http://www.cmake.org/)
+  * C++ compiler (gcc on Linux, Visual C++ 2010 on Windows)
+
+==== Get the code ====
+
+Download or clone from https://github.com/pierotofy/glassomium.
+
+==== Windows Instructions ====
+  * Create a build directory in the same directory as the src and documentation directory.
+  * Run Cmake and select /src as the source directory, /build as the destination directory. 
+  * Generate project files for Visual Studio 2010.
+  * Open the /build/Glassomium.sln file.
+  * Right click on Glassomium project -- Select "Set as Startup project".
+  * Build entire solution.
+  * If you want to debug and run Glassomium from within Visual Studio, right click on the Glassomium project from Solution Explorer, Properties, Debugging, change Working Directory to "$(ProjectDir)\dist\bin" or else Glassomium will not start.
+
+==== Linux 32-bit Instructions ====
+** Important! ** Glassomium will currently not run properly on Ubuntu 12.04 (earlier versions are OK instead). See this discussion for more information: https://groups.google.com/forum/#!topic/glassomium/PB8SsOrlTTE
+
+  * If you are on a Debian/Ubuntu distro, running /src/dist/install-requirements.sh will install some required packages (although some libraries might still need to be installed after this).
+  * Create a build directory in the same directory as the src and documentation directory.
+  * From the build directory, run **cmake ../src**
+  * Solve any missing library issues.
+  * Run **make && make install**
+==== Linux 64-bit Instructions ====
+
+Although compilation on 64-bit machine is possible, it hasn't been tested enough to be considered stable. In particular the 64-bit berkelium precompiled library seemed to have some issues that haven't been solved yet. At the current stage we do not recommend building for 64-bit platforms.  
+
+==== Mac OSX ====
+
+While Glassomium has never been tested on OSX, compilation should be possible, but it needs some extra work:
+
+  * Download the OSX binaries for both SFML (http://www.sfml-dev.org/) and Berkelium (http://berkelium.org/) and place them in a folder in the /lib folder of Glassomium.
+  * Modify the src/CMakeLists.txt file to add support for OSX.
+  * If Glassomium compiles but does not properly work at runtime, you might need to rebuild the Berkelium library from sources. This was a necessary step to make Glassomium work on Windows and Linux.

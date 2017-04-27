@@ -1,0 +1,141 @@
+====== Create your own theme ======
+
+A good way to learn how to make your own themes is to look at the existing ones that ship with Glassomium. A good theme to use as a template is the **minimal** theme that you can find in the /server/Themes/minimal folder. To create your own theme, simply copy the minimal folder and all of its contents in a new folder and call it myTheme (or however you like).
+
+Inside the folder you will notice three elements:
+  * **system**: this is where your system windows (launcher, keyboard, screensaver, background, etc.) will be placed
+  * **resources**: this is a directory where you can place images, scripts and other resources you plan to use in your system windows. This directory will be mounted as http://localhost:5555/resources/.
+  * **theme.cfg**: this is the place where you specify the design your theme. It follows a very simple syntax, which is explained below.
+
+===== Theme.cfg syntax =====
+
+This is an example of a theme.cfg:
+
+<code>
+# This is a comment and will be ignored
+
+# How many seconds before the screensaver window should be invoked?
+# A value of 0 means never invoke the screensaver
+screensaver.wait	180
+
+# When a window is being dragged, what color should it be? 
+windows.drag-color	#FFEF00
+
+# At what size compared to its original size should a window be closed?
+# A value of 0.12 means that when a user window gets pinched to 12% of
+# it original size, it will be closed. You can disable this feature by setting a value of 0.
+windows.close-threshold		0.12
+
+# Starting from Glassomium 0.3, the physics engine can be turned on
+physics.enabled			yes
+
+# How much friction should be applied to windows when released from a drag
+physics.drag-friction		0.6
+
+# How much should windows bounce off from the corners of the screen
+physics.drag-restitution	0.3
+
+# Define a new system window (name it ButtonMenu) of type foreground
+# that points to the URL "/system/launcher", that spawns 90% of the screen in width
+# 4% of the screen in height, with its center positioned 50% from the left and 96.5% from the top,
+# default rotation and default z-order
+[BottomMenu]
+window.type			"foreground"
+window.URL			"/system/launcher"
+window.width			0.9
+window.height			0.04
+window.position.x		0.5
+window.position.y		0.965
+window.rotation			0.0
+window.z-order			0
+
+# Create a keyboard window with the following parameters
+[BottomKeyboard]
+window.type			"keyboard"
+window.URL			"/system/keyboard"
+window.width			0.60
+window.height			0.22
+window.position.x		0.5
+window.position.y		0.83
+window.rotation			0.0
+window.z-order			0
+
+# Create a background window with the following parameters
+[Background]
+window.type			"background"
+window.URL			"/system/background"
+window.width			1.0
+window.height			1.0
+window.position.x		0.5
+window.position.y		0.5
+</code>
+
+You can define as many windows as you want inside a theme.cfg and using these basic properties you should be able to create very cool designs. Let's look in more details a few key properties.
+==== Window.type ====
+
+There are 4 types of windows you can define:
+  * **foreground**: windows that are always on top of user windows and background windows. The only window that can overlap a foreground window is a window in fullscreen mode, a keyboard or the screensaver.
+  * **background**: windows that are always overlapped by other windows, expect by other background windows with a lower Z-order.
+  * **keyboard**: this is a special kind of window as it is not displayed by default. It only gets displayed whenever a user focuses a textbox or a textarea (or through the GLA.ShowKeyboard() API). You do not need to define a keyboard for your theme, but if you want users to be able to type you probably want to implement one (or copy one from an existing theme).
+  * **user**: this is the same type of window that gets created when a user launches an application. It's meant to be used for automatically launching an application at startup.
+
+==== Window.z-order ====
+
+If you want to fine tune which window of the same type is on top, you can set its z-order. Note that this value only accepts **positive integers**. Negative z-order numbers will be converted to 0.
+
+==== Window.URL ====
+
+This can be either an absolute address (http://www.google.com) or a relative (/system/launcher). Whenever a relative address is used, the full address of the UI Server will be appended to it (/system/launcher will be expanded to http://localhost:5555/system/launcher).
+
+System windows need not to be launchers or keyboards. You can define them to be whatever you want. If you want to add a weather widget for example, place the code in your theme's /system/weatherWidget folder and create a system window for it.
+
+===== Minimum requirements of a theme =====
+
+At a minimum, your theme should **always** provide at least:
+  * One launcher (placed in /system/launcher)
+  * One crash handler page (placed in /system/crashpage)
+  * One screensaver (placed in /system/screensaver, unless you set the screensaver.wait property to zero)
+
+Everything else is optional. I will describe the details of each, as they are somewhat "special".
+
+==== Launcher ====
+
+If you look at the launcher folder in the minimal theme you will notice that there are no html or htm files, but only a main.tml and item.tml. Tml files are simply HTML files, with a special feature that allows for dynamic content generation.
+In the **main.tml**, every string "{ITEM_LIST}" will be replaced with the contents of item.tml for each user application in the /server/WebRoot/apps folder. In turn, each **item.tml** file will replace the strings "{ITEM_URL}" and "{ITEM_ICON}" with the absolute URL of the application and its icon. This is meant as a simple way to create launchers without involving a more complicated setup. See [[Using a web server with Glassomium|Using a web server with Glassomium]] for more information on generating dynamic content.
+
+You can use the GLA.OpenNewWindow() API to spawn a new application or use anchor tags that have a _blank target. The result is the same.
+
+
+==== Crash Page ====
+
+At times Glassomium applications might become unresponsive or crash. The users need to be notified of this unfortunate event and given options to choose (usually quit or restart the application). When an application crashes, the web page at /system/crashpage is displayed and an event is fired upon page load to provide more information about the crash:
+
+<code javascript>
+document.addEventListener('GLACrashInformationChanged', onGLACrashInformationChanged, false);
+function onGLACrashInformationChanged(event) {
+    // event.description contains a brief description of the error
+    // event.URL contains the URL of the page that crashed   
+}
+</code>
+
+The crash page can then use these two information to notify the user and allow him/her to take action.
+
+==== Screensaver ====
+
+If a screensaver timeout is specified in the theme's configuration, the page at /system/screensaver will be displayed when no user activity is detected. Screensaver windows are always displayed in fullscreen and there's need for a way to close them. There is a special API that needs to be called to close a screensaver window, namely GLA.ExitScreensaver().
+
+<code javascript>
+<script>
+// Using jquery
+$(document).click(function(){
+    GLA.ExitScreensaver("fadeout", 500);
+});
+</script>
+</code>
+
+==== Keyboards ====
+
+Keyboards are a special type of windows that allow the user to type. Whenever a window calls GLA.ShowKeyboard(), Glassomium finds the closest keyboard available on the screen (if any is available), links that keyboard with the window and shows it to the user. Before the keyboard can be used by another window, the window needs to release it by calling GLA.HideKeyboard(). By default touching any textarea or textbox will cause GLA.ShowKeyboard() to be called and once visible, touching any area of the window that is not a textarea or a textbox will cause a call to GLA.HideKeyboard(). Also GLA.HideKeyboard() will be automatically called whenever a window is closed. This behavior can be (although we don't encourage it) altered by changing server/JS/injectOnLoad.js.
+
+Keyboard windows have access to one special API, GLA.KeyboardOnKeyPressed() which can be used to send characters from the keyboard to the linked window.
+

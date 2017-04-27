@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/debugging_an_application by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:21:04 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>debugging_an_application</title>
+<meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-07-30T22:13:56+0000"/>
+<meta name="keywords" content="debugging_an_application"/>
+<link rel="search" type="application/opensearchdescription+xml" href="../../lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="../../index.html"/>
+<link rel="contents" href="../../debugging_an_applicationdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="../../feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="../../feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="debugging_an_application.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="../raw/debugging_an_application.txt"/>
+<link rel="canonical" href="../../debugging_an_application.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="../../lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="../../lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="../../lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"debugging_an_application","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="../../lib/exe/js5fd1.php?tseed=1343686328"></script>
+</head>
+<body>
+<div class="dokuwiki export">
+
+<h1 class="sectionedit1"><a name="debugging_an_application" id="debugging_an_application">Debugging an Application</a></h1>
+<div class="level1">
+
+<p>
+The best way to test your applications before trying them out within Glassomium is by using <a href="http://www.chromium.org/" class="urlextern" title="http://www.chromium.org/"  rel="nofollow">Chromium</a> (or Google Chrome). You can use another browser if you&#039;d like, but keep in mind that Glassomium windows are rendered with Chromium.
+</p>
+
+<p>
+To access your application, simply start the UI Server and connect to <a href="http://localhost:5555/apps/NameOfYourApp/" class="urlextern" title="http://localhost:5555/apps/NameOfYourApp/"  rel="nofollow">http://localhost:5555/apps/NameOfYourApp/</a>
+</p>
+
+<p>
+If you are developing a multi touch application and would like to simulate TUIO events with the mouse, pass the following parameters to the <acronym title="Uniform Resource Locator">URL</acronym>: <a href="http://localhost:5555/apps/NameOfYourApp/?development=1&amp;simulate_tuio=1" class="urlextern" title="http://localhost:5555/apps/NameOfYourApp/?development=1&amp;simulate_tuio=1"  rel="nofollow">http://localhost:5555/apps/NameOfYourApp/?development=1&amp;simulate_tuio=1</a>
+</p>
+
+<p>
+The development=1 flag will instruct the UI Server to include the contents of /server/<acronym title="JavaScript">JS</acronym>/injectOnLoad.js while the simulate_tuio=1 will include some code that takes in mouse events and converts them into TUIO touchstart, touchmove and touchend events.
+</p>
+
+</div>
+</div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/debugging_an_application by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:21:04 GMT -->
+</html>

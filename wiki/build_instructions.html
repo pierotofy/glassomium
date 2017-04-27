@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/build_instructions by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:17:20 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    Build Instructions  </title>
+
+  <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-10-22T20:21:19+0000"/>
+<meta name="keywords" content="build_instructions"/>
+<link rel="search" type="application/opensearchdescription+xml" href="lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="index.html"/>
+<link rel="contents" href="build_instructionsdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="_export/xhtml/build_instructions.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="_export/raw/build_instructions.txt"/>
+<link rel="canonical" href="build_instructions.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"build_instructions","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="lib/exe/js5fd1.php?tseed=1343686328"></script>
+
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  </head>
+
+<body>
+
+	
+	
+
+
+
+
+
+		
+	<div class="dokuwiki">
+	  <div id="header">
+	    <div class="inner">
+	      <div class="bar_left">
+		<div id="sitename">
+		  <a href="index.html"  name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[H]">Glassomium Wiki</a>		</div>
+	      </div>
+	      <div class="bar_right" style="padding-top:7px">
+		<form action="http://glassomium.org/wiki/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><input type="submit" value="Search" class="button" title="Search" /><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>&nbsp;
+	      </div>
+	      <div class="clearer"></div>
+	      	    </div>
+	  </div>
+	
+	</div>
+	<div id="location" class="inner">
+		</div>
+	<div id="content" class="inner">
+	    <div id="maincol" class="dokuwiki">
+	      <div class="page">
+
+		<!-- wikipage start -->
+		
+<h1 class="sectionedit1"><a name="build_instructions" id="build_instructions">Build Instructions</a></h1>
+<div class="level1">
+
+</div>
+
+<h3 class="sectionedit2"><a name="prerequisites" id="prerequisites">Prerequisites</a></h3>
+<div class="level3">
+<ul>
+<li class="level1"><div class="li"> CMake &gt;= 2.6 (<a href="http://www.cmake.org/" class="urlextern" title="http://www.cmake.org/"  rel="nofollow">http://www.cmake.org/</a>)</div>
+</li>
+<li class="level1"><div class="li"> C++ compiler (gcc on Linux, Visual C++ 2010 on Windows)</div>
+</li>
+</ul>
+
+</div>
+
+<h3 class="sectionedit3"><a name="get_the_code" id="get_the_code">Get the code</a></h3>
+<div class="level3">
+
+<p>
+Download or clone from <a href="https://github.com/pierotofy/glassomium" class="urlextern" title="https://github.com/pierotofy/glassomium"  rel="nofollow">https://github.com/pierotofy/glassomium</a>.
+</p>
+
+</div>
+
+<h3 class="sectionedit4"><a name="windows_instructions" id="windows_instructions">Windows Instructions</a></h3>
+<div class="level3">
+<ul>
+<li class="level1"><div class="li"> Create a build directory in the same directory as the src and documentation directory.</div>
+</li>
+<li class="level1"><div class="li"> Run Cmake and select /src as the source directory, /build as the destination directory. </div>
+</li>
+<li class="level1"><div class="li"> Generate project files for Visual Studio 2010.</div>
+</li>
+<li class="level1"><div class="li"> Open the /build/Glassomium.sln file.</div>
+</li>
+<li class="level1"><div class="li"> Right click on Glassomium project – Select “Set as Startup project”.</div>
+</li>
+<li class="level1"><div class="li"> Build entire solution.</div>
+</li>
+<li class="level1"><div class="li"> If you want to debug and run Glassomium from within Visual Studio, right click on the Glassomium project from Solution Explorer, Properties, Debugging, change Working Directory to “$(ProjectDir)\dist\bin” or else Glassomium will not start.</div>
+</li>
+</ul>
+
+</div>
+
+<h3 class="sectionedit5"><a name="linux_32-bit_instructions" id="linux_32-bit_instructions">Linux 32-bit Instructions</a></h3>
+<div class="level3">
+
+<p>
+<strong> Important! </strong> Glassomium will currently not run properly on Ubuntu 12.04 (earlier versions are OK instead). See this discussion for more information: <a href="https://groups.google.com/forum/#!topic/glassomium/PB8SsOrlTTE" class="urlextern" title="https://groups.google.com/forum/#!topic/glassomium/PB8SsOrlTTE"  rel="nofollow">https://groups.google.com/forum/#!topic/glassomium/PB8SsOrlTTE</a>
+</p>
+<ul>
+<li class="level1"><div class="li"> If you are on a Debian/Ubuntu distro, running /src/dist/install-requirements.sh will install some required packages (although some libraries might still need to be installed after this).</div>
+</li>
+<li class="level1"><div class="li"> Create a build directory in the same directory as the src and documentation directory.</div>
+</li>
+<li class="level1"><div class="li"> From the build directory, run <strong>cmake ../src</strong></div>
+</li>
+<li class="level1"><div class="li"> Solve any missing library issues.</div>
+</li>
+<li class="level1"><div class="li"> Run <strong>make &amp;&amp; make install</strong></div>
+</li>
+</ul>
+
+</div>
+
+<h3 class="sectionedit6"><a name="linux_64-bit_instructions" id="linux_64-bit_instructions">Linux 64-bit Instructions</a></h3>
+<div class="level3">
+
+<p>
+Although compilation on 64-bit machine is possible, it hasn&#039;t been tested enough to be considered stable. In particular the 64-bit berkelium precompiled library seemed to have some issues that haven&#039;t been solved yet. At the current stage we do not recommend building for 64-bit platforms.  
+</p>
+
+</div>
+
+<h3 class="sectionedit7"><a name="mac_osx" id="mac_osx">Mac OSX</a></h3>
+<div class="level3">
+
+<p>
+While Glassomium has never been tested on OSX, compilation should be possible, but it needs some extra work:
+</p>
+<ul>
+<li class="level1"><div class="li"> Download the OSX binaries for both SFML (<a href="http://www.sfml-dev.org/" class="urlextern" title="http://www.sfml-dev.org/"  rel="nofollow">http://www.sfml-dev.org/</a>) and Berkelium (<a href="http://berkelium.org/" class="urlextern" title="http://berkelium.org/"  rel="nofollow">http://berkelium.org/</a>) and place them in a folder in the /lib folder of Glassomium.</div>
+</li>
+<li class="level1"><div class="li"> Modify the src/CMakeLists.txt file to add support for OSX.</div>
+</li>
+<li class="level1"><div class="li"> If Glassomium compiles but does not properly work at runtime, you might need to rebuild the Berkelium library from sources. This was a necessary step to make Glassomium work on Windows and Linux.</div>
+</li>
+</ul>
+
+</div>
+
+		<!-- wikipage stop -->
+	
+			
+	      	<div class="bar" id="bar__top" style="margin-top:20px;">
+      <div class="bar-left" id="bar__topleft">
+        <form class="button btn_source" method="post" action="http://glassomium.org/wiki/build_instructions"><div class="no"><input type="hidden" name="do" value="edit" /><input type="hidden" name="rev" value="" /><input type="submit" value="Show pagesource" class="button" accesskey="v" title="Show pagesource [V]" /></div></form>        <form class="button btn_revs" method="get" action="http://glassomium.org/wiki/build_instructions"><div class="no"><input type="hidden" name="do" value="revisions" /><input type="submit" value="Old revisions" class="button" accesskey="o" title="Old revisions [O]" /></div></form>              </div>
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="http://glassomium.org/wiki/build_instructions"><div class="no"><input type="hidden" name="do" value="recent" /><input type="submit" value="Recent changes" class="button" accesskey="r" title="Recent changes [R]" /></div></form>                                <form class="button btn_login" method="get" action="http://glassomium.org/wiki/build_instructions"><div class="no"><input type="hidden" name="do" value="login" /><input type="hidden" name="sectok" value="4def3a5dd4a31b99cc6b0d4eb140ef47" /><input type="submit" value="Login" class="button" title="Login" /></div></form>
+      </div>
+      <div class="clearer"></div>
+    </div>
+	      </div>
+	    </div>
+	    
+	    <div class="clearer"></div>
+	</div>
+	<div id="copyright" style="text-align:center;">
+		<p>Content on this wiki is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" rel="nofollow">CC Attribution-Noncommercial-Share Alike 3.0 Unported</a>    
+		<p>Theme based on the work by <a href="http://www.mohdshakir.net/" rel="nofollow">Mohd Shakir Zakaria</a></p>
+	</div>
+	  
+	
+	
+	
+	
+	<div class="no"><img src="lib/exe/indexer4180.gif?id=build_instructions&amp;1493315866" width="2" height="1" alt="" /></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/build_instructions by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:18:14 GMT -->
+</html>

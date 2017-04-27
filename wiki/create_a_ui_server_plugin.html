@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/create_a_ui_server_plugin by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:12:59 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    Create a UI Server Plugin  </title>
+
+  <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-08-29T15:26:58+0000"/>
+<meta name="keywords" content="create_a_ui_server_plugin"/>
+<link rel="search" type="application/opensearchdescription+xml" href="lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="index.html"/>
+<link rel="contents" href="create_a_ui_server_plugindecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="_export/xhtml/create_a_ui_server_plugin.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="_export/raw/create_a_ui_server_plugin.txt"/>
+<link rel="canonical" href="create_a_ui_server_plugin.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"create_a_ui_server_plugin","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="lib/exe/js5fd1.php?tseed=1343686328"></script>
+
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  </head>
+
+<body>
+
+	
+	
+
+
+
+
+
+		
+	<div class="dokuwiki">
+	  <div id="header">
+	    <div class="inner">
+	      <div class="bar_left">
+		<div id="sitename">
+		  <a href="index.html"  name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[H]">Glassomium Wiki</a>		</div>
+	      </div>
+	      <div class="bar_right" style="padding-top:7px">
+		<form action="http://glassomium.org/wiki/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><input type="submit" value="Search" class="button" title="Search" /><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>&nbsp;
+	      </div>
+	      <div class="clearer"></div>
+	      	    </div>
+	  </div>
+	
+	</div>
+	<div id="location" class="inner">
+		</div>
+	<div id="content" class="inner">
+	    <div id="maincol" class="dokuwiki">
+	      <div class="page">
+
+		<!-- wikipage start -->
+		
+<h1 class="sectionedit1"><a name="create_a_ui_server_plugin" id="create_a_ui_server_plugin">Create a UI Server Plugin</a></h1>
+<div class="level1">
+
+</div>
+
+<h3 class="sectionedit2"><a name="introduction" id="introduction">Introduction</a></h3>
+<div class="level3">
+
+<p>
+While using an external web server provides the maximum flexibility to generate dynamic content, the UI Server comes with a simple plugin system that allows applications to hook to the UI Server and generate dynamic content using the Ruby language. It&#039;s a good alternative for those developers who know Ruby and do not want to load another web server.
+</p>
+
+</div>
+
+<h3 class="sectionedit3"><a name="hello_plugin" id="hello_plugin">Hello Plugin!</a></h3>
+<div class="level3">
+
+<p>
+In this example we will go through a simple plugin that hooks to the UI Server and outputs the current date and time.
+</p>
+<ol>
+<li class="level1"><div class="li"> Create an empty application following <a href="create_a_simple_hello_world_application.html" class="wikilink1" title="create_a_simple_hello_world_application">these steps</a>.</div>
+</li>
+<li class="level1"><div class="li"> Create a “uiserver” folder inside the application&#039;s assets folder.</div>
+</li>
+<li class="level1"><div class="li"> Create a “servlet.rb” file inside the “uiserver” folder.</div>
+</li>
+</ol>
+
+<p>
+At this point your directory tree should look like:
+</p>
+<pre class="code plain">/server/WebRoot/apps
+-- Hello World
+---- index.html
+---- assets
+------ icon.png
+------ uiserver
+-------- servlet.rb</pre>
+
+<p>
+During startup, the UI Server will scan each application&#039;s folder for a <strong>assets/uiserver/servlet.rb</strong> file. If one is present, it will execute its content and link to it. Be careful that all plugins run within the same process, so a crash has the potential of bringing down the whole server (thus making Glassomium unresponsive).
+</p>
+
+<p>
+Inside servlet.rb place the following code:
+</p>
+<pre class="code ruby"><span class="kw3">require</span> <span class="st0">'./Servlets/ServletPlugin'</span>
+&nbsp;
+<span class="kw3">require</span> <span class="st0">'webrick'</span>
+<span class="kw1">include</span> WEBrick
+&nbsp;
+<span class="kw1">class</span> ServletPlugin
+	<span class="kw1">def</span> get_servlet_handlers
+	   <span class="br0">&#123;</span><span class="st0">&quot;getDate&quot;</span> <span class="sy0">=&gt;</span> DateServlet <span class="br0">&#125;</span>
+	<span class="kw1">end</span>
+&nbsp;
+	<span class="kw1">def</span> initialize
+		<span class="co1"># Nothing to initialize here</span>
+	<span class="kw1">end</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">class</span> DateServlet <span class="sy0">&lt;</span> <span class="re2">WEBrick::HTTPServlet::AbstractServlet</span>
+    <span class="kw1">def</span> initialize<span class="br0">&#40;</span>server<span class="br0">&#41;</span>
+	<span class="kw1">super</span><span class="br0">&#40;</span>server<span class="br0">&#41;</span>
+    <span class="kw1">end</span>
+&nbsp;
+    <span class="kw1">def</span> do_GET<span class="br0">&#40;</span>request, response<span class="br0">&#41;</span>
+      response.<span class="me1">status</span> = <span class="nu0">200</span>
+      response<span class="br0">&#91;</span><span class="st0">'Content-Type'</span><span class="br0">&#93;</span> = <span class="st0">&quot;text/html&quot;</span>
+      response.<span class="me1">body</span> = <span class="kw4">Time</span>.<span class="me1">new</span>.<span class="me1">inspect</span>
+    <span class="kw1">end</span>
+<span class="kw1">end</span></pre>
+
+<p>
+The code is quite straightforward; every plugin must specify a <strong>ServletPlugin</strong> class, with a <strong>get_servlet_handlers</strong> method. This method must return a hash-map in the format:
+</p>
+<pre class="code">{ mountPoint1 =&gt; ServletClass1,
+  mountPoint2 =&gt; ServletClass2, 
+  ... }</pre>
+
+<p>
+Where the mountPoints are strings specifying the addresses where the servlets will be mounted. A servlet is just a class that takes care of handling a web request. In our example we are telling the UI Server to mount the DateServlet servlet at <a href="http://localhost:5555/apps/" class="urlextern" title="http://localhost:5555/apps/"  rel="nofollow">http://localhost:5555/apps/</a>&lt;APPNAME&gt;/getDate. 
+</p>
+
+<p>
+It&#039;s time for a quick test. Save all changes and (re)start the UI Server (and make sure to pass the –v verbose option).
+</p>
+<pre class="code">~/glassomium/server# ruby main.rb --v</pre>
+
+<p>
+If you look at the initialization output you should see a line similar to:
+</p>
+<pre class="code">...
+Found servlet plugin for &lt;APPNAME&gt;
+Mounted plugin at /apps/&lt;APPNAME&gt;/getDate
+...</pre>
+
+<p>
+And if you open your web browser to <a href="http://localhost:5555/apps/" class="urlextern" title="http://localhost:5555/apps/"  rel="nofollow">http://localhost:5555/apps/</a>&lt;APPNAME&gt;/getDate you should see:
+</p>
+<pre class="code">2012-08-28 20:43:29 -0500</pre>
+
+<p>
+Of course the date and time will reflect the actual time. If you refresh the page the content will change. Congratulations! You just generated some dynamic content!
+</p>
+
+</div>
+
+		<!-- wikipage stop -->
+	
+			
+	      	<div class="bar" id="bar__top" style="margin-top:20px;">
+      <div class="bar-left" id="bar__topleft">
+        <form class="button btn_source" method="post" action="http://glassomium.org/wiki/create_a_ui_server_plugin"><div class="no"><input type="hidden" name="do" value="edit" /><input type="hidden" name="rev" value="" /><input type="submit" value="Show pagesource" class="button" accesskey="v" title="Show pagesource [V]" /></div></form>        <form class="button btn_revs" method="get" action="http://glassomium.org/wiki/create_a_ui_server_plugin"><div class="no"><input type="hidden" name="do" value="revisions" /><input type="submit" value="Old revisions" class="button" accesskey="o" title="Old revisions [O]" /></div></form>              </div>
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="http://glassomium.org/wiki/create_a_ui_server_plugin"><div class="no"><input type="hidden" name="do" value="recent" /><input type="submit" value="Recent changes" class="button" accesskey="r" title="Recent changes [R]" /></div></form>                                <form class="button btn_login" method="get" action="http://glassomium.org/wiki/create_a_ui_server_plugin"><div class="no"><input type="hidden" name="do" value="login" /><input type="hidden" name="sectok" value="4def3a5dd4a31b99cc6b0d4eb140ef47" /><input type="submit" value="Login" class="button" title="Login" /></div></form>
+      </div>
+      <div class="clearer"></div>
+    </div>
+	      </div>
+	    </div>
+	    
+	    <div class="clearer"></div>
+	</div>
+	<div id="copyright" style="text-align:center;">
+		<p>Content on this wiki is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" rel="nofollow">CC Attribution-Noncommercial-Share Alike 3.0 Unported</a>    
+		<p>Theme based on the work by <a href="http://www.mohdshakir.net/" rel="nofollow">Mohd Shakir Zakaria</a></p>
+	</div>
+	  
+	
+	
+	
+	
+	<div class="no"><img src="lib/exe/indexer3c8e.gif?id=create_a_ui_server_plugin&amp;1493315822" width="2" height="1" alt="" /></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/create_a_ui_server_plugin by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:13:50 GMT -->
+</html>

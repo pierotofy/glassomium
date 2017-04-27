@@ -1,0 +1,33 @@
+====== How To Use Glassomium ======
+
+After you have successfully launched Glassomium and properly tuned your TUIO input program ([[http://ccv.nuigroup.com/|CCV]] or equivalent) you might be wondering how you can use some of Glassomium's features.
+
+==== Gesture Basics ====
+
+Glassomium supports two foundamental gestures:
+  * Two Finger Pinch
+  * Three Finger Drag
+
+Putting two fingers on a window that supports transforms will allow you to scale and rotate a window. If you scale the window enough so that it covers 80% of the screen, Glassomium will automatically put the window into fullscreen. This is the default behavior, unless an application explicitly disables this feature via the GLA.SetPinchableToFullscreen API.
+
+Windows can be resized back from fullscreen to windowed mode if the user touches one of the corners of the screen and performs a scale gesture (put a finger on one of the corners of the screen, put another finger on the same fullscreen window, then bring your fingers closer together). This is the default behavior, unless an application explicitly disables this feature via the GLA.SetPinchableOutOfFullscreen API.
+
+To enter drag mode, you can place three fingers onto a window. At this point the window will change color, indicating you have entered drag mode. You may now move the window around with any number of fingers (1, 2 or more). The moment your fingers stop touching the window, the window will leave drag mode.
+
+==== How To Close An Application ====
+
+You can close an application simply by doing a pinch gesture (two fingers) and making the application very small (bring your two fingers close together).
+
+==== Troubleshooting Gestures ====
+
+Sometimes it might happen that Glassomium does not properly respond to your actions. This is likely because of noise from the TUIO program you are using to detect the touches. You can enable debugging of the touches that Glassomium is currently processing by enabling debug mode.
+
+Via command line:
+<code>
+~/#bin/Glassomium -d
+</code> 
+
+Or via the default window, by checking the "Debug" checkbox at startup.
+
+Calibrate your TUIO input program and restart Glassomium. This will likely fix the problem.
+

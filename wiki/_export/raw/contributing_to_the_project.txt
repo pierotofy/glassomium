@@ -1,0 +1,17 @@
+====== Contributing to the project ======
+
+We keep a [[List of people who contributed to the project|list of people who contributed to the project]] to recognize the effort of each individual. If you'd like to see your name in the list, read below.
+
+===== For developers =====
+
+If you want to help expand our code or fix an issue, having some C++ skills will help you. If you do not know C++, you can still help by creating themes and web content for Glassomium. In that case a good understanding of HTML/CSS/Javascript is required. In any of the two cases, you should know how to do basic operations with [[http://git-scm.com/|git]] (forking, branching, merging) as this is what the project uses for version control.
+
+To modify or add new code, generally you should fork the master branch, work on your modifications, then make a pull request to the maintainer of the main repository. If you have a feature in mind that you want added, you should post it to the [[https://groups.google.com/forum/#!forum/glassomium|mailing list]] before diving into coding; other participants might be able to give their feedback about your idea. That way we can also add the feature in the [[Project status|status page]].
+
+===== For users ======
+
+You don't necessarily need to be a developer to help out with the project. Here are a few things you can do to help out:
+  * Give your feedback (send it to our [[https://groups.google.com/forum/#!forum/glassomium|mailing list]])
+  * [[https://github.com/pierotofy/glassomium/issues|Report a bug]] (possibly indicating the steps to reproduce it)
+
+

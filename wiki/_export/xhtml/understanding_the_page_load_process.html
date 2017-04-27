@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/understanding_the_page_load_process by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:20:24 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>understanding_the_page_load_process</title>
+<meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-07-30T22:14:00+0000"/>
+<meta name="keywords" content="understanding_the_page_load_process"/>
+<link rel="search" type="application/opensearchdescription+xml" href="../../lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="../../index.html"/>
+<link rel="contents" href="../../understanding_the_page_load_processdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="../../feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="../../feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="understanding_the_page_load_process.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="../raw/understanding_the_page_load_process.txt"/>
+<link rel="canonical" href="../../understanding_the_page_load_process.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="../../lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="../../lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="../../lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"understanding_the_page_load_process","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="../../lib/exe/js5fd1.php?tseed=1343686328"></script>
+</head>
+<body>
+<div class="dokuwiki export">
+
+<h1 class="sectionedit1"><a name="understanding_the_page_load_process" id="understanding_the_page_load_process">Understanding The Page Load Process</a></h1>
+<div class="level1">
+
+<p>
+In order to guarantee communication with the native layer, Glassomium needs to do a few tricks at each page load.
+</p>
+
+<p>
+<a href="../../_detail/pageload86a2.html?id=understanding_the_page_load_process" class="media" title="pageload.png"><img src="../../_media/af5e471beed696c114826860d3d1c90b.media.337x24026f1.png_%3b?w=337" class="media" alt="" width="337" /></a>
+</p>
+
+<p>
+The <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym>, along with the other code specific to each type of window can be injected only after a successful page load. This means that any <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym> specific to Glassomium can be called only after a GLALoad event. If you are not calling any Glassomium specific <acronym title="Application Programming Interface">API</acronym>, you can safely use the traditional document onload event to initialize your application.
+</p>
+
+<p>
+You can explore the /server/<acronym title="JavaScript">JS</acronym>/injectOnLoad.js file to see exactly the code that is injected. Although it&#039;s not recommended, you can change this file if you want to add custom code to each Glassomium window. 
+</p>
+
+<p>
+In this example we will catch the GLALoad event and instruct Glassomium not to allow the window to be resized/rotated.
+</p>
+<pre class="code javascript"><span class="sy0">&lt;</span>script<span class="sy0">&gt;</span>
+document.<span class="me1">addEventListener</span><span class="br0">&#40;</span><span class="st0">'GLALoad'</span><span class="sy0">,</span> onGLALoad<span class="sy0">,</span> <span class="kw2">false</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw2">function</span> onGLALoad<span class="br0">&#40;</span>event<span class="br0">&#41;</span> <span class="br0">&#123;</span>
+  GLA.<span class="me1">SetTransformable</span><span class="br0">&#40;</span><span class="kw2">false</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="br0">&#125;</span>
+<span class="sy0">&lt;/</span>script<span class="sy0">&gt;</span></pre>
+
+</div>
+</div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/understanding_the_page_load_process by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:20:24 GMT -->
+</html>

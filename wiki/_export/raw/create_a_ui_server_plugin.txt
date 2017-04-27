@@ -1,0 +1,91 @@
+====== Create a UI Server Plugin ======
+
+==== Introduction ====
+
+While using an external web server provides the maximum flexibility to generate dynamic content, the UI Server comes with a simple plugin system that allows applications to hook to the UI Server and generate dynamic content using the Ruby language. It's a good alternative for those developers who know Ruby and do not want to load another web server.
+
+==== Hello Plugin! ====
+
+In this example we will go through a simple plugin that hooks to the UI Server and outputs the current date and time.
+
+  - Create an empty application following [[Create a simple Hello World Application|these steps]].
+  - Create a "uiserver" folder inside the application's assets folder.
+  - Create a "servlet.rb" file inside the "uiserver" folder.
+
+At this point your directory tree should look like:
+
+<code plain>
+/server/WebRoot/apps
+-- Hello World
+---- index.html
+---- assets
+------ icon.png
+------ uiserver
+-------- servlet.rb
+</code>
+
+During startup, the UI Server will scan each application's folder for a **assets/uiserver/servlet.rb** file. If one is present, it will execute its content and link to it. Be careful that all plugins run within the same process, so a crash has the potential of bringing down the whole server (thus making Glassomium unresponsive).
+
+Inside servlet.rb place the following code:
+
+<code ruby>
+require './Servlets/ServletPlugin'
+
+require 'webrick'
+include WEBrick
+
+class ServletPlugin
+	def get_servlet_handlers
+	   {"getDate" => DateServlet }
+	end
+
+	def initialize
+		# Nothing to initialize here
+	end
+end
+
+class DateServlet < WEBrick::HTTPServlet::AbstractServlet
+    def initialize(server)
+	super(server)
+    end
+
+    def do_GET(request, response)
+      response.status = 200
+      response['Content-Type'] = "text/html"
+      response.body = Time.new.inspect
+    end
+end
+</code>
+
+The code is quite straightforward; every plugin must specify a **ServletPlugin** class, with a **get_servlet_handlers** method. This method must return a hash-map in the format:
+
+<code>
+{ mountPoint1 => ServletClass1,
+  mountPoint2 => ServletClass2, 
+  ... }
+</code>
+
+Where the mountPoints are strings specifying the addresses where the servlets will be mounted. A servlet is just a class that takes care of handling a web request. In our example we are telling the UI Server to mount the DateServlet servlet at http://localhost:5555/apps/<APPNAME>/getDate. 
+
+It's time for a quick test. Save all changes and (re)start the UI Server (and make sure to pass the --v verbose option).
+
+<code>
+~/glassomium/server# ruby main.rb --v
+</code>
+
+If you look at the initialization output you should see a line similar to:
+
+<code>
+...
+Found servlet plugin for <APPNAME>
+Mounted plugin at /apps/<APPNAME>/getDate
+...
+</code>
+
+And if you open your web browser to http://localhost:5555/apps/<APPNAME>/getDate you should see:
+
+<code>
+2012-08-28 20:43:29 -0500
+</code>
+
+Of course the date and time will reflect the actual time. If you refresh the page the content will change. Congratulations! You just generated some dynamic content!

@@ -1,8 +1,0 @@
-Glassomium
-Copyright 2012 Piero Toffanin
-
-Portions of this software use the Berkelium library developed by the Sirikata team.
-
-Graphics support is provided by SFML, the Simple Fast Multimedia Library.
-
-The example applications in the server/WebRoot/apps folder are (C) by their respective owners. If you think an application should not have been included with Glassomium, please contact the author at toffa006@d.umn.edu

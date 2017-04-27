@@ -1,0 +1,49 @@
+======= Information for Users =======
+===== General information =====
+  * [[Platform overview|Platform overview]] (Highly recommended)
+  * [[How to use Glassomium|How to use Glassomium]]
+  * [[Managing applications|Managing applications]]
+  * [[Switching between themes|Switching between themes]]
+  * [[Using an iPad for multi-touch input|Using an iPad for multi-touch input]]
+  * [[Contributing to the project|Contributing to the project]]
+===== Demo Applications usage =====
+  * [[Photo Canvas Demo|Photo Canvas Demo]]
+  * [[Shapes|Shapes]]
+
+===== Troubleshooting =====
+  * [[Getting Flash to work on Windows|Getting Flash to work on Windows]]
+======= Information for Developers =======
+===== General information =====
+  * [[Understanding the page load Process|Understanding the page load process]]
+  * [[Design guidelines|Design guidelines]]
+  * [[Using a web server with Glassomium|Using a web server with Glassomium]]
+===== User applications =====
+  * [[Create a Simple Hello World application|Create a simple Hello World application]]
+  * [[Enable multi-mouch in your application|Enable multi-mouch in your application]]
+  * [[Create a UI Server plugin|Create a UI Server plugin]]
+  * [[Debugging an application|Debugging an application]]
+  * [[Define Application Settings|Define application settings]]
+
+===== Themes =====
+  * [[Create your own theme|Create your own theme]]
+  * [[Debugging your theme|Debugging your theme]]
+
+===== Building From Sources =====
+  * [[Build Instructions|Build Instructions]]
+
+===== References =====
+
+  * [[http://www.glassomium.org/JSAPI.html|Javascript API]]
+
+
+======= Other Information =======
+===== About the Project =====
+  * [[Project Status|Project status]]
+===== Credits =====
+
+  * [[List of people who contributed to the project|List of people who contributed to the project]]
+===== Links =====
+
+  * [[https://github.com/pierotofy/glassomium/issues|Bug submission]]
+  * [[https://groups.google.com/forum/#!forum/glassomium|Mailing list on Google Groups]]
+  * [[http://www.glassomium.org|Glassomium Home Page]]

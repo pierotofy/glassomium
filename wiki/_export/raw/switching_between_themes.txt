@@ -1,0 +1,9 @@
+====== Switching Between Themes ======
+
+Theme selection is controlled by the UI Server. If you want to select a theme different than the default one, simply use the --theme directive from the command line:
+
+<code>
+~/glassomium/server# ruby main.rb --theme minimal
+</code>
+
+Then restart Glassomium.

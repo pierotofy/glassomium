@@ -1,0 +1,507 @@
+body{
+	background: url(../images/background.png);
+	margin: 0;
+	padding: 0;
+	color: black;
+}
+
+div.page{
+	//border: 1px solid red;
+	position: relative;
+	overflow: hidden;
+	margin-bottom: 400px;
+}
+
+div.page.bottom{
+	margin-bottom: 0;
+}
+
+div.page div.content{
+	position: absolute;
+	//border: 1px solid yellow;
+}
+
+div.text{
+	font-size: 1.2em;
+	font-weight: normal;
+}
+
+h1{
+	font-size: 1.8em;
+	font-weight: normal;
+	padding: 0;
+	margin-top: 0;
+}
+
+h2.box-title{
+	color: white;
+	font-weight: 500;
+	font-size: 1.4em;
+}
+
+div.box{
+	border-radius: 20px;
+	padding: 0 8px 0 8px;
+}
+
+div.clear{
+	clear: both;
+}
+
+div.box.blue{
+	border: 2px solid #74a1db;
+	background-color: #7aafef;
+}
+
+div.box.green{
+	background-color: #139a49;
+	border: 2px solid #6cd195;
+}
+
+div.box.red{
+	background-color: #e12424;
+	border: 2px solid #f36a6a;
+}
+
+div.line{
+	position: absolute;
+	left: 49%;
+	background: url(../images/dotted-line.png);
+	background-repeat: repeat-y;
+	width: 7px;
+	height: 60px;
+}
+
+a.navigation-link{
+	display: block;
+	position: relative;
+	left: 0%;
+	width: 98.3%;
+	text-align: center;
+	text-decoration: none;
+	font-size: 0.9em;
+	color: black;
+	z-index: 99;
+}
+
+a.navigation-link:hover{
+	color: white;
+}
+
+a#btn-go-home{
+	position: fixed;
+	top: 50%;
+	right: -38px;
+	z-index: 20;
+	width: 38px;
+	height: 80px;
+	display: block;
+	background: transparent url('../images/home-button.png') center top no-repeat;
+}
+a#btn-go-home:hover{
+	background: transparent url('../images/home-button-over.png') center top no-repeat;
+	cursor: hand;
+}
+
+a#btn-fork-me{
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 20;
+	width: 120px;
+	height: 120px;
+	display: block;
+	background: transparent url('../images/fork-me.png') center top no-repeat;
+}
+a#btn-fork-me:hover{
+	background: transparent url('../images/fork-me-over.png') center top no-repeat;
+	cursor: hand;
+}
+
+/** Home */
+
+img#logo{
+	border: 0;
+	padding: 0;
+}
+
+div#logo-container{
+	text-align: center;
+	width: 100%;
+}
+
+div#home div.page div.content{
+	width: 775px;
+}
+
+div#home div.text-container{
+	width: 480px;
+	float: left;
+}
+
+div#home div.download-box{
+	width: 264px;
+	float: right;
+	height: 142px;
+}
+
+div#home div.download-box img.icon{
+	float: left;
+}
+
+div#home div.download-box .btn-group{
+	float: right;
+	margin-right: 10px;
+	margin-top: 3px;
+}
+
+div#home div.download-box .btn{
+	width: 210px;
+	text-align: left;
+}
+
+div#home div.download-box div.download{
+	margin-top: 8px;
+}
+
+div#home div.navigation-box{
+	width: 754px;
+	float: right;
+	height: 142px;
+	margin-top: 16px;
+}
+
+div#home div.navigation-box div.panel{
+	//border: 1px solid red;
+	width: 249px;
+}
+
+div#home div.navigation-box div.panel.left{
+	float: left;
+}
+
+div#home div.navigation-box div.panel.right{
+	float: left;
+}
+
+div#home div.navigation-box div.panel.middle{
+	float: left;
+}
+
+div#home div.navigation-box button{
+	margin-bottom: 7px;
+	margin-top: 5px;
+	width: 196px;
+	text-align: left;
+}
+div#home div.navigation-box img{
+	margin-top: 0px;
+}
+
+/** Explore */
+div#explore div.page div.content{
+	width: 952px;
+}
+
+div#explore div.screenshots-box{
+	width: 338px;
+	float: right;
+	height: 340px;
+	padding-right: 0px;
+	margin-top: 40px;
+}
+
+div#explore div#image-display{
+	width: 560px;
+	height: 315px;
+}
+
+div#explore div#image-display div#controls{
+	position: relative;
+	top: 4px;
+	width: 98px;
+	left: 456px;
+	height: 30px;
+	z-index: 1;
+}
+
+div#explore div#image-display div#controls .nav-controls a{
+	margin-left: 10px;
+	color: white;
+	text-decoration: none;
+}
+
+div#explore div#image-display div#controls .nav-controls a:hover{
+	text-decoration: underline;
+}
+
+div#explore div#image-display div#caption{
+	position: relative;
+	top: 225px;
+	left: 0;
+	height: 60px;
+	z-index: 1;
+	color: white;
+}
+
+div#explore div#image-display div#caption .background{
+	background-color: #464541;
+	opacity: 0.7;
+	width: 100%;
+	height: 100%;
+}
+div#explore div#image-display div#caption .caption-content{
+	position: relative;
+	top: -60px;
+	padding-left: 8px;
+	padding-top: 4px;
+}
+
+
+div#explore div#image-display div#caption .caption{
+	z-index: 2;
+}
+
+div#explore div#image-display div#caption h3{
+	font-size: 1.2em;
+	margin: 0;
+	padding: 0;
+}
+
+div#explore div#image-display div#image{
+	position: relative;
+	top: -90px;
+	z-index: 0;
+}
+
+div#explore ul.thumbs{
+	list-style-type: none;
+	overflow: hidden;
+	margin: 0;
+	margin-top: 3px;
+}
+
+div#explore ul.thumbs li{
+	float: left;
+	display: inline;
+	width: 30%;
+	margin: 3px;
+	border: 1px solid #dddddd;
+	padding: 1px;
+	background-color: #cccccc;
+}
+
+div#explore ul.thumbs li img{
+	opacity: 0.7;
+}
+div#explore ul.thumbs li.selected img, div#explore ul.thumbs li img:hover{
+	opacity: 1;
+}
+
+div#explore .bottom.pagination{
+	margin: 0;
+	position: absolute;
+	top: 354px;
+	text-align: center;
+}
+
+div#explore .bottom.pagination span, div#explore .bottom.pagination a{
+	float: left;
+	padding: 0 6px;
+	line-height: 17px;
+	text-decoration: none;
+	border: 0;
+	color: black;
+}
+
+div#explore .bottom.pagination span.current{
+	font-weight: bold;
+}
+
+div#explore div.text-container{
+	width: 602px;
+	float: left;
+}
+
+div#explore div.videos-box{
+	width: 950px;
+	height: 100px;
+	margin-top: 0px;
+}
+
+div#explore div.videos-box .box-title{
+	float: left;
+	margin-right: 8px;
+}
+
+div#explore div.video-thumb{
+	float: left;
+	position: relative;
+	margin-left: 6px;
+	margin-top: 8px;
+}
+
+div#explore div.video-thumb .video-title{
+	position: absolute;
+	background-color: white;
+	font-size: 0.9em;
+	opacity: 0.7;
+	width: 106px;
+	bottom: 0;
+	padding-left: 2px;
+	padding-right: 2px;
+	display: none;
+}
+
+div#explore div.video-thumb .video-thumb-image-container{
+	border: 2px solid #dddddd;
+}
+
+div#explore div.video-thumb img{
+	opacity: 0.7;
+}
+
+div#explore div.video-thumb img:hover{
+	opacity: 1;
+}
+
+div#explore div.video-thumb a{
+	color: black;
+	text-decoration: none;
+}
+
+div#explore div.video-thumb img{
+	height: 80px;
+}
+
+div#explore div.multimedia-box{
+	background: url(../images/glass-panel.png);
+	background-repeat: no-repeat;
+	width: 571px;
+	height: 325px;
+	padding: 18px;
+}
+
+/* Learn */
+div#learn div.resources-box{
+	width: 266px;
+	height: 346px;
+	float: left;
+}
+
+div#learn div.text-container{
+	width: 600px;
+	padding-left: 10px;
+	float: right;
+}
+
+div#learn div.text-container div.text{
+	margin-bottom: 16px;
+}
+
+div#learn div.explore-column{
+	float: left;
+}
+
+div#learn div.explore-column ul{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	margin-left: 0.5em;
+	margin-top: 0.5em;
+	width: 290px;
+}
+
+div#learn div.explore-column ul li{
+	 background-image: url(../images/checkmark.png);
+	 background-repeat: no-repeat;
+	 background-position: 0 0em;
+	 padding-left: 3em;
+	 padding-top: 0.5em;
+	 padding-bottom: 30px;
+ 	 height: 30px;
+}
+
+div#learn div.resources-box ul{
+	color: white;
+	font-size: 1.1em;
+}
+
+div#learn div.resources-box ul a{
+	color: white;
+}
+
+/* Connect */
+
+div#connect div.text-container{
+	width: 600px;
+	margin-bottom: 8px;
+}
+
+div#connect div.contact-box{
+	width: 650px;
+	height: 212px;
+	padding-top: 12px;
+}
+div#connect div.share-box{
+	margin-top: 8px;
+	width: 650px;
+	padding-top: 8px;
+	height: 74px;
+	text-align: center;
+}
+
+div#connect div.twitter-container{
+	float: right;
+	width: 250px;
+	margin-left: 10px;
+}
+
+div#connect div.left-container{
+	float: left;
+}
+
+div#connect input[type="text"].error, textarea.error{
+	border: 1px solid red;
+}
+
+div#connect label.error{
+
+}
+
+div#connect textarea{
+	width: 638px; 
+	height: 100px;
+	resize: none;
+}
+
+div#connect form span{
+	font-size: 1.1em;
+}
+
+div#connect input[type="text"]{
+	height: 12px;
+	vertical-align: top;
+	margin-top: -2px;
+	margin-right: 8px;
+}
+
+div#connect label{
+	display: inline;
+}
+
+div#connect input[type="submit"]{
+	float: right;
+}
+
+/* Footer */
+
+div.footer{
+	//border: 1px solid red;
+	text-align: center;
+	margin-top: 40px;
+}
+
+div.footer span.text{
+	margin-right: 6px;
+}

@@ -1,0 +1,9 @@
+====== Debugging an Application ======
+
+The best way to test your applications before trying them out within Glassomium is by using [[http://www.chromium.org/|Chromium]] (or Google Chrome). You can use another browser if you'd like, but keep in mind that Glassomium windows are rendered with Chromium.
+
+To access your application, simply start the UI Server and connect to http://localhost:5555/apps/NameOfYourApp/
+
+If you are developing a multi touch application and would like to simulate TUIO events with the mouse, pass the following parameters to the URL: http://localhost:5555/apps/NameOfYourApp/?development=1&simulate_tuio=1
+
+The development=1 flag will instruct the UI Server to include the contents of /server/JS/injectOnLoad.js while the simulate_tuio=1 will include some code that takes in mouse events and converts them into TUIO touchstart, touchmove and touchend events.

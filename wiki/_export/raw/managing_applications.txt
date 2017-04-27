@@ -1,0 +1,15 @@
+====== Managing Applications ======
+
+==== Where are my apps? ====
+
+On Windows, press the Window Key + R, then from the Run dialog type %appdata%\Glassomium\server\WebRoot\apps and press enter. You will be redirected to the directory where Glassomium's applications are stored. 
+
+On Linux simply browse to the location where you have installed Glassomium and open the server/WebRoot/apps directory.
+
+==== Deleting an application ====
+
+You can delete an application by simply deleting the directory that contains it
+
+==== Adding an application ====
+
+You can add a new application by creating a new folder and by providing an index.html as well as a assets/icon.png. More information on creating applications is provided on [[Create a simple Hello World application|this page]]. You don't have to be an HTML wizard to create an application. Chances are that the application you need already exists somewhere on the web.

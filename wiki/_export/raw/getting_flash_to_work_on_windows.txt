@@ -1,0 +1,12 @@
+====== Getting Flash to work on Windows ======
+
+Glassomium will try to find a working version of Flash on your computer, but sometimes it will fail and as a result, applications that use Flash might not work properly (you will see an empty screen or a warning message).
+
+To fix this, you can create a "plugins" folder in %appdata%\Glassomium\bin\ and place the Flash plugin there. The file you are looking at is called "NPSWF32.dll". At the end, you should have a path that looks like this: %appdata%\Glassomium\bin\plugins\NPSWF32.dll
+
+===== Where can I find the DLL? =====
+
+You can retrieve it from an installation of Google Chrome, or you can download it from here: http://www.mediafire.com/?tcpm27jtjng14t7
+===== Why didn't you just include this in Glassomium by default? =====
+
+Adobe Flash's license does not allow us to include it. Bummer.

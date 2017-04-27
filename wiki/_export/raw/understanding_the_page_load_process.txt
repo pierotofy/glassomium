@@ -1,0 +1,24 @@
+====== Understanding The Page Load Process ======
+
+In order to guarantee communication with the native layer, Glassomium needs to do a few tricks at each page load.
+
+{{:pageload.png?337|}}
+
+The JS API, along with the other code specific to each type of window can be injected only after a successful page load. This means that any JS API specific to Glassomium can be called only after a GLALoad event. If you are not calling any Glassomium specific API, you can safely use the traditional document onload event to initialize your application.
+
+You can explore the /server/JS/injectOnLoad.js file to see exactly the code that is injected. Although it's not recommended, you can change this file if you want to add custom code to each Glassomium window. 
+
+In this example we will catch the GLALoad event and instruct Glassomium not to allow the window to be resized/rotated.
+
+<code javascript>
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetTransformable(false);
+}
+</script>
+</code>
+
+
+
+

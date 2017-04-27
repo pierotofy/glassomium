@@ -1,0 +1,50 @@
+====== Photo Canvas Demo ======
+
+Photo Canvas Demo is an application that allows you to browse the pictures of an external media (SD card, USB drive). The workflow is as follow:
+  - Launch the Photo Canvas Demo
+  - Insert a media into your computer
+  - The application pulls the pictures onto the screen, now you can interact with the pictures.
+  - Remove the media, the pictures disappear. 
+
+A demonstration video is available here: http://www.youtube.com/watch?v=KZ7rOtAdPbc
+
+In order to work properly, the application might need to be configured. The default configuration does not work on all computers.
+
+With a text editor (Notepad), open the file located at /server/WebRoot/apps/PhotoCanvasDemo/assets/media.cfg
+
+<code>
+# Watch points are a list of directories that will be monitored for pictures
+# Example, if your SD card mounts to E:, make sure E: is in the list
+
+:watch_points:
+  :windows:
+  - e:/
+  - f:/
+  :posix:
+  - /mnt/media/
+  - /mnt/cdrom/
+
+
+# Directory filters are used to distinguish between media storages and other drives
+# Only pictures that are found nested inside one of these directory names will be considered
+# These names can be valid regular expressions.
+
+
+:directory_filters:
+- DCM1000
+- DCIM
+- photos
+
+# Look only for these type of files
+:extensions:
+- jpg
+- jpeg
+- png
+</code>
+
+The directories listed under :watch_points are the directories that will be considered when inserting a new media. If you media mounts to a drive different than e: or f: (or /mnt/media or /mnt/cdrom on Linux), you should add that drive to the list.
+
+Once a media has been inserted, the Photo application will scan for the presence of one or more directories in the top level folder of the media. If it finds at least one directory listed in the :directory_filters list, the program will recursively scan the media for pictures that have extensions as listed on the :extensions list. If no directories are found that match the :directory_filters list, no pictures will be detected.
+
+If you have made modifications to the media.cfg file, make sure to restart the UI Server to apply the changes.
+

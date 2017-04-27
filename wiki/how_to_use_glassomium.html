@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/how_to_use_glassomium by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:02:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    How To Use Glassomium  </title>
+
+  <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-11-15T01:25:15+0000"/>
+<meta name="keywords" content="how_to_use_glassomium"/>
+<link rel="search" type="application/opensearchdescription+xml" href="lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="index.html"/>
+<link rel="contents" href="how_to_use_glassomiumdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="_export/xhtml/how_to_use_glassomium.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="_export/raw/how_to_use_glassomium.txt"/>
+<link rel="canonical" href="how_to_use_glassomium.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"how_to_use_glassomium","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="lib/exe/js5fd1.php?tseed=1343686328"></script>
+
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  </head>
+
+<body>
+
+	
+	
+
+
+
+
+
+		
+	<div class="dokuwiki">
+	  <div id="header">
+	    <div class="inner">
+	      <div class="bar_left">
+		<div id="sitename">
+		  <a href="index.html"  name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[H]">Glassomium Wiki</a>		</div>
+	      </div>
+	      <div class="bar_right" style="padding-top:7px">
+		<form action="http://glassomium.org/wiki/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><input type="submit" value="Search" class="button" title="Search" /><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>&nbsp;
+	      </div>
+	      <div class="clearer"></div>
+	      	    </div>
+	  </div>
+	
+	</div>
+	<div id="location" class="inner">
+		</div>
+	<div id="content" class="inner">
+	    <div id="maincol" class="dokuwiki">
+	      <div class="page">
+
+		<!-- wikipage start -->
+		
+<h1 class="sectionedit1"><a name="how_to_use_glassomium" id="how_to_use_glassomium">How To Use Glassomium</a></h1>
+<div class="level1">
+
+<p>
+After you have successfully launched Glassomium and properly tuned your TUIO input program (<a href="http://ccv.nuigroup.com/" class="urlextern" title="http://ccv.nuigroup.com/"  rel="nofollow">CCV</a> or equivalent) you might be wondering how you can use some of Glassomium&#039;s features.
+</p>
+
+</div>
+
+<h3 class="sectionedit2"><a name="gesture_basics" id="gesture_basics">Gesture Basics</a></h3>
+<div class="level3">
+
+<p>
+Glassomium supports two foundamental gestures:
+</p>
+<ul>
+<li class="level1"><div class="li"> Two Finger Pinch</div>
+</li>
+<li class="level1"><div class="li"> Three Finger Drag</div>
+</li>
+</ul>
+
+<p>
+Putting two fingers on a window that supports transforms will allow you to scale and rotate a window. If you scale the window enough so that it covers 80% of the screen, Glassomium will automatically put the window into fullscreen. This is the default behavior, unless an application explicitly disables this feature via the GLA.SetPinchableToFullscreen <acronym title="Application Programming Interface">API</acronym>.
+</p>
+
+<p>
+Windows can be resized back from fullscreen to windowed mode if the user touches one of the corners of the screen and performs a scale gesture (put a finger on one of the corners of the screen, put another finger on the same fullscreen window, then bring your fingers closer together). This is the default behavior, unless an application explicitly disables this feature via the GLA.SetPinchableOutOfFullscreen <acronym title="Application Programming Interface">API</acronym>.
+</p>
+
+<p>
+To enter drag mode, you can place three fingers onto a window. At this point the window will change color, indicating you have entered drag mode. You may now move the window around with any number of fingers (1, 2 or more). The moment your fingers stop touching the window, the window will leave drag mode.
+</p>
+
+</div>
+
+<h3 class="sectionedit3"><a name="how_to_close_an_application" id="how_to_close_an_application">How To Close An Application</a></h3>
+<div class="level3">
+
+<p>
+You can close an application simply by doing a pinch gesture (two fingers) and making the application very small (bring your two fingers close together).
+</p>
+
+</div>
+
+<h3 class="sectionedit4"><a name="troubleshooting_gestures" id="troubleshooting_gestures">Troubleshooting Gestures</a></h3>
+<div class="level3">
+
+<p>
+Sometimes it might happen that Glassomium does not properly respond to your actions. This is likely because of noise from the TUIO program you are using to detect the touches. You can enable debugging of the touches that Glassomium is currently processing by enabling debug mode.
+</p>
+
+<p>
+Via command line:
+</p>
+<pre class="code">~/#bin/Glassomium -d</pre>
+
+<p>
+Or via the default window, by checking the “Debug” checkbox at startup.
+</p>
+
+<p>
+Calibrate your TUIO input program and restart Glassomium. This will likely fix the problem.
+</p>
+
+</div>
+
+		<!-- wikipage stop -->
+	
+			
+	      	<div class="bar" id="bar__top" style="margin-top:20px;">
+      <div class="bar-left" id="bar__topleft">
+        <form class="button btn_source" method="post" action="http://glassomium.org/wiki/how_to_use_glassomium"><div class="no"><input type="hidden" name="do" value="edit" /><input type="hidden" name="rev" value="" /><input type="submit" value="Show pagesource" class="button" accesskey="v" title="Show pagesource [V]" /></div></form>        <form class="button btn_revs" method="get" action="http://glassomium.org/wiki/how_to_use_glassomium"><div class="no"><input type="hidden" name="do" value="revisions" /><input type="submit" value="Old revisions" class="button" accesskey="o" title="Old revisions [O]" /></div></form>              </div>
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="http://glassomium.org/wiki/how_to_use_glassomium"><div class="no"><input type="hidden" name="do" value="recent" /><input type="submit" value="Recent changes" class="button" accesskey="r" title="Recent changes [R]" /></div></form>                                <form class="button btn_login" method="get" action="http://glassomium.org/wiki/how_to_use_glassomium"><div class="no"><input type="hidden" name="do" value="login" /><input type="hidden" name="sectok" value="4def3a5dd4a31b99cc6b0d4eb140ef47" /><input type="submit" value="Login" class="button" title="Login" /></div></form>
+      </div>
+      <div class="clearer"></div>
+    </div>
+	      </div>
+	    </div>
+	    
+	    <div class="clearer"></div>
+	</div>
+	<div id="copyright" style="text-align:center;">
+		<p>Content on this wiki is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" rel="nofollow">CC Attribution-Noncommercial-Share Alike 3.0 Unported</a>    
+		<p>Theme based on the work by <a href="http://www.mohdshakir.net/" rel="nofollow">Mohd Shakir Zakaria</a></p>
+	</div>
+	  
+	
+	
+	
+	
+	<div class="no"><img src="lib/exe/indexerc983.gif?id=how_to_use_glassomium&amp;1493315723" width="2" height="1" alt="" /></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/how_to_use_glassomium by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:03:07 GMT -->
+</html>

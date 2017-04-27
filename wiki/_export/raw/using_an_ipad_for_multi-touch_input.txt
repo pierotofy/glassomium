@@ -1,0 +1,12 @@
+====== Using an iPad for multi-touch input ======
+
+While this is not practical for real usage scenarios, using an iPad is a very quick way to test out Glassomium without having to build a [[http://sethsandler.com/multitouch/mtmini/|MT-mini]] or spend money on more expensive hardware.
+
+Glassomium supports any TUIO-enabled device and an iPad is fully capable of sending TUIO messages.
+  * Install [[https://itunes.apple.com/us/app/tuiopad/id412446962?mt=8|TuioPad]] on your iPad
+  * Make sure your iPad is connected to the same network of the computer running Glassomium
+  * Run TuioPad and in the **host** field type the IP address of the computer that is running Glassomium
+  * Leave the port at **3333** and the protocol at **UDP**
+  * Press **Start**
+
+If nothing happens, make sure you run Glassomium in debug mode (see the Troubleshooting gestures section on [[http://www.glassomium.org/wiki/how_to_use_glassomium|this page]]) and that your firewall is not blocking the incoming UDP messages.

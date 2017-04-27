@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/define_application_settings by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:21:06 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>define_application_settings</title>
+<meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-11-14T22:40:08+0000"/>
+<meta name="keywords" content="define_application_settings"/>
+<link rel="search" type="application/opensearchdescription+xml" href="../../lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="../../index.html"/>
+<link rel="contents" href="../../define_application_settingsdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="../../feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="../../feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="define_application_settings.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="../raw/define_application_settings.txt"/>
+<link rel="canonical" href="../../define_application_settings.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="../../lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="../../lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="../../lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"define_application_settings","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="../../lib/exe/js5fd1.php?tseed=1343686328"></script>
+</head>
+<body>
+<div class="dokuwiki export">
+<!-- TOC START -->
+<div class="toc">
+<div class="tocheader toctoggle" id="toc__header">Table of Contents</div>
+<div id="toc__inside">
+
+<ul class="toc">
+<li class="level1"><div class="li"><span class="li"><a href="#define_application_settings" class="toc">Define Application Settings</a></span></div>
+<ul class="toc">
+<li class="level2"><div class="li"><span class="li"><a href="#configuration_files" class="toc">Configuration Files</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#js_api" class="toc">JS API</a></span></div></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<!-- TOC END -->
+
+<h1 class="sectionedit1"><a name="define_application_settings" id="define_application_settings">Define Application Settings</a></h1>
+<div class="level1">
+
+<p>
+Glassomium offers two ways of defining settings for user applications; through configuration files and through the <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym>.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Define Application Settings" [1-167] -->
+<h2 class="sectionedit2"><a name="configuration_files" id="configuration_files">Configuration Files</a></h2>
+<div class="level2">
+
+<p>
+If you have read <a href="../../understanding_the_page_load_process.html" class="wikilink1" title="understanding_the_page_load_process">Understanding the Page Load Process</a> you know that the <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym> is only available after a successful page load. This can cause some visual issues if what we are trying to set is related to how the window looks. For example if we were to define the dimensions of the window through an <acronym title="Application Programming Interface">API</acronym> call, we would have first to create a default window size, load the page, resize it, then display it. This is not ideal since it involves modifying the size of the window and likely cause an unwanted flickering effect.
+</p>
+
+<p>
+Instead, Glassomium allows the user to define a simple configuration file, that supports only the following properties:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>window.width</strong>: width of the window (expressed as a percentage value between 0 and 1)</div>
+</li>
+<li class="level1"><div class="li"> <strong>window.height</strong>: height of the window (expressed as a percentage value between 0 and 1)</div>
+</li>
+<li class="level1"><div class="li"> <strong>window.aspectratio</strong>: a floating point number that indicates the relation between width and height (width/height). When this value is set, the window.height property will be ignored and the the height will be calculated as a function of window.width. For example if you need to make a window that is a perfect square, set this value to 1.</div>
+</li>
+<li class="level1"><div class="li"> <strong>window.transparent</strong>: whether transparent colors in the web page should be rendered as transparent or white (yes/no)</div>
+</li>
+<li class="level1"><div class="li"> <strong>window.fullscreen</strong>: whether the window should be launched directly into fullscreen mode (yes/no)</div>
+</li>
+</ul>
+
+<p>
+A configuration file is never required and if it&#039;s not included with an application, Glassomium will choose the default values for each property. When you decide that you need a configuration file, simply add to your application&#039;s <strong>assets</strong> folder an application.cfg file:
+</p>
+
+<p>
+/server/WebRoot/apps/MyApp/assets/application.cfg
+</p>
+<pre class="code"># Application configuration file
+# ----------------------------------------
+# In this file you can specify several properties for the window that will host
+# the application in glassomium
+
+window.transparent no
+
+window.fullscreen  no
+
+window.width	0.7
+window.height	0.5</pre>
+
+<p>
+Save the file, restart the UI Server and restart Glassomium. Next time you start your application, the configuration values will be applied.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Configuration Files" [168-2394] -->
+<h2 class="sectionedit3"><a name="js_api" id="js_api">JS API</a></h2>
+<div class="level2">
+
+<p>
+Many properties can be defined within the <acronym title="JavaScript">JS</acronym> <acronym title="Application Programming Interface">API</acronym>, including the default zoom level, whether the window should scroll on a touch move gesture and so forth. Just make sure that you call the APIs only after the GLALoad event.
+</p>
+<pre class="code html4strict"><span class="sc2">&lt;<a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetScrollOnTouchMove(true);
+}
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span></pre>
+
+<p>
+For a complete list of APIs, check the <a href="../../../JSAPI.html" class="urlextern" title="http://www.glassomium.org/JSAPI.html"  rel="nofollow">Javascript API Reference</a>
+</p>
+
+</div>
+<!-- EDIT3 SECTION "JS API" [2395-] --></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/_export/xhtml/define_application_settings by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:21:06 GMT -->
+</html>

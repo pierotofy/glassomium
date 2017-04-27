@@ -1,0 +1,12 @@
+====== Design Guidelines ======
+
+It doesn't matter if you are building an application or a system window for your theme; follow these simple guidelines and you'll be on track to give your users a great experience.
+
+===== Design for different dimensions =====
+
+If a user rotates a window by 90 degrees and then chooses to go in fullscreen mode, the dimension of the web page will change to match the dimensions of the screen, but your application should still work seamlessly. Unless you explicitly disable an application from going fullscreen (which you generally shouldn't), expect the web page's dimensions to change at any moment. Try to use percentage units instead of pixels whenever possible.
+
+===== Design to use all the space available =====
+
+The dimensions of each web page (in pixels) will vary depending on the current resolution. If you run Glassomium at 640x480 pixels and you create a window of 100% width (1.0) and 100% height (1.0), the web page that represents the window will effectively have 640x480 pixels. If on a second moment you decide to launch Glassomium with a resolution of 1024x768 pixels, the window will also be 1024x768. This is why you must make your applications independent of their size and always make them use all of the space available. Several examples can be found in the default themes that ship with Glassomium.
+

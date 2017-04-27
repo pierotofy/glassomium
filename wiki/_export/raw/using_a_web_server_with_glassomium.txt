@@ -1,0 +1,21 @@
+====== Using a web server with Glassomium ======
+
+The UI Server only supports the generation of dynamic content via [[Create a UI Server plugin|plugins]] using the Ruby language. If you want to develop with PHP, ASP.NET, Ruby on Rails and so forth, simply install and configure a web server (Apache, IIS, etc.) on your machine (or a remote one) and launch your applications by creating redirects. For example, if you want to launch a PHP application that is located on http://yourserver/myapp, simply create a new application in the /server/WebRoot/apps/myapp and place the following code in your index.html:
+
+<code html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+</head>
+<body>
+<script>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+	location.href='http://yourserver/myapp';
+}
+</script>
+</body>
+</html>
+</code>
+
+Note that we capture the GLALoad event to switch the location. Using a traditional body onload **might** work, but racing conditions could happen. It's just safer to do it this way.

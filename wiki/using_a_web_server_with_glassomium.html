@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/using_a_web_server_with_glassomium by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:11:14 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    Using a web server with Glassomium  </title>
+
+  <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-08-29T15:27:48+0000"/>
+<meta name="keywords" content="using_a_web_server_with_glassomium"/>
+<link rel="search" type="application/opensearchdescription+xml" href="lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="index.html"/>
+<link rel="contents" href="using_a_web_server_with_glassomiumdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="_export/xhtml/using_a_web_server_with_glassomium.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="_export/raw/using_a_web_server_with_glassomium.txt"/>
+<link rel="canonical" href="using_a_web_server_with_glassomium.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"using_a_web_server_with_glassomium","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="lib/exe/js5fd1.php?tseed=1343686328"></script>
+
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  </head>
+
+<body>
+
+	
+	
+
+
+
+
+
+		
+	<div class="dokuwiki">
+	  <div id="header">
+	    <div class="inner">
+	      <div class="bar_left">
+		<div id="sitename">
+		  <a href="index.html"  name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[H]">Glassomium Wiki</a>		</div>
+	      </div>
+	      <div class="bar_right" style="padding-top:7px">
+		<form action="http://glassomium.org/wiki/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><input type="submit" value="Search" class="button" title="Search" /><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>&nbsp;
+	      </div>
+	      <div class="clearer"></div>
+	      	    </div>
+	  </div>
+	
+	</div>
+	<div id="location" class="inner">
+		</div>
+	<div id="content" class="inner">
+	    <div id="maincol" class="dokuwiki">
+	      <div class="page">
+
+		<!-- wikipage start -->
+		
+<h1 class="sectionedit1"><a name="using_a_web_server_with_glassomium" id="using_a_web_server_with_glassomium">Using a web server with Glassomium</a></h1>
+<div class="level1">
+
+<p>
+The UI Server only supports the generation of dynamic content via <a href="create_a_ui_server_plugin.html" class="wikilink1" title="create_a_ui_server_plugin">plugins</a> using the Ruby language. If you want to develop with <acronym title="Hypertext Preprocessor">PHP</acronym>, <acronym title="Active Server Pages">ASP</acronym>.NET, Ruby on Rails and so forth, simply install and configure a web server (Apache, <acronym title="Internet Information Services">IIS</acronym>, etc.) on your machine (or a remote one) and launch your applications by creating redirects. For example, if you want to launch a <acronym title="Hypertext Preprocessor">PHP</acronym> application that is located on <a href="http://yourserver/myapp" class="urlextern" title="http://yourserver/myapp"  rel="nofollow">http://yourserver/myapp</a>, simply create a new application in the /server/WebRoot/apps/myapp and place the following code in your index.html:
+</p>
+<pre class="code html4strict"><span class="sc0">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot;&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/html.html"><span class="kw2">html</span></a>&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/head.html"><span class="kw2">head</span></a>&gt;</span>
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/head.html"><span class="kw2">head</span></a>&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/body.html"><span class="kw2">body</span></a>&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+	location.href='http://yourserver/myapp';
+}
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span>
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/body.html"><span class="kw2">body</span></a>&gt;</span>
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/html.html"><span class="kw2">html</span></a>&gt;</span></pre>
+
+<p>
+Note that we capture the GLALoad event to switch the location. Using a traditional body onload <strong>might</strong> work, but racing conditions could happen. It&#039;s just safer to do it this way.
+</p>
+
+</div>
+
+		<!-- wikipage stop -->
+	
+			
+	      	<div class="bar" id="bar__top" style="margin-top:20px;">
+      <div class="bar-left" id="bar__topleft">
+        <form class="button btn_source" method="post" action="http://glassomium.org/wiki/using_a_web_server_with_glassomium"><div class="no"><input type="hidden" name="do" value="edit" /><input type="hidden" name="rev" value="" /><input type="submit" value="Show pagesource" class="button" accesskey="v" title="Show pagesource [V]" /></div></form>        <form class="button btn_revs" method="get" action="http://glassomium.org/wiki/using_a_web_server_with_glassomium"><div class="no"><input type="hidden" name="do" value="revisions" /><input type="submit" value="Old revisions" class="button" accesskey="o" title="Old revisions [O]" /></div></form>              </div>
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="http://glassomium.org/wiki/using_a_web_server_with_glassomium"><div class="no"><input type="hidden" name="do" value="recent" /><input type="submit" value="Recent changes" class="button" accesskey="r" title="Recent changes [R]" /></div></form>                                <form class="button btn_login" method="get" action="http://glassomium.org/wiki/using_a_web_server_with_glassomium"><div class="no"><input type="hidden" name="do" value="login" /><input type="hidden" name="sectok" value="4def3a5dd4a31b99cc6b0d4eb140ef47" /><input type="submit" value="Login" class="button" title="Login" /></div></form>
+      </div>
+      <div class="clearer"></div>
+    </div>
+	      </div>
+	    </div>
+	    
+	    <div class="clearer"></div>
+	</div>
+	<div id="copyright" style="text-align:center;">
+		<p>Content on this wiki is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" rel="nofollow">CC Attribution-Noncommercial-Share Alike 3.0 Unported</a>    
+		<p>Theme based on the work by <a href="http://www.mohdshakir.net/" rel="nofollow">Mohd Shakir Zakaria</a></p>
+	</div>
+	  
+	
+	
+	
+	
+	<div class="no"><img src="lib/exe/indexerdfb9.gif?id=using_a_web_server_with_glassomium&amp;1493315803" width="2" height="1" alt="" /></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/using_a_web_server_with_glassomium by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:12:05 GMT -->
+</html>

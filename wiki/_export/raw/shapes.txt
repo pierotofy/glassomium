@@ -1,0 +1,5 @@
+====== Shapes ======
+
+The Shapes application is an example of untagged objects geometry recognition. You can place an object on the screen and the application will try to match its geometry by drawing its contour. 
+
+In order for it to work properly, your TUIO input program needs to support TUIO 1.1 messages (blobs). Please refer to the documentation of your TUIO input program to enable TUIO 1.1 messages.

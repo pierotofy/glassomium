@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+ lang="en" dir="ltr">
+
+<!-- Mirrored from glassomium.org/wiki/enable_multi-mouch_in_your_application by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:12:05 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>
+    Enable Multi-Touch in Your Application  </title>
+
+  <meta name="generator" content="DokuWiki"/>
+<meta name="robots" content="index,follow"/>
+<meta name="date" content="2012-08-29T23:36:53+0000"/>
+<meta name="keywords" content="enable_multi-mouch_in_your_application"/>
+<link rel="search" type="application/opensearchdescription+xml" href="lib/exe/opensearch.php" title="Glassomium Wiki"/>
+<link rel="start" href="index.html"/>
+<link rel="contents" href="enable_multi-mouch_in_your_applicationdecf.html?do=index" title="Sitemap"/>
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="feed.php"/>
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="feed8be0.php?mode=list&amp;ns="/>
+<link rel="alternate" type="text/html" title="Plain HTML" href="_export/xhtml/enable_multi-mouch_in_your_application.html"/>
+<link rel="alternate" type="text/plain" title="Wiki Markup" href="_export/raw/enable_multi-mouch_in_your_application.txt"/>
+<link rel="canonical" href="enable_multi-mouch_in_your_application.html"/>
+<link rel="stylesheet" media="screen" type="text/css" href="lib/exe/cssbf26.css?t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="all" type="text/css" href="lib/exe/css403e.css?s=all&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<link rel="stylesheet" media="print" type="text/css" href="lib/exe/csse1e0.css?s=print&amp;t=mohdshakir-tr-twitter&amp;tseed=1343686328"/>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+var NS='';var JSINFO = {"id":"enable_multi-mouch_in_your_application","namespace":""};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="lib/exe/js5fd1.php?tseed=1343686328"></script>
+
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  </head>
+
+<body>
+
+	
+	
+
+
+
+
+
+		
+	<div class="dokuwiki">
+	  <div id="header">
+	    <div class="inner">
+	      <div class="bar_left">
+		<div id="sitename">
+		  <a href="index.html"  name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[H]">Glassomium Wiki</a>		</div>
+	      </div>
+	      <div class="bar_right" style="padding-top:7px">
+		<form action="http://glassomium.org/wiki/" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" /><input type="submit" value="Search" class="button" title="Search" /><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>&nbsp;
+	      </div>
+	      <div class="clearer"></div>
+	      	    </div>
+	  </div>
+	
+	</div>
+	<div id="location" class="inner">
+		</div>
+	<div id="content" class="inner">
+	    <div id="maincol" class="dokuwiki">
+	      <div class="page">
+
+		<!-- wikipage start -->
+		
+<h1 class="sectionedit1"><a name="enable_multi-touch_in_your_application" id="enable_multi-touch_in_your_application">Enable Multi-Touch in Your Application</a></h1>
+<div class="level1">
+
+</div>
+
+<h2 class="sectionedit2"><a name="capturing_touches" id="capturing_touches">Capturing Touches</a></h2>
+<div class="level2">
+
+<p>
+Glassomium by default acts as an intermediary that receives TUIO messages and converts them to equivalent mousedown, mousemove and mouseup events. This guarantees that a normal desktop web application still works in Glassomium&#039;s multi-touch environment.
+</p>
+
+<p>
+When you want to handle multiple touches at the same time (like in the Keyboard application) you need to make explicit request to receive multi-touch events, via the GLA.SetTuioEnabled() <acronym title="Application Programming Interface">API</acronym>.
+</p>
+<pre class="code html4strict"><span class="sc2">&lt;<a href="http://december.com/html/4/element/html.html"><span class="kw2">html</span></a>&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/head.html"><span class="kw2">head</span></a>&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/meta.html"><span class="kw2">meta</span></a> <span class="kw3">http-equiv</span><span class="sy0">=</span><span class="st0">&quot;Content-Type&quot;</span> <span class="kw3">content</span><span class="sy0">=</span><span class="st0">&quot;text/html; charset=utf8&quot;</span>&gt;</span>
+<span class="sc2">&lt;<a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span>
+document.addEventListener('GLALoad', onGLALoad, false);
+function onGLALoad(event) {
+  GLA.SetTuioEnabled(true);
+}
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span>
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/head.html"><span class="kw2">head</span></a>&gt;</span></pre>
+
+<p>
+You can see that the GLA.SetTuioEnabled <acronym title="Application Programming Interface">API</acronym> is called upon receiving the GLALoad event. To better understand why the <acronym title="Application Programming Interface">API</acronym> cannot be called within a normal document onload event see <a href="understanding_the_page_load_process.html" class="wikilink1" title="understanding_the_page_load_process">Understanding the page load process</a>.
+</p>
+
+<p>
+Now that the application is receiving multi-touch events, you need to catch them. Developers who created web applications for iOS or Android will be pleased to know that Glassomium utilizes an almost identical method to handle multi touch events:
+</p>
+<pre class="code html4strict"><span class="sc2">&lt;<a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span>
+document.addEventListener('touchstart', onDocumentTouchStart, false);
+document.addEventListener('touchmove', onDocumentTouchMove, false);
+document.addEventListener('touchend', onDocumentTouchEnd, false);  
+&nbsp;
+function onDocumentTouchStart(event) {    
+    for (var i = 0; i <span class="sc2">&lt; event.touches.length; i++<span class="br0">&#41;</span> <span class="br0">&#123;</span></span>
+<span class="sc2">    	console.log<span class="br0">&#40;</span><span class="st0">&quot;Touchstart: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.identifier<span class="br0">&#41;</span>;</span>
+<span class="sc2">        console.log<span class="br0">&#40;</span><span class="st0">&quot;PageX: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.pageX<span class="br0">&#41;</span>;</span>
+<span class="sc2">        console.log<span class="br0">&#40;</span><span class="st0">&quot;PageY: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.pageY<span class="br0">&#41;</span>;</span>
+<span class="sc2">    <span class="br0">&#125;</span>    </span>
+<span class="sc2"><span class="br0">&#125;</span></span>
+&nbsp;
+<span class="sc2">function onDocumentTouchMove<span class="br0">&#40;</span>event<span class="br0">&#41;</span> <span class="br0">&#123;</span></span>
+<span class="sc2">    <span class="kw3">for</span> <span class="br0">&#40;</span>var i <span class="sy0">=</span> <span class="nu0">0</span>; i &lt; event.touches.length; i++<span class="br0">&#41;</span> <span class="br0">&#123;</span></span>
+<span class="sc2">    	console.log<span class="br0">&#40;</span><span class="st0">&quot;Touchmove: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.identifier<span class="br0">&#41;</span>;</span>
+<span class="sc2">        console.log<span class="br0">&#40;</span><span class="st0">&quot;PageX: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.pageX<span class="br0">&#41;</span>;</span>
+<span class="sc2">        console.log<span class="br0">&#40;</span><span class="st0">&quot;PageY: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.pageY<span class="br0">&#41;</span>;</span>
+<span class="sc2">    <span class="br0">&#125;</span>   </span>
+<span class="sc2"><span class="br0">&#125;</span></span>
+&nbsp;
+<span class="sc2">function onDocumentTouchEnd<span class="br0">&#40;</span>event<span class="br0">&#41;</span> <span class="br0">&#123;</span>   </span>
+<span class="sc2">    <span class="kw3">for</span> <span class="br0">&#40;</span>var i <span class="sy0">=</span> <span class="nu0">0</span>; i &lt; event.changedTouches.length; i++<span class="br0">&#41;</span> <span class="br0">&#123;</span></span>
+<span class="sc2">    	console.log<span class="br0">&#40;</span><span class="st0">&quot;Touchend: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.identifier<span class="br0">&#41;</span>;</span>
+<span class="sc2">        console.log<span class="br0">&#40;</span><span class="st0">&quot;PageX: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.pageX<span class="br0">&#41;</span>;</span>
+<span class="sc2">        console.log<span class="br0">&#40;</span><span class="st0">&quot;PageY: &quot;</span> + event.touches<span class="br0">&#91;</span>i<span class="br0">&#93;</span>.pageY<span class="br0">&#41;</span>;</span>
+<span class="sc2">    <span class="br0">&#125;</span>       </span>
+<span class="sc2"><span class="br0">&#125;</span></span>
+<span class="sc2">&lt;<span class="sy0">/</span><a href="http://december.com/html/4/element/script.html"><span class="kw2">script</span></a>&gt;</span></pre>
+
+<p>
+Every event object carries the following information:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>touches</strong>: an array containing all the touches the user is pressing on the surface</div>
+</li>
+<li class="level1"><div class="li"> <strong>changedTouches</strong>: an array containing all the touches that have changed since the last event.</div>
+</li>
+<li class="level1"><div class="li"> <strong>touch</strong>: the equivalent of touches[0]</div>
+</li>
+</ul>
+
+<p>
+Every touch object contains the following data members:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>identifier</strong>: an integer representing the touch as received from TUIO (or -1 if it&#039;s simulated through the mouse)</div>
+</li>
+<li class="level1"><div class="li"> <strong>pageX</strong> and <strong>pageY</strong> The X and Y coordinates of the touch point relative to the left edge of the document</div>
+</li>
+<li class="level1"><div class="li"> <strong>clientX</strong> and <strong>clientY</strong> The X and Y coordinates of the touch point relative to the left edge of the browser viewport, not including any scroll offset.</div>
+</li>
+<li class="level1"><div class="li"> <strong>screenX</strong> and <strong>screenY</strong> The same as clientX and clientY, included to guarantee more compatibility with existing applications. </div>
+</li>
+<li class="level1"><div class="li"> <strong>target</strong> The element the touch point is currently touching.</div>
+</li>
+</ul>
+
+<p>
+Additionally, if you are detecting blobs using TUIO 1.1 (CCV 1.5 supports this) you can access the following data members:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>radiusX</strong>: the horizontal radius size of the blob.</div>
+</li>
+<li class="level1"><div class="li"> <strong>radiusY</strong>: the vertical radius size of the blob.</div>
+</li>
+<li class="level1"><div class="li"> <strong>rotationAngle</strong>: the rotation of the blob.</div>
+</li>
+</ul>
+
+<p>
+When TUIO 1.0 is used, these data members have a default value of 0.
+</p>
+
+<p>
+For an example, check the <strong>Shapes</strong> application that is provided with Glassomium.
+</p>
+
+</div>
+
+<h2 class="sectionedit3"><a name="capturing_gestures" id="capturing_gestures">Capturing Gestures</a></h2>
+<div class="level2">
+
+<p>
+While Glassomium is capable of delivering touch events, it doesn&#039;t take care of gestures. Instead, this task can be accomplished through Javascript by deriving the gestures from the touch events.
+</p>
+
+<p>
+For this purpose, we suggest you take a look at the <strong>MagicGesture.js</strong> library, which is capable of generating two finger gestures for scaling and rotating. The source code is available on Github: <a href="https://github.com/pierotofy/MagicGesture.js" class="urlextern" title="https://github.com/pierotofy/MagicGesture.js"  rel="nofollow">https://github.com/pierotofy/MagicGesture.js</a>
+</p>
+
+<p>
+The <strong>Photo Canvas Demo</strong> application that ships with Glassomium uses this library to move the pictures on the canvas.
+</p>
+
+<p>
+Another library that offers even more gestures is available here: <a href="https://github.com/eightmedia/hammer.js" class="urlextern" title="https://github.com/eightmedia/hammer.js"  rel="nofollow">https://github.com/eightmedia/hammer.js</a>
+</p>
+
+</div>
+
+		<!-- wikipage stop -->
+	
+			
+	      	<div class="bar" id="bar__top" style="margin-top:20px;">
+      <div class="bar-left" id="bar__topleft">
+        <form class="button btn_source" method="post" action="http://glassomium.org/wiki/enable_multi-mouch_in_your_application"><div class="no"><input type="hidden" name="do" value="edit" /><input type="hidden" name="rev" value="" /><input type="submit" value="Show pagesource" class="button" accesskey="v" title="Show pagesource [V]" /></div></form>        <form class="button btn_revs" method="get" action="http://glassomium.org/wiki/enable_multi-mouch_in_your_application"><div class="no"><input type="hidden" name="do" value="revisions" /><input type="submit" value="Old revisions" class="button" accesskey="o" title="Old revisions [O]" /></div></form>              </div>
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="http://glassomium.org/wiki/enable_multi-mouch_in_your_application"><div class="no"><input type="hidden" name="do" value="recent" /><input type="submit" value="Recent changes" class="button" accesskey="r" title="Recent changes [R]" /></div></form>                                <form class="button btn_login" method="get" action="http://glassomium.org/wiki/enable_multi-mouch_in_your_application"><div class="no"><input type="hidden" name="do" value="login" /><input type="hidden" name="sectok" value="4def3a5dd4a31b99cc6b0d4eb140ef47" /><input type="submit" value="Login" class="button" title="Login" /></div></form>
+      </div>
+      <div class="clearer"></div>
+    </div>
+	      </div>
+	    </div>
+	    
+	    <div class="clearer"></div>
+	</div>
+	<div id="copyright" style="text-align:center;">
+		<p>Content on this wiki is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" rel="nofollow">CC Attribution-Noncommercial-Share Alike 3.0 Unported</a>    
+		<p>Theme based on the work by <a href="http://www.mohdshakir.net/" rel="nofollow">Mohd Shakir Zakaria</a></p>
+	</div>
+	  
+	
+	
+	
+	
+	<div class="no"><img src="lib/exe/indexer1798.gif?id=enable_multi-mouch_in_your_application&amp;1493315813" width="2" height="1" alt="" /></div>
+</body>
+
+<!-- Mirrored from glassomium.org/wiki/enable_multi-mouch_in_your_application by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 27 Apr 2017 18:12:59 GMT -->
+</html>
